@@ -2,7 +2,7 @@
 #define __MUTEX_H__
 
 #include <pthread.h>
-#include "MutualProcessor.h"
+#include "CondProcessor.h"
 
 class Mutex
 {

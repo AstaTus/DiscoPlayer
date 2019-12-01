@@ -10,10 +10,9 @@ private:
 
 
 protected:
-    AVPacket * create_node();
     void destroy_node(AVPacket * node);
 public:
-    PacketQueue(int init_size);
+    PacketQueue();
     ~PacketQueue();
 };
 #endif

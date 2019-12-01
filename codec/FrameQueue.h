@@ -7,14 +7,11 @@ class AVFrame;
 
 class FrameQueue: public ConcurrentQueue<AVFrame>
 {
-private:
-
 
 protected:
-    AVFrame * create_node();
     void destroy_node(AVFrame * node);
 public:
-    FrameQueue(int init_size);
+    FrameQueue();
     ~FrameQueue();
 };
 #endif

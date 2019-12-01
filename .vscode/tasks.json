@@ -6,7 +6,7 @@
             "command": "/usr/bin/clang++",
             "args": [
                 "-g",
-                "${file}",
+                "${workspaceFolder}/test.cpp",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}",
                 "-lavutil",//依赖

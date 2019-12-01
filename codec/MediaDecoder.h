@@ -2,26 +2,40 @@
 #define __MEDIA_DECODER_H__
 
 #include <pthread.h>
-
 #include <vector>
+#include <queue>
 
 class IStreamIterator;
 class IReader;
 class AVCodecContext;
-class PacketQueue;
 class FrameQueue;
+class PacketQueue;
+class AVPacket;
+
+
+class PacketConcurrentCachePool;
+class FrameConcurrentCachePool;
 
 using namespace std;
 class MediaDecoder
 {
 private:
     IStreamIterator * pInputStreamIterator;
-    IReader * pPacketReader;
+    
     vector<AVCodecContext*> mDecodes;
-    vector<PacketQueue*> mPacketQueues;
+
+    //解packet
+    IReader * pPacketReader;
+    PacketConcurrentCachePool mPacketConcurrentCachePool;
+    PacketQueue mPacketQueue;
+
+    //解frame
     vector<FrameQueue*> mFrameQueues;
+    vector<FrameConcurrentCachePool*> mFrameCachePools;
+    
     pthread_t mUnpackPacketThreadId;
     pthread_t mUnpackFrameThreadId;
+
 
     bool init_decodes();
 
@@ -36,5 +50,6 @@ public:
     bool start();
     bool stop();
     bool pause();
+    bool resume();
 };
 #endif
