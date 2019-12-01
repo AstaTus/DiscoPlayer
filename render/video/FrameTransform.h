@@ -30,6 +30,8 @@ private:
 
     struct SwsContext *pSwsContext;
 
+    uint8_t *pOutBuffer;
+
     SwsContext * get_sws_context(int dst_width, 
         int dst_height, int src_width, int src_height, AVPixelFormat src_format);
 
