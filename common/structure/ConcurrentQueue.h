@@ -2,8 +2,8 @@
 #define __CONCURRENT_QUEUE_H__
 #include <queue>
 
-#include "../common/thread/Mutex.h"
-#include "../common/thread/Cond.h"
+#include "../thread/Mutex.h"
+#include "../thread/Cond.h"
 
 using namespace std;
 

@@ -1,6 +1,6 @@
 #ifndef __PACKET_QUEUE_H__
 #define __PACKET_QUEUE_H__
-#include "ConcurrentQueue.h"
+#include "../common/structure/ConcurrentQueue.h"
 
 class AVPacket;
 

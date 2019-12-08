@@ -4,8 +4,8 @@
 #include <queue>
 #include <pthread.h>
 
-#include "../common/thread/Mutex.h"
-#include "../common/thread/Cond.h"
+#include "../thread/Mutex.h"
+#include "../thread/Cond.h"
 
 using namespace std;
 

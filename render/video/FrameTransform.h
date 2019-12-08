@@ -1,8 +1,10 @@
 #ifndef __FRAME_TRANSFORM_H__
 #define __FRAME_TRANSFORM_H__
 #include <iostream>
-
+#include "VideoHeader.h"
+#include "ImageCachePool.h"
 class AVFrame;
+class Image;
 
 extern "C"
 {
@@ -30,8 +32,6 @@ private:
 
     struct SwsContext *pSwsContext;
 
-    uint8_t *pOutBuffer;
-
     SwsContext * get_sws_context(int dst_width, 
         int dst_height, int src_width, int src_height, AVPixelFormat src_format);
 
@@ -39,8 +39,7 @@ public:
     FrameTransform(/* args */);
     ~FrameTransform();
 
-    //TODO 是否需要 双buf，
-    const uint8_t *const transform(AVFrame *frame);
+    void transform(AVFrame *frame, Image * const image);
 
     /**调整 视频目标宽高
      * @param width 目标宽度

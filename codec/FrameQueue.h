@@ -1,7 +1,7 @@
 #ifndef __FRAME_QUEUE_H__
 #define __FRAME_QUEUE_H__
 
-#include "ConcurrentQueue.h"
+#include "../common/structure/ConcurrentQueue.h"
 
 class AVFrame;
 

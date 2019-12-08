@@ -1,5 +1,5 @@
 #include "FrameTransform.h"
-
+#include "Image.h"
 
 FrameTransform::FrameTransform()
     : mScaleDstWidth(0),
@@ -9,8 +9,7 @@ FrameTransform::FrameTransform()
       mScalePixelFormat(AV_PIX_FMT_NONE),
       mCurrentVideoWidth(0),
       mCurrentVideoHeight(0),
-      pSwsContext(NULL),
-      pOutBuffer(NULL)
+      pSwsContext(NULL)
 {
 }
 
@@ -18,14 +17,25 @@ FrameTransform::~FrameTransform()
 {
 }
 
-const uint8_t *const FrameTransform::transform(AVFrame *frame)
+
+void FrameTransform::transform(AVFrame *frame, Image * const image)
 {
+    AVPixelFormat format = static_cast<AVPixelFormat>(frame->format);
     SwsContext *sws_context = get_sws_context(mCurrentVideoWidth, mCurrentVideoHeight, 
-        frame->width, frame->height, static_cast<AVPixelFormat>(frame->format));
-    
+        frame->width, frame->height, format);
+
+    image->reformat(format, frame->width, frame->height);
+
     sws_scale(sws_context, 
         (const uint8_t* const*)frame->data, frame->linesize, 0, 
-        frame->height, pFrameYUV->data, pFrameYUV->linesize);
+        frame->height, image->data(), pFrameYUV->linesize);
+
+    return image;
+}
+
+void FrameTransform::recycle_image(Image *image)
+{
+    mImageCachePool.recycle_node(image);
 }
 
 SwsContext * FrameTransform::get_sws_context(int dst_width, 
@@ -50,12 +60,6 @@ SwsContext * FrameTransform::get_sws_context(int dst_width,
         pSwsContext = sws_getContext(mScaleSrcWidth, mScaleSrcHeight,
             mScalePixelFormat, mScaleDstWidth, mScaleDstHeight, 
             AV_PIX_FMT_YUV420P, SWS_BICUBIC, NULL, NULL, NULL);
-
-        if (pOutBuffer != NULL)
-        {
-            /* code */
-        }
-        
     }
 
     return pSwsContext;

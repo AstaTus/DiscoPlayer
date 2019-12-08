@@ -6,14 +6,6 @@
 #include "PacketConcurrentCachePool.h"
 #include "FrameConcurrentCachePool.h"
 
-extern "C"
-{
-    #include "libavcodec/avcodec.h"
-	#include "libavformat/avformat.h"
-	// #include "libswscale/swscale.h"
-	#include "libavutil/imgutils.h"
-}
-
 MediaDecoder::MediaDecoder(IStreamIterator * input_stream_iterator, IReader * packet_reader)
 :pInputStreamIterator(input_stream_iterator),
 pPacketReader(packet_reader),

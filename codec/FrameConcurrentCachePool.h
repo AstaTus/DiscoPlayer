@@ -1,7 +1,7 @@
 #ifndef FRAME_CONCURRENT_CACHE_POOL_H__
 #define FRAME_CONCURRENT_CACHE_POOL_H__
 
-#include "ConcurrentCachePool.h"
+#include "../common/cache/ConcurrentCachePool.h"
 
 class AVFrame;
 

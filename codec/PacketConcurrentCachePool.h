@@ -1,6 +1,6 @@
 #ifndef __PACKET_CONCURRENT_CACHE_POOL_H__
 #define __PACKET_CONCURRENT_CACHE_POOL_H__
-#include "ConcurrentCachePool.h"
+#include "../common/cache/ConcurrentCachePool.h"
 
 class AVPacket;
 class PacketConcurrentCachePool: public ConcurrentCachePool<AVPacket>

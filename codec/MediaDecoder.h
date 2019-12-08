@@ -5,13 +5,21 @@
 #include <vector>
 #include <queue>
 
+extern "C"
+{
+    #include "libavcodec/avcodec.h"
+	#include "libavformat/avformat.h"
+	// #include "libswscale/swscale.h"
+	#include "libavutil/imgutils.h"
+}
+
 class IStreamIterator;
 class IReader;
 class AVCodecContext;
 class FrameQueue;
 class PacketQueue;
 class AVPacket;
-
+class AVFrame;
 
 class PacketConcurrentCachePool;
 class FrameConcurrentCachePool;
@@ -46,6 +54,9 @@ private:
 public:
     MediaDecoder(IStreamIterator * input_stream_iterator, IReader * packet_reader);
     ~MediaDecoder();
+
+    const AVFrame * const pop_frame(AVMediaType type);
+    void recycle_frame(AVMediaType type, AVFrame* frame);
 
     bool start();
     bool stop();
