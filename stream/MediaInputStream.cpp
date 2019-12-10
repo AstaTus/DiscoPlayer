@@ -11,13 +11,13 @@ MediaInputStream::~MediaInputStream()
     close();
 }
 
-const IStreamIterator* MediaInputStream::get_stream_iterator() const
+IStreamIterator* MediaInputStream::get_stream_iterator() const
 {
     InputStreamIterator * stream_iterator = new InputStreamIterator(pFormatContext);
     return stream_iterator;
 }
 
-const IReader* MediaInputStream::get_packet_reader() const
+IReader* MediaInputStream::get_packet_reader() const
 {
     IReader * reader = new PacketReader(pFormatContext);
     return reader;

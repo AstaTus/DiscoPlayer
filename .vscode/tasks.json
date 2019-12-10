@@ -13,7 +13,8 @@
                 "-lavcodec",//依赖
                 "-lavformat",//依赖
                 "-lswscale",//依赖
-                "-lSDL2"//依赖
+                "-lSDL2",//依赖
+                "yuv"//依赖
             ],
             "options": {
                 "cwd": "/usr/bin"

@@ -2,13 +2,14 @@
 
 extern "C"
 {
-    // #include "libavcodec/avcodec.h"
+    #include "libavcodec/avcodec.h"
 	#include "libavformat/avformat.h"
 	// #include "libswscale/swscale.h"
-	// #include "libavutil/imgutils.h"
+	#include "libavutil/imgutils.h"
 }
 
-FrameConcurrentCachePool::FrameConcurrentCachePool(/* args */)
+FrameConcurrentCachePool::FrameConcurrentCachePool(int size)
+:ConcurrentCachePool(size)
 {
 }
 
@@ -23,5 +24,5 @@ AVFrame* FrameConcurrentCachePool::create_node()
 
 void FrameConcurrentCachePool::destroy_node(AVFrame * node)
 {
-    av_frame_free(node);
+    av_frame_free(&node);
 }

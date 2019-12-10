@@ -4,6 +4,7 @@
 #include <pthread.h>
 #include <vector>
 #include <queue>
+#include <map>
 
 extern "C"
 {
@@ -28,10 +29,13 @@ using namespace std;
 class MediaDecoder
 {
 private:
+    static const int PACKET_QUEUE_CACHE_SIZE = 40;
+    static const int FRAME_QUEUE_CACHE_SIZE = 40;
+
     IStreamIterator * pInputStreamIterator;
     
     vector<AVCodecContext*> mDecodes;
-
+    map<AVMediaType, int> mMediaTypeIndexMap;
     //解packet
     IReader * pPacketReader;
     PacketConcurrentCachePool mPacketConcurrentCachePool;
@@ -43,7 +47,6 @@ private:
     
     pthread_t mUnpackPacketThreadId;
     pthread_t mUnpackFrameThreadId;
-
 
     bool init_decodes();
 

@@ -10,8 +10,11 @@ class FrameConcurrentCachePool: public ConcurrentCachePool<AVFrame>
 private:
     /* data */
 public:
-    FrameConcurrentCachePool(/* args */);
+    FrameConcurrentCachePool(int size);
     ~FrameConcurrentCachePool();
+
+    AVFrame * create_node();
+    void destroy_node(AVFrame * node);
 };
 
 

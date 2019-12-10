@@ -21,8 +21,16 @@ uint8_t * const Image::data() const
 
 void Image::release_buffer()
 {
-    av_free(pBuffer);
-    av_frame_free(&pFrameYUV);
+    if (pBuffer != NULL)
+    {
+        av_free(pBuffer);
+    }
+
+    if(pFrameYUV != NULL)
+    {
+        av_frame_free(&pFrameYUV);
+    }
+    
     pBuffer = NULL;
     pFrameYUV = NULL;
 }

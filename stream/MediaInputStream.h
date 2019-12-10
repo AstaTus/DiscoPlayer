@@ -25,7 +25,7 @@ public:
     bool open(const string& url);
     bool close();
     bool pause();
-    const IStreamIterator* get_stream_iterator() const;
-    const IReader* get_packet_reader() const;
+    IStreamIterator* get_stream_iterator() const;
+    IReader* get_packet_reader() const;
 };
 #endif

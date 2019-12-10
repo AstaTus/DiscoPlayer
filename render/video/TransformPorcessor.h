@@ -3,6 +3,7 @@
 #include <iostream>
 #include "VideoHeader.h"
 #include "ImageCachePool.h"
+
 class AVFrame;
 class Image;
 
@@ -14,7 +15,7 @@ extern "C"
 	// #include "libavutil/imgutils.h"
 }
 
-class FrameTransform
+class TransformPorcessor
 {
 private:
     //视频目标宽高
@@ -36,10 +37,12 @@ private:
         int dst_height, int src_width, int src_height, AVPixelFormat src_format);
 
 public:
-    FrameTransform(/* args */);
-    ~FrameTransform();
+    TransformPorcessor(/* args */);
+    ~TransformPorcessor();
 
-    void transform(AVFrame *frame, Image * const image);
+    void transform_by_ffmpeg(AVFrame *frame, Image * const image);
+
+    void transform_by_libyuv(AVFrame *frame, Image * const image);
 
     /**调整 视频目标宽高
      * @param width 目标宽度

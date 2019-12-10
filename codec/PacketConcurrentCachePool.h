@@ -14,16 +14,8 @@ protected:
     void destroy_node(AVPacket * node);
     
 public:
-    PacketConcurrentCachePool(/* args */);
+    PacketConcurrentCachePool(int size);
     ~PacketConcurrentCachePool();
 };
-
-PacketConcurrentCachePool::PacketConcurrentCachePool(/* args */)
-{
-}
-
-PacketConcurrentCachePool::~PacketConcurrentCachePool()
-{
-}
 
 #endif

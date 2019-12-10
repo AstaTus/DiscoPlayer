@@ -9,8 +9,9 @@
 MediaDecoder::MediaDecoder(IStreamIterator * input_stream_iterator, IReader * packet_reader)
 :pInputStreamIterator(input_stream_iterator),
 pPacketReader(packet_reader),
-mPacketConcurrentCachePool(40)
+mPacketConcurrentCachePool(PACKET_QUEUE_CACHE_SIZE)
 {
+    init_decodes();
 }
 
 MediaDecoder::~MediaDecoder()
@@ -19,6 +20,7 @@ MediaDecoder::~MediaDecoder()
 
 bool MediaDecoder::init_decodes()
 {
+    int index = 0;
     while(pInputStreamIterator->has_next()) 
     {
         const AVStream * stream = pInputStreamIterator->next();
@@ -39,7 +41,11 @@ bool MediaDecoder::init_decodes()
                     return false;
                 }
 
-                this->mDecodes.push_back(codec_context);
+                mMediaTypeIndexMap[codec->type] = index;
+                mDecodes.push_back(codec_context);
+                mFrameCachePools.push_back(new FrameConcurrentCachePool(FRAME_QUEUE_CACHE_SIZE));
+                mFrameQueues.push_back(new FrameQueue());
+                ++index;
             }
         }
     }
@@ -78,7 +84,6 @@ void MediaDecoder::unpack_packet_loop()
     }
 }
 
-
 void MediaDecoder::unpack_frame_loop()
 {
     bool got_picture = false;
@@ -97,6 +102,31 @@ void MediaDecoder::unpack_frame_loop()
         } else {
             av_log(this, AV_LOG_INFO, "[player]:MediaDecoder::avcodec_receive_frame is error"); 
         }
+    }
+}
+
+const AVFrame * const MediaDecoder::pop_frame(AVMediaType type)
+{
+    map<AVMediaType, int>::iterator itr = mMediaTypeIndexMap.find(type);
+    if (itr != mMediaTypeIndexMap.end())
+    {
+        FrameQueue * frame_queue = mFrameQueues[itr->second];
+        return frame_queue->pop_node();
+    }
+
+    // TODO 无此type 抛异常
+    return NULL;
+    
+}
+void MediaDecoder::recycle_frame(AVMediaType type, AVFrame* frame)
+{
+    map<AVMediaType, int>::iterator itr = mMediaTypeIndexMap.find(type);
+    if (itr != mMediaTypeIndexMap.end())
+    {
+        FrameConcurrentCachePool * frame_cache_pool = mFrameCachePools[itr->second];
+        frame_cache_pool->recycle_node(frame);
+    } else {
+        // TODO 无此type 抛异常
     }
 }
 

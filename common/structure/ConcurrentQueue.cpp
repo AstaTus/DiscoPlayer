@@ -4,6 +4,7 @@ template <class T>
 ConcurrentQueue<T>::ConcurrentQueue()
 {
 }
+
 template <class T>
 ConcurrentQueue<T>::~ConcurrentQueue()
 {
@@ -12,6 +13,7 @@ ConcurrentQueue<T>::~ConcurrentQueue()
     {
         destroy_node(mQueue.pop());
     }
+    mQueueMutex.unlock();
 }
 
 template <class T>

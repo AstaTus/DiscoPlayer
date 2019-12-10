@@ -8,6 +8,15 @@ extern "C"
 	// #include "libavutil/imgutils.h"
 }
 
+PacketConcurrentCachePool::PacketConcurrentCachePool(int size)
+:ConcurrentCachePool(size)
+{
+}
+
+PacketConcurrentCachePool::~PacketConcurrentCachePool()
+{
+}
+
 AVPacket* PacketConcurrentCachePool::create_node()
 {
     return (AVPacket *)av_malloc(sizeof(AVPacket));
