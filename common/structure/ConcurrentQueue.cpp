@@ -26,7 +26,7 @@ void ConcurrentQueue<T>::push_node(const T *node)
 }
 
 template <class T>
-const T *ConcurrentQueue<T>::pop_node()
+T * ConcurrentQueue<T>::block_pop_node()
 {
     T *node = NULL;
 
@@ -42,6 +42,64 @@ const T *ConcurrentQueue<T>::pop_node()
         {
             node = mQueue.pop();
         }
+    }
+
+    mQueueMutex.unlock();
+
+    return node;
+}
+
+
+template <class T>
+T *ConcurrentQueue<T>::block_peek_node()
+{
+    T *node = NULL;
+
+    mQueueMutex.lock();
+    if (mQueue.size > 0)
+    {
+        node = mQueue.front();
+    }
+    else
+    {
+        CondProcessor::cond_wait(mQueueCond, mQueueMutex);
+        if (mQueue.size > 0)
+        {
+            node = mQueue.front();
+        }
+    }
+
+    mQueueMutex.unlock();
+
+    return node;
+}
+
+
+template <class T>
+T *ConcurrentQueue<T>::non_block_pop_node()
+{
+    T *node = NULL;
+
+    mQueueMutex.lock();
+    if (mQueue.size > 0)
+    {
+        node = mQueue.pop();
+    }
+
+    mQueueMutex.unlock();
+
+    return node;
+}
+
+template <class T>
+T *ConcurrentQueue<T>::non_block_peek_node()
+{
+    T *node = NULL;
+
+    mQueueMutex.lock();
+    if (mQueue.size > 0)
+    {
+        node = mQueue.pop();
     }
 
     mQueueMutex.unlock();

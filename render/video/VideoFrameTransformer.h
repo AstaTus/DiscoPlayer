@@ -26,8 +26,9 @@ public:
 
     void push_frame_to_transform(AVFrame * frame);
 
-    TransformNode * pop_transformed_node();
-    void recycle(Image * image, TransformNode * transform_node);
+    const TransformNode * const non_block_pop_transformed_node();
+    const TransformNode * const non_block_peek_transformed_node();
+    void recycle(TransformNode * transform_node);
 
     /**调整 视频目标宽高
      * @param width 目标宽度

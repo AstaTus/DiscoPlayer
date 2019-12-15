@@ -30,5 +30,7 @@ public:
     uint8_t * const data() const;
 
     AVFrame * const frame() const;
+
+    int pitch() const;
 };
 #endif

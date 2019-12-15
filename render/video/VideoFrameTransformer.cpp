@@ -26,13 +26,19 @@ void VideoFrameTransformer::push_frame_to_transform(AVFrame * frame)
     mTransformNodeQueue.push_node(node);
 }
 
-TransformNode * VideoFrameTransformer::pop_transformed_node()
+const TransformNode * const VideoFrameTransformer::non_block_pop_transformed_node()
 {
-    return mTransformNodeQueue->pop();
+    return mTransformNodeQueue->non_block_pop_node();
 }
-void VideoFrameTransformer::recycle(Image * image, TransformNode * transform_node)
+
+const TransformNode * const VideoFrameTransformer::non_block_peek_transformed_node()
 {
-    mImageCachePool.recycle_node(image);
+    return mTransformNodeQueue->non_block_peek_node();
+}
+
+void VideoFrameTransformer::recycle(ITransformNode * transform_node)
+{
+    mImageCachePool.recycle_node(transform_node->image);
     mTransformNodeCachePool.recycle_node(transform_node);
 }
 

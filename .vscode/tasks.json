@@ -6,7 +6,8 @@
             "command": "/usr/bin/clang++",
             "args": [
                 "-g",
-                "${workspaceFolder}/test.cpp",
+                // "${workspaceFolder}/test.cpp",
+                "${workspaceFolder}/player/platform/mac/test.cpp",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}",
                 "-lavutil",//依赖
@@ -14,7 +15,7 @@
                 "-lavformat",//依赖
                 "-lswscale",//依赖
                 "-lSDL2",//依赖
-                "yuv"//依赖
+                "-yuv"//依赖
             ],
             "options": {
                 "cwd": "/usr/bin"

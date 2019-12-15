@@ -59,3 +59,8 @@ AVFrame * const Image::frame() const
     return pFrameYUV;
 }
 
+int Image::pitch() const
+{
+    return mWidth;
+}
+

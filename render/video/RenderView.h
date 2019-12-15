@@ -2,12 +2,17 @@
 #define __IRENDER_VIEW_H__
 #include <iostream>
 
-class IRenderView
+class RenderView
 {
+protected:
+    int mWidth;
+    int mHeight;
 public:
-    virtual void init() = 0;
+    RenderView(int width, int height);
 
     virtual void refresh(const uint8_t * const data, int pitch) = 0;
+
+    void resize(int width, int height);
 };
 
 #endif

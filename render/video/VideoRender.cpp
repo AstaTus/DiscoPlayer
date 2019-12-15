@@ -1,8 +1,8 @@
 #include "VideoRender.h"
 
+#include "Image.h"
 
-
-VideoRender::VideoRender(IRenderView *const render_view)
+VideoRender::VideoRender(RenderView *const render_view)
     : pRenderView(render_view)
 {
 }
@@ -11,7 +11,7 @@ VideoRender::~VideoRender()
 {
 }
 
-void VideoRender::refresh(const uint8_t * const data, int pitch)
+void VideoRender::refresh(const Image * const image)
 {
-    pRenderView->refresh(data, pitch);
+    pRenderView->refresh(image->data(), image->pitch());
 }

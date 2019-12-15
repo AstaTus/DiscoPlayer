@@ -7,16 +7,16 @@
 #include "../stream/MediaInputStream.h"
 #include "../codec/MediaDecoder.h"
 #include "../render/video/VideoRender.h"
-#include "../render/video/IRenderView.h"
+#include "../render/video/RenderView.h"
 #include "../render/video/VideoFrameTransformer.h"
-
+#include "../clock/SyncClockManager.h"
 class CorePlayer
 {
 private:
     MediaDecoder * pMediaDecoder;
     VideoRender * pVideoRender;
 
-    IRenderView * pRenderView;
+    RenderView * pRenderView;
     MediaInputStream * pInputStream;
 
     PlayItem * pCurrentPlayItem;
@@ -28,6 +28,9 @@ private:
     pthread_t mAudioTransformThreadId;
 
     VideoFrameTransformer mVideoFrameTransformer;
+    TransformNode * pCurrentVideoNode;
+
+    SyncClockManager mSyncClockManager;
 
     static void main_loop_thread_func(void *self);
     
