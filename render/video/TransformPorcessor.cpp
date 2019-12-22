@@ -20,13 +20,13 @@ TransformPorcessor::~TransformPorcessor()
 
 void TransformPorcessor::transform_by_libyuv(AVFrame *frame, Image *const image)
 {
-    image->reformat(AV_PIX_FMT_YUV420P, , mCurrentVideoWidth, mCurrentVideoHeight);
+    image->reformat(AV_PIX_FMT_YUV420P, mCurrentVideoWidth, mCurrentVideoHeight);
 
     libyuv::ConvertToI420((const uint8_t *)(frame->data),
                           frame->linesize[0] * frame->height,
-                          image->data, mCurrentVideoWidth,
-                          image->data + mCurrentVideoWidth * mCurrentVideoHeight, mCurrentVideoWidth / 2,
-                          image->data + mCurrentVideoWidth * mCurrentVideoHeight * 5 / 4, mCurrentVideoWidth / 2,
+                          image->data(), mCurrentVideoWidth,
+                          image->data() + mCurrentVideoWidth * mCurrentVideoHeight, mCurrentVideoWidth / 2,
+                          image->data() + mCurrentVideoWidth * mCurrentVideoHeight * 5 / 4, mCurrentVideoWidth / 2,
                           0, 0, // 以左上角为原点，裁剪起始点
                           frame->width, frame->height,
                           mCurrentVideoWidth, mCurrentVideoHeight,
@@ -43,14 +43,8 @@ void TransformPorcessor::transform_by_ffmpeg(AVFrame *frame, Image *const image)
     image->reformat(AV_PIX_FMT_YUV420P, mCurrentVideoWidth, mCurrentVideoHeight);
 
     sws_scale(sws_context,
-              (const uint8_t *const)frame->data, frame->linesize, 0,
-              frame->height, image->data(), pFrameYUV->linesize);
-    return image;
-}
-
-void TransformPorcessor::recycle_image(Image *image)
-{
-    mImageCachePool.recycle_node(image);
+              (const uint8_t* const*)frame->data, frame->linesize, 0,
+              frame->height, (uint8_t* const*)image->data(), image->frame()->linesize);
 }
 
 SwsContext *TransformPorcessor::get_sws_context(int dst_width,

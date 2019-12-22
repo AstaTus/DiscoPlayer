@@ -63,7 +63,16 @@
         "cinttypes": "cpp",
         "queue": "cpp",
         "deque": "cpp",
-        "map": "cpp"
+        "map": "cpp",
+        "__tree": "cpp",
+        "__memory": "cpp",
+        "__errc": "cpp",
+        "__node_handle": "cpp",
+        "bit": "cpp",
+        "condition_variable": "cpp",
+        "optional": "cpp",
+        "thread": "cpp",
+        "future": "cpp"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }

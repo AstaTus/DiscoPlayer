@@ -1,15 +1,15 @@
 #ifndef __PACKET_READER_H__
 #define __PACKET_READER_H__
-#include "IReader.h"
+#include "Reader.h"
 class AVFormatContext;
 
-class PacketReader : public IReader
+class PacketReader : public Reader
 {
 private:
     AVFormatContext *pFormatContext;
 public:
     PacketReader(AVFormatContext * format_context);
-    ~PacketReader();
+    virtual ~PacketReader();
 
     int read(AVPacket * packet) const;
 };

@@ -13,13 +13,14 @@ extern "C"
 
 #define REFRESH_RATE 0.01
 
-CorePlayer::CorePlayer(/* args */)
-: pMediaDecoder(NULL),
-pVideoRender(NULL),
-pRenderView(NULL),
-pInputStream(NULL),
+CorePlayer::CorePlayer()
+: pMediaDecoder(nullptr),
+pVideoRender(nullptr),
+pRenderView(nullptr),
+pInputStream(nullptr),
 mVideoFrameTransformer(),
-pCurrentVideoNode(NULL),
+pCurrentVideoNode(nullptr),
+pCurrentPlayItem(nullptr),
 mSyncClockManager(SyncClockManager::SYNC_STRATEGY_VIDEO)
 {
 }
@@ -30,7 +31,7 @@ CorePlayer::~CorePlayer()
 
 void CorePlayer::set_play_item(PlayItem * play_item)
 {
-    if (pCurrentPlayItem == NULL && play_item->get_data_source().size() > 0)
+    if (pCurrentPlayItem == nullptr && play_item->get_data_source().size() > 0)
     {
         pCurrentPlayItem = play_item;
     } else {
@@ -43,18 +44,13 @@ void CorePlayer::replace_play_item(const PlayItem * const play_item)
     
 }
 
-void CorePlayer::set_render_surface(IRenderView * render_view)
+void CorePlayer::set_render_surface(RenderView * render_view)
 {
     pRenderView = render_view;
     pVideoRender = new VideoRender(pRenderView);
 }
 
-void CorePlayer::main_loop_thread_func(void *self)
-{
-    static_cast<CorePlayer *>(self)->main_loop();
-}
-
-void CorePlayer::main_loop()
+void CorePlayer::init_task()
 {
     pInputStream = new MediaInputStream();
     pInputStream->open(pCurrentPlayItem->get_data_source());
@@ -62,36 +58,25 @@ void CorePlayer::main_loop()
         pInputStream->get_packet_reader());
     pMediaDecoder->start();
 
-    pthread_create(&mVideoRenderThreadId, NULL, video_render_thread_func, (void*)this);
-
-    pthread_create(&mAudioRenderThreadId, NULL, audio_render_thread_func, (void*)this);
-
-    pthread_create(&mVideoTransformThreadId, NULL, video_frame_transform_thread_fun, (void*)this);
-
-    pthread_create(&mAudioTransformThreadId, NULL, audio_frame_transform_thread_fun, (void*)this);
+    mVideoRenderFuture = std::async(std::launch::async, &CorePlayer::video_render_loop_task, this);
+    mAudioRenderFuture = std::async(std::launch::async, &CorePlayer::audio_render_loop_task, this);
+    mVideoTransformFuture = std::async(std::launch::async, &CorePlayer::video_frame_transform_loop_task, this);
+    mAudioTransformFuture = std::async(std::launch::async, &CorePlayer::audio_frame_transform_loop_task, this);
 }
 
-void CorePlayer::video_frame_transform_thread_fun(void *self)
-{
-    static_cast<CorePlayer *>(self)->video_frame_transform_loop();
-}
-void CorePlayer::video_frame_transform_loop()
+
+void CorePlayer::video_frame_transform_loop_task()
 {
     //TODO 受状态控制
     while (true)
     {
         //video 
-        const AVFrame * const video_frame = pMediaDecoder->pop_frame(AVMEDIA_TYPE_VIDEO);
-        mVideoFrameTransformer->push_frame_to_transform(video_frame)
+        AVFrame * video_frame = pMediaDecoder->pop_frame(AVMEDIA_TYPE_VIDEO);
+        mVideoFrameTransformer.push_frame_to_transform(video_frame);
     }
 }
 
-void CorePlayer::video_render_thread_func(void *self)
-{
-    static_cast<CorePlayer *>(self)->video_render_loop();
-}
-
-void CorePlayer::video_render_loop()
+void CorePlayer::video_render_loop_task()
 {
     SyncClockManager::SyncState sync_state;
     double remaining_time = 0.0;
@@ -137,12 +122,7 @@ void CorePlayer::video_render_loop()
     }
 }
 
-void CorePlayer::audio_render_thread_func(void *self)
-{
-    static_cast<CorePlayer *>(self)->audio_render_loop();
-}
-
-void CorePlayer::audio_render_loop()
+void CorePlayer::audio_render_loop_task()
 {
     //TODO 受状态控制
     while (true)
@@ -152,12 +132,7 @@ void CorePlayer::audio_render_loop()
     }
 }
 
-void CorePlayer::audio_frame_transform_thread_fun(void *self)
-{
-    static_cast<CorePlayer *>(self)->audio_frame_transform_loop();
-}
-
-void CorePlayer::audio_frame_transform_loop()
+void CorePlayer::audio_frame_transform_loop_task()
 {
 
 }
@@ -169,8 +144,7 @@ void CorePlayer::start()
     {
         //TODO throw exception
     } else {
-
-        pthread_create(&mInitThreadId, NULL, main_loop_thread_func, (void*)this);
+        mInitFuture = std::async(std::launch::async, &CorePlayer::init_task, this);
     }
 }
 

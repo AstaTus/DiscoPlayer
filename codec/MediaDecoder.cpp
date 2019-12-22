@@ -1,12 +1,9 @@
 #include "MediaDecoder.h"
 #include "../stream/IStreamIterator.h"
-#include "../stream/IReader.h"
-#include "FrameQueue.h"
-#include "PacketQueue.h"
-#include "PacketConcurrentCachePool.h"
-#include "FrameConcurrentCachePool.h"
+#include "../stream/Reader.h"
+#include <future>
 
-MediaDecoder::MediaDecoder(IStreamIterator * input_stream_iterator, IReader * packet_reader)
+MediaDecoder::MediaDecoder(IStreamIterator * input_stream_iterator, Reader * packet_reader)
 :pInputStreamIterator(input_stream_iterator),
 pPacketReader(packet_reader),
 mPacketConcurrentCachePool(PACKET_QUEUE_CACHE_SIZE)
@@ -55,23 +52,16 @@ bool MediaDecoder::init_decodes()
 
 bool MediaDecoder::start()
 {
+    mDecodePacketFuture = std::async(std::launch::async, &MediaDecoder::unpack_packet_loop, this);
     //创建解packet线程
-    pthread_create(&mUnpackPacketThreadId, NULL, unpack_packet_thread_func, (void*)this);
+    // pthread_create(&mUnpackPacketThreadId, NULL, unpack_packet_thread_func, (void*)this);
 
+    mDecodeFrameFuture = std::async(std::launch::async, &MediaDecoder::unpack_frame_loop, this);
     //创建解frame线程
-    pthread_create(&mUnpackFrameThreadId, NULL, unpack_frame_thread_func, (void*)this);
-}
+    // pthread_create(&mUnpackFrameThreadId, NULL, unpack_frame_thread_func, (void*)this);
 
-void MediaDecoder::unpack_packet_thread_func(void *self)
-{
-    static_cast<MediaDecoder *>(self)->unpack_packet_loop();
+    return true;
 }
-
-void MediaDecoder::unpack_frame_thread_func(void *self)
-{
-    static_cast<MediaDecoder *>(self)->unpack_frame_loop();
-}
-
 
 void MediaDecoder::unpack_packet_loop()
 {
@@ -90,7 +80,7 @@ void MediaDecoder::unpack_frame_loop()
     //TODO 状态判断，如果暂停就挂起
     while (true)
     {
-        AVPacket * packet = mPacketQueue.pop_node();
+        AVPacket * packet = mPacketQueue.block_pop_node();
         FrameQueue * frame_queue = mFrameQueues[packet->stream_index];
         AVCodecContext * codec_context = mDecodes[packet->stream_index];
         FrameConcurrentCachePool * frame_pool = mFrameCachePools[packet->stream_index];
@@ -105,13 +95,13 @@ void MediaDecoder::unpack_frame_loop()
     }
 }
 
-const AVFrame * const MediaDecoder::pop_frame(AVMediaType type)
+AVFrame * MediaDecoder::pop_frame(AVMediaType type)
 {
     map<AVMediaType, int>::iterator itr = mMediaTypeIndexMap.find(type);
     if (itr != mMediaTypeIndexMap.end())
     {
         FrameQueue * frame_queue = mFrameQueues[itr->second];
-        return frame_queue->pop_node();
+        return frame_queue->block_pop_node();
     }
 
     // TODO 无此type 抛异常

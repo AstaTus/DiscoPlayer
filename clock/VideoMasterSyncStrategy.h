@@ -9,7 +9,7 @@ private:
 
 public:
     VideoMasterSyncStrategy(/* args */);
-    ~VideoMasterSyncStrategy();
+    virtual ~VideoMasterSyncStrategy();
 
 
     SyncClockManager::SyncState get_current_video_sync_state(double next_pts, double * remaining_time);

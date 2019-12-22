@@ -2,7 +2,7 @@
 #define __MEDIA_INPUT_STREAM_H__
 
 #include "IStreamIterator.h"
-#include "IReader.h"
+#include "Reader.h"
 #include <string>
 using namespace std;
 
@@ -26,6 +26,6 @@ public:
     bool close();
     bool pause();
     IStreamIterator* get_stream_iterator() const;
-    IReader* get_packet_reader() const;
+    Reader* get_packet_reader() const;
 };
 #endif

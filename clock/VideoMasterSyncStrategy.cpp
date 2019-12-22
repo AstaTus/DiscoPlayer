@@ -2,7 +2,6 @@
 
 extern "C"
 {
-    #include "libavutil/common.h"
     #include "libavutil/time.h"
 }
 
@@ -39,6 +38,6 @@ SyncClockManager::SyncState VideoMasterSyncStrategy::get_current_video_sync_stat
 
 SyncClockManager::SyncState VideoMasterSyncStrategy::get_current_audio_sync_state(double next_pts, double * remaining_time)
 {
-    
+    return SyncClockManager::SYNC_STATE_NEXT;
 }
 

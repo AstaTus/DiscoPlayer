@@ -6,6 +6,7 @@
             "command": "/usr/bin/clang++",
             "args": [
                 "-g",
+                "-v",
                 // "${workspaceFolder}/test.cpp",
                 "${workspaceFolder}/player/platform/mac/test.cpp",
                 "-o",

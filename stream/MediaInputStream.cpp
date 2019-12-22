@@ -17,9 +17,9 @@ IStreamIterator* MediaInputStream::get_stream_iterator() const
     return stream_iterator;
 }
 
-IReader* MediaInputStream::get_packet_reader() const
+Reader* MediaInputStream::get_packet_reader() const
 {
-    IReader * reader = new PacketReader(pFormatContext);
+    Reader * reader = new PacketReader(pFormatContext);
     return reader;
 }
 
@@ -44,9 +44,9 @@ bool MediaInputStream::open(const string& url)
 
 bool MediaInputStream::close()
 {
-
+    return true;
 }
 bool MediaInputStream::pause()
 {
-
+    return true;
 }

@@ -1,10 +1,10 @@
 #include "AudioMasterSyncStrategy.h"
 
 #include <math.h>
+#include <algorithm>
 
 extern "C"
 {
-    #include "libavutil/common.h"
     #include "libavutil/time.h"
 }
 
@@ -31,7 +31,7 @@ AudioMasterSyncStrategy::~AudioMasterSyncStrategy()
     
 }
 
-SyncClockManager::SyncState AudioMasterSyncStrategy::get_current_video_sync_state(double next_pts)
+SyncClockManager::SyncState AudioMasterSyncStrategy::get_current_video_sync_state(double next_pts, double * remaining_time)
 {
     double delay = compute_delay();
 
@@ -48,16 +48,14 @@ SyncClockManager::SyncState AudioMasterSyncStrategy::get_current_video_sync_stat
     {
         return SyncClockManager::SYNC_STATE_DROP;
     }
-
-
     
     return SyncClockManager::SYNC_STATE_NEXT;
 
 }
 
-SyncClockManager::SyncState AudioMasterSyncStrategy::get_current_audio_sync_state(double next_pts)
+SyncClockManager::SyncState AudioMasterSyncStrategy::get_current_audio_sync_state(double next_pts, double * remaining_time)
 {
-    
+    return SyncClockManager::SYNC_STATE_KEEP;
 }
 
 double AudioMasterSyncStrategy::compute_delay()
@@ -73,13 +71,13 @@ double AudioMasterSyncStrategy::compute_delay()
     /* skip or repeat frame. We take into account the
         delay to compute the threshold. I still don't know
         if it is the best guess */
-    sync_threshold = FFMAX(AV_SYNC_THRESHOLD_MIN, FFMIN(AV_SYNC_THRESHOLD_MAX, delay));
+    sync_threshold = std::max(AV_SYNC_THRESHOLD_MIN, std::min(AV_SYNC_THRESHOLD_MAX, delay));
     // if (!isnan(diff) && fabs(diff) < is->max_frame_duration) {
     /* -- by bbcallen: replace is->max_frame_duration with AV_NOSYNC_THRESHOLD */
     if (!isnan(diff) && fabs(diff) < AV_NOSYNC_THRESHOLD) {
         //视频播放慢了，将两部分的差值合并
         if (diff <= -sync_threshold)
-            delay = FFMAX(0, delay + diff);
+            delay = std::max(0.0, delay + diff);
         //视频播放快了
         else if (diff >= sync_threshold && delay > AV_SYNC_FRAMEDUP_THRESHOLD)
             delay = delay + diff;

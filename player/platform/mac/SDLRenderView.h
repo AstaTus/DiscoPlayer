@@ -8,7 +8,6 @@
 class SDLRenderView : public RenderView
 {
 private:
-    
     SDL_Texture *pSDLTexture;
     SDL_Renderer *pSDLRenderer;
     SDL_Rect mSDLRect;
@@ -17,7 +16,7 @@ private:
 
 public:
     SDLRenderView(SDL_Renderer * sdl_render, int width, int height);
-    ~SDLRenderView();
+    virtual ~SDLRenderView();
 
     void refresh(const uint8_t * const data, int pitch);
 

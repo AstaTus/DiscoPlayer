@@ -9,6 +9,7 @@ protected:
     int mHeight;
 public:
     RenderView(int width, int height);
+    virtual ~RenderView() = default;
 
     virtual void refresh(const uint8_t * const data, int pitch) = 0;
 

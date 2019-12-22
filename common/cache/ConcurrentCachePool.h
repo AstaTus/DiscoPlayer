@@ -2,12 +2,7 @@
 #define __CONCURRENT_QUEUE_NODE_CACHE_POOL_H__
 
 #include <queue>
-#include <pthread.h>
-
-#include "../thread/Mutex.h"
-#include "../thread/Cond.h"
-
-using namespace std;
+#include <condition_variable>
 
 template <class T>
 class ConcurrentCachePool
@@ -17,15 +12,14 @@ private:
     int mMaxSize;
     //当前创建了几个node
     int mCurrentSize;
+    std::condition_variable mCacheCond;
+    std::mutex mCacheMutex;
 
-    Mutex mCacheMutex;
-    Cond mCacheCond;
-
-    queue<T *> mCacheQueue;
+    std::queue<T *> mCacheQueue;
 
 protected:
-    virtual T * create_node();
-    virtual void destroy_node(T * node);
+    T * create_node();
+    void destroy_node(T * node);
     
 public:
     ConcurrentCachePool(int size);

@@ -1,11 +1,11 @@
 #include "Image.h"
 
 Image::Image()
-:mPixFormat(AV_PIX_FMT_NONE),
+:mPixelFormat(AV_PIX_FMT_NONE),
 mWidth(0),
 mHeight(0),
-pBuffer(NULL),
-pFrameYUV(NULL)
+pBuffer(nullptr),
+pFrameYUV(nullptr)
 {
     pFrameYUV = av_frame_alloc();
 }
@@ -37,7 +37,7 @@ void Image::release_buffer()
 
 void Image::reformat(AVPixelFormat pix_fmt, int width, int height)
 {
-    if (width != mWidth || height != mHeight || mPixFormat != pix_fmt)
+    if (width != mWidth || height != mHeight || mPixelFormat != pix_fmt)
     {
         if (pBuffer != NULL)
         {
@@ -49,7 +49,7 @@ void Image::reformat(AVPixelFormat pix_fmt, int width, int height)
 		    mWidth, mHeight, 1));
 
         //将FrameYUV的data指向out_buffer
-	    av_image_fill_arrays(pFrameYUV->data, pFrameYUV->linesize, pBuffer, mPixFormat, 
+	    av_image_fill_arrays(pFrameYUV->data, pFrameYUV->linesize, pBuffer, mPixelFormat, 
 		    mWidth, mHeight, 1);
     }
 }
@@ -63,4 +63,3 @@ int Image::pitch() const
 {
     return mWidth;
 }
-

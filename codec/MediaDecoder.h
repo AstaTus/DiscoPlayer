@@ -5,6 +5,7 @@
 #include <vector>
 #include <queue>
 #include <map>
+#include <future>
 
 extern "C"
 {
@@ -14,18 +15,18 @@ extern "C"
 	#include "libavutil/imgutils.h"
 }
 
-class IStreamIterator;
-class IReader;
-class AVCodecContext;
-class FrameQueue;
-class PacketQueue;
-class AVPacket;
-class AVFrame;
+#include "../common/structure/ConcurrentQueue.h"
+#include "../common/cache/ConcurrentCachePool.h"
 
-class PacketConcurrentCachePool;
-class FrameConcurrentCachePool;
+class IStreamIterator;
+class Reader;
+class AVCodecContext;
+class AVPacket;
 
 using namespace std;
+using FrameConcurrentCachePool = ConcurrentCachePool<AVFrame>;
+using FrameQueue = ConcurrentQueue<AVFrame>;
+
 class MediaDecoder
 {
 private:
@@ -37,16 +38,17 @@ private:
     vector<AVCodecContext*> mDecodes;
     map<AVMediaType, int> mMediaTypeIndexMap;
     //解packet
-    IReader * pPacketReader;
-    PacketConcurrentCachePool mPacketConcurrentCachePool;
-    PacketQueue mPacketQueue;
+    Reader * pPacketReader;
+    ConcurrentCachePool<AVPacket> mPacketConcurrentCachePool;
+    ConcurrentQueue<AVPacket> mPacketQueue;
 
     //解frame
     vector<FrameQueue*> mFrameQueues;
     vector<FrameConcurrentCachePool*> mFrameCachePools;
+
+    std::future<void> mDecodePacketFuture;
+    std::future<void> mDecodeFrameFuture;
     
-    pthread_t mUnpackPacketThreadId;
-    pthread_t mUnpackFrameThreadId;
 
     bool init_decodes();
 
@@ -55,10 +57,10 @@ private:
     void unpack_packet_loop();
     void unpack_frame_loop();
 public:
-    MediaDecoder(IStreamIterator * input_stream_iterator, IReader * packet_reader);
+    MediaDecoder(IStreamIterator * input_stream_iterator, Reader * packet_reader);
     ~MediaDecoder();
 
-    const AVFrame * const pop_frame(AVMediaType type);
+    AVFrame * pop_frame(AVMediaType type);
     void recycle_frame(AVMediaType type, AVFrame* frame);
 
     bool start();

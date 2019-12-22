@@ -10,11 +10,11 @@ private:
 
 public:
     AudioMasterSyncStrategy(/* args */);
-    ~AudioMasterSyncStrategy();
+    virtual ~AudioMasterSyncStrategy();
 
-    SyncClockManager::SyncState get_current_video_sync_state(double next_pts);
+    virtual SyncClockManager::SyncState get_current_video_sync_state(double next_pts, double * remaining_time) override;
 
-    SyncClockManager::SyncState get_current_audio_sync_state(double next_pts);
+    virtual SyncClockManager::SyncState get_current_audio_sync_state(double next_pts, double * remaining_time) override;
 };
 
 #endif

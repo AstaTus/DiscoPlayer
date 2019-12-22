@@ -1,10 +1,10 @@
 #include "SDLRenderView.h"
 
-SDLRenderView::SDLRenderView(SDL_Renderer * sdl_render, int width, int height)
-:RenderView(width, height),
-pSDLTexture(NULL),
-pSDLRenderer(sdl_render),
-mSDLRect()
+SDLRenderView::SDLRenderView(SDL_Renderer *sdl_render, int width, int height)
+    : RenderView(width, height),
+      pSDLTexture(nullptr),
+      pSDLRenderer(sdl_render),
+      mSDLRect()
 {
     recreate_texture();
 }
@@ -18,12 +18,12 @@ SDLRenderView::~SDLRenderView()
     }
 }
 
-void SDLRenderView::refresh(const uint8_t * const data, int pitch)
+void SDLRenderView::refresh(const uint8_t *const data, int pitch)
 {
     SDL_UpdateTexture(pSDLTexture, NULL, data, pitch);
     SDL_RenderClear(pSDLRenderer);
-    SDL_RenderCopy(pSDLRenderer, pSDLTexture, NULL, &mSDLRect);  
-    SDL_RenderPresent( pSDLRenderer ); 
+    SDL_RenderCopy(pSDLRenderer, pSDLTexture, NULL, &mSDLRect);
+    SDL_RenderPresent(pSDLRenderer);
 }
 
 void SDLRenderView::resize(int width, int height)
@@ -46,6 +46,6 @@ void SDLRenderView::recreate_texture()
     mSDLRect.w = mWidth;
     mSDLRect.h = mHeight;
 
-    pSDLTexture = SDL_CreateTexture(pSDLRenderer, SDL_PIXELFORMAT_IYUV, 
-        SDL_TEXTUREACCESS_STREAMING, mWidth, mHeight);
+    pSDLTexture = SDL_CreateTexture(pSDLRenderer, SDL_PIXELFORMAT_IYUV,
+                                    SDL_TEXTUREACCESS_STREAMING, mWidth, mHeight);
 }

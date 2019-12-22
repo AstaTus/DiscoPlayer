@@ -1,26 +1,20 @@
 #ifndef __CONCURRENT_QUEUE_H__
 #define __CONCURRENT_QUEUE_H__
 #include <queue>
-
-#include "../thread/Mutex.h"
-#include "../thread/Cond.h"
-
-using namespace std;
-
+#include <condition_variable>
 template <class T>
 class ConcurrentQueue
 {
 private:
-    Mutex mQueueMutex;
-    Cond mQueueCond;
-
-    queue<T *> mQueue;
+    std::mutex mQueueMutex;
+    std::condition_variable mQueueCond;
+    std::queue<T *> mQueue;
 
 protected:
-    virtual void destory_node(T * node) = 0;
+    void destory_node(T * node);
 public:
     ConcurrentQueue();
-    ~ConcurrentQueue();
+    virtual ~ConcurrentQueue();
 
     T * block_pop_node();
     T * block_peek_node();

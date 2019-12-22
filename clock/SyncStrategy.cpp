@@ -1,6 +1,6 @@
 #include "SyncStrategy.h"
 
-SyncStrategy::SyncStrategy(/* args */)
+SyncStrategy::SyncStrategy()
 :mVideoClock(),
 mAudioClock(),
 mNaturalClock(),

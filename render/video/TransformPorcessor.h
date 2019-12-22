@@ -2,7 +2,6 @@
 #define __FRAME_TRANSFORM_H__
 #include <iostream>
 #include "VideoHeader.h"
-#include "ImageCachePool.h"
 
 class AVFrame;
 class Image;

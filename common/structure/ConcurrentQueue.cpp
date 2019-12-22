@@ -8,43 +8,35 @@ ConcurrentQueue<T>::ConcurrentQueue()
 template <class T>
 ConcurrentQueue<T>::~ConcurrentQueue()
 {
-    mQueueMutex.lock();
+    std::lock_guard<std::mutex> queue_lock(mQueueMutex);
     while (mQueue.size > 0)
     {
         destroy_node(mQueue.pop());
     }
-    mQueueMutex.unlock();
 }
 
 template <class T>
 void ConcurrentQueue<T>::push_node(const T *node)
 {
-    mQueueMutex.lock();
+    std::lock_guard<std::mutex> queue_lock(mQueueMutex);
     mQueue.push(node);
-    mQueueMutex.unlock();
-    mQueueCond.signal();
+    mQueueCond.notify_one();
 }
 
 template <class T>
 T * ConcurrentQueue<T>::block_pop_node()
 {
     T *node = NULL;
-
-    mQueueMutex.lock();
+    std::lock_guard<std::mutex> queue_lock(mQueueMutex);
     if (mQueue.size > 0)
     {
         node = mQueue.pop();
     }
     else
     {
-        CondProcessor::cond_wait(mQueueCond, mQueueMutex);
-        if (mQueue.size > 0)
-        {
-            node = mQueue.pop();
-        }
+        mQueueCond.wait(queue_lock, [this] () { mQueue.size > 0; });
+        node = mQueue.pop();
     }
-
-    mQueueMutex.unlock();
 
     return node;
 }
@@ -53,23 +45,17 @@ T * ConcurrentQueue<T>::block_pop_node()
 template <class T>
 T *ConcurrentQueue<T>::block_peek_node()
 {
-    T *node = NULL;
-
-    mQueueMutex.lock();
+    T *node = nullptr;
+    std::lock_guard<std::mutex> queue_lock(mQueueMutex);
     if (mQueue.size > 0)
     {
         node = mQueue.front();
     }
     else
     {
-        CondProcessor::cond_wait(mQueueCond, mQueueMutex);
-        if (mQueue.size > 0)
-        {
-            node = mQueue.front();
-        }
+        mQueueCond.wait(queue_lock, [this] () { mQueue.size > 0; });
+        node = mQueue.front();
     }
-
-    mQueueMutex.unlock();
 
     return node;
 }
@@ -79,14 +65,11 @@ template <class T>
 T *ConcurrentQueue<T>::non_block_pop_node()
 {
     T *node = NULL;
-
-    mQueueMutex.lock();
+    std::lock_guard<std::mutex> queue_lock(mQueueMutex);
     if (mQueue.size > 0)
     {
         node = mQueue.pop();
     }
-
-    mQueueMutex.unlock();
 
     return node;
 }
@@ -96,13 +79,17 @@ T *ConcurrentQueue<T>::non_block_peek_node()
 {
     T *node = NULL;
 
-    mQueueMutex.lock();
+    std::lock_guard<std::mutex> queue_lock(mQueueMutex);
     if (mQueue.size > 0)
     {
-        node = mQueue.pop();
+        node = mQueue.front();
     }
 
-    mQueueMutex.unlock();
-
     return node;
+}
+
+template <class T>
+void ConcurrentQueue<T>::destory_node(T * node)
+{
+    delete node;
 }

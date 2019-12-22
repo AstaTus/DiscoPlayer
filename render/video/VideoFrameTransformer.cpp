@@ -1,8 +1,4 @@
 #include "VideoFrameTransformer.h"
-#include "TransformNodeQueue.h"
-#include "Image.h"
-#include "ImageCachePool.h"
-#include "TransformNode.h"
 
 VideoFrameTransformer::VideoFrameTransformer()
 : mTransformNodeQueue(),
@@ -26,17 +22,17 @@ void VideoFrameTransformer::push_frame_to_transform(AVFrame * frame)
     mTransformNodeQueue.push_node(node);
 }
 
-const TransformNode * const VideoFrameTransformer::non_block_pop_transformed_node()
+TransformNode * VideoFrameTransformer::non_block_pop_transformed_node()
 {
-    return mTransformNodeQueue->non_block_pop_node();
+    return mTransformNodeQueue.non_block_pop_node();
 }
 
-const TransformNode * const VideoFrameTransformer::non_block_peek_transformed_node()
+TransformNode * VideoFrameTransformer::non_block_peek_transformed_node()
 {
-    return mTransformNodeQueue->non_block_peek_node();
+    return mTransformNodeQueue.non_block_peek_node();
 }
 
-void VideoFrameTransformer::recycle(ITransformNode * transform_node)
+void VideoFrameTransformer::recycle(TransformNode * transform_node)
 {
     mImageCachePool.recycle_node(transform_node->image);
     mTransformNodeCachePool.recycle_node(transform_node);
