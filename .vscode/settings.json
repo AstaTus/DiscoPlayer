@@ -72,7 +72,9 @@
         "condition_variable": "cpp",
         "optional": "cpp",
         "thread": "cpp",
-        "future": "cpp"
+        "future": "cpp",
+        "__functional_03": "cpp",
+        "memory_resource": "cpp"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }

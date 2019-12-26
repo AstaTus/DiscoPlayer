@@ -11,7 +11,7 @@ private:
     std::queue<T *> mQueue;
 
 protected:
-    void destory_node(T * node);
+    void destroy_node(T * node);
 public:
     ConcurrentQueue();
     virtual ~ConcurrentQueue();
@@ -24,6 +24,106 @@ public:
     T * non_block_pop_node();
     T * non_block_peek_node();
 
-    void push_node(const T *node);
+    void push_node(T *node);
 };
+
+
+template <class T>
+ConcurrentQueue<T>::ConcurrentQueue()
+{
+}
+
+template <class T>
+ConcurrentQueue<T>::~ConcurrentQueue()
+{
+    std::lock_guard<std::mutex> queue_lock(mQueueMutex);
+    while (mQueue.size() > 0)
+    {
+        destroy_node(mQueue.front());
+        mQueue.pop();
+    }
+}
+
+template <class T>
+void ConcurrentQueue<T>::push_node(T *node)
+{
+    std::lock_guard<std::mutex> queue_lock(mQueueMutex);
+    mQueue.push(node);
+    mQueueCond.notify_one();
+}
+
+template <class T>
+T * ConcurrentQueue<T>::block_pop_node()
+{
+    T *node = NULL;
+    std::unique_lock<std::mutex> queue_lock(mQueueMutex);
+    if (mQueue.size() > 0)
+    {
+        node = mQueue.front();
+        mQueue.pop();
+    }
+    else
+    {
+        mQueueCond.wait(queue_lock, [this] () { return mQueue.size() > 0;});
+        node = mQueue.front();
+        mQueue.pop();
+    }
+
+    return node;
+}
+
+
+template <class T>
+T *ConcurrentQueue<T>::block_peek_node()
+{
+    T *node = nullptr;
+    std::lock_guard<std::mutex> queue_lock(mQueueMutex);
+    if (mQueue.size > 0)
+    {
+        node = mQueue.front();
+    }
+    else
+    {
+        mQueueCond.wait(queue_lock, [this] () { mQueue.size > 0; });
+        node = mQueue.front();
+    }
+
+    return node;
+}
+
+
+template <class T>
+T *ConcurrentQueue<T>::non_block_pop_node()
+{
+    T *node = NULL;
+    std::lock_guard<std::mutex> queue_lock(mQueueMutex);
+    if (mQueue.size() > 0)
+    {
+        node = mQueue.front();
+        mQueue.pop();
+    }
+
+    return node;
+}
+
+template <class T>
+T *ConcurrentQueue<T>::non_block_peek_node()
+{
+    T *node = NULL;
+
+    std::lock_guard<std::mutex> queue_lock(mQueueMutex);
+    if (mQueue.size() > 0)
+    {
+        node = mQueue.front();
+    }
+
+    return node;
+}
+
+template <class T>
+void ConcurrentQueue<T>::destroy_node(T * node)
+{
+    delete node;
+}
+
 #endif
