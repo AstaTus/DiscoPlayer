@@ -14,6 +14,9 @@ public:
     virtual void refresh(const uint8_t * const data, int pitch) = 0;
 
     void resize(int width, int height);
+
+    int get_width();
+    int get_height();
 };
 
 #endif

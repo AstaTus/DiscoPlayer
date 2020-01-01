@@ -4,31 +4,43 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-    {
-        "name": "(lldb) 启动",
-        "type": "cppdbg",
-        "request": "launch",
-        "program": "输入程序名称，例如 ${workspaceFolder}/a.out",
-        "args": [],
-        "stopAtEntry": false,
-        "cwd": "${workspaceFolder}",
-        "environment": [],
-        "externalConsole": false,
-        "MIMode": "lldb"
-    },
-        
+
+
+    // {
+    //     "name": "(lldb) 启动",
+    //     "type": "cppdbg",
+    //     "request": "launch",
+    //     "program": "输入程序名称，例如 ${workspaceFolder}/a.out",
+    //     "args": [],
+    //     "stopAtEntry": false,
+    //     "cwd": "${workspaceFolder}",
+    //     "environment": [],
+    //     "externalConsole": false,
+    //     "MIMode": "lldb"
+    // },
         {
-            "name": "clang++ build and debug active file",
-            "type": "cppdbg",
+            "name": "mac disco launch",
+            "type": "lldb",
             "request": "launch",
-            "program": "${fileDirname}/${fileBasenameNoExtension}",
+            "program": "${workspaceRoot}/build/x86_64_release/bin/disco_player_mac",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
+            "cwd": "${workspaceRoot}/build/x86_64_release/bin/",
+            "logging": { "trace": true, "traceResponse": true },
             "environment": [],
             "externalConsole": false,
             "MIMode": "lldb",
-            "preLaunchTask": "clang++ build active file"
+            "preLaunchTask": "make mac disco player"
+            
+        },
+        {
+            "name": "test launch",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${fileDirname}/${fileBasenameNoExtension}",
+            "logging": { "trace": true, "traceResponse": true, "engineLogging": false },
+            "MIMode": "lldb",
+            "preLaunchTask": "make test player"
         }
     ]
 }

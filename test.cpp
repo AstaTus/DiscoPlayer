@@ -109,21 +109,21 @@ int main()
 	pFrameYUV = av_frame_alloc();
 	//TODO  align 1 ???
 	out_buffer = (uint8_t *)av_malloc(av_image_get_buffer_size(AV_PIX_FMT_YUV420P, 
-		pCodecCtx->width, pCodecCtx->height, 1));
+		SCREEN_WIDTH, SCREEN_HEIGHT, 1));
 	
 	//将FrameYUV的data指向out_buffer
 	av_image_fill_arrays(pFrameYUV->data, pFrameYUV->linesize, out_buffer, AV_PIX_FMT_YUV420P, 
-		pCodecCtx->width, pCodecCtx->height, 1);
+		SCREEN_WIDTH, SCREEN_HEIGHT, 1);
 	
 
 	img_convert_ctx = sws_getContext(pCodecCtx->width, pCodecCtx->height, pCodecCtx->pix_fmt, 
-			pCodecCtx->width, pCodecCtx->height, AV_PIX_FMT_YUV420P, SWS_BICUBIC, NULL, NULL, NULL);
+			SCREEN_WIDTH, SCREEN_HEIGHT, AV_PIX_FMT_YUV420P, SWS_BICUBIC, NULL, NULL, NULL);
 
     SDL_Window *screen = NULL; 
 	//SDL 2.0 Support for multiple windows
 	screen = SDL_CreateWindow("Simplest Video Play SDL2", 
                     SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-		            pCodecCtx->width, pCodecCtx->height, SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE);
+		            SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE);
 	if(!screen) {  
 		printf("SDL: could not create window - exiting:%s\n",SDL_GetError());  
 		return -1;
@@ -132,8 +132,7 @@ int main()
     Uint32 pixformat = 0;
 	//IYUV: Y + U + V  (3 planes)
 	//YV12: Y + V + U  (3 planes)
-	pixformat = ;
-
+	pixformat = SDL_PIXELFORMAT_IYUV;
     SDL_Renderer *sdlRenderer = SDL_CreateRenderer(screen, -1, 0);  
 	SDL_Texture *sdlTexture = SDL_CreateTexture(sdlRenderer, pixformat, 
                                 SDL_TEXTUREACCESS_STREAMING, pCodecCtx->width, pCodecCtx->height);

@@ -1,38 +1,30 @@
 #include "Image.h"
 
 Image::Image()
-:mPixelFormat(AV_PIX_FMT_NONE),
-mWidth(0),
-mHeight(0),
-pBuffer(nullptr),
-pFrameYUV(nullptr)
+    : mPixelFormat(AV_PIX_FMT_NONE),
+      mWidth(0),
+      mHeight(0),
+      pBuffer(nullptr)
 {
-    pFrameYUV = av_frame_alloc();
 }
 
 Image::~Image()
 {
     release_buffer();
 }
-uint8_t * const Image::data() const
+uint8_t *const Image::data() const
 {
     return pBuffer;
 }
 
 void Image::release_buffer()
 {
-    if (pBuffer != NULL)
+    if (pBuffer != nullptr)
     {
-        av_free(pBuffer);
+        delete pBuffer;
     }
 
-    if(pFrameYUV != NULL)
-    {
-        av_frame_free(&pFrameYUV);
-    }
-    
-    pBuffer = NULL;
-    pFrameYUV = NULL;
+    pBuffer = nullptr;
 }
 
 void Image::reformat(AVPixelFormat pix_fmt, int width, int height)
@@ -44,19 +36,13 @@ void Image::reformat(AVPixelFormat pix_fmt, int width, int height)
             release_buffer();
         }
 
+        mWidth = width;
+        mHeight = height;
+        mPixelFormat = pix_fmt;
         //TODO algin 默认为1
-        pBuffer = (uint8_t *)av_malloc(av_image_get_buffer_size(pix_fmt, 
-		    mWidth, mHeight, 1));
-
-        //将FrameYUV的data指向out_buffer
-	    av_image_fill_arrays(pFrameYUV->data, pFrameYUV->linesize, pBuffer, mPixelFormat, 
-		    mWidth, mHeight, 1);
+        int size = av_image_get_buffer_size(pix_fmt, mWidth, mHeight, 1);
+        pBuffer = new uint8_t[size];
     }
-}
-
-AVFrame * const Image::frame() const
-{
-    return pFrameYUV;
 }
 
 int Image::pitch() const

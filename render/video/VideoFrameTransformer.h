@@ -35,17 +35,13 @@ public:
     VideoFrameTransformer(/* args */);
     ~VideoFrameTransformer();
 
-    void push_frame_to_transform(AVFrame * frame);
+    void push_frame_to_transform(AVFrame * frame, int width, int height);
 
     TransformNode * non_block_pop_transformed_node();
     TransformNode * non_block_peek_transformed_node();
     void recycle(TransformNode * transform_node);
 
-
-    /**调整 视频目标宽高
-     * @param width 目标宽度
-     * @param height 目标高度
-    */
-    void resize_target(int width, int height);
+    //TODO 宽高改变， 重建缓存中的images
+    void retransform_cache_images();
 };
 #endif

@@ -8,7 +8,7 @@ SyncClockManager::SyncClockManager(SyncStrategy strategy)
          pSyncStrategy = new AudioMasterSyncStrategy();
     } else if (strategy == SYNC_STRATEGY_VIDEO)
     {
-        pSyncStrategy = new AudioMasterSyncStrategy();
+        pSyncStrategy = new VideoMasterSyncStrategy();
     }
 }
 

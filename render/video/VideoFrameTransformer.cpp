@@ -12,10 +12,10 @@ VideoFrameTransformer::~VideoFrameTransformer()
 {
 }
 
-void VideoFrameTransformer::push_frame_to_transform(AVFrame * frame)
+void VideoFrameTransformer::push_frame_to_transform(AVFrame * frame, int width, int height)
 {
     Image * image = mImageCachePool.get_empty_node();
-    mTransformPorcessor.transform_by_libyuv(frame, image);
+    mTransformPorcessor.transform_by_libyuv(frame, image, width, height);
     TransformNode * node = mTransformNodeCachePool.get_empty_node();
     node->image = image;
     node->frame = frame;
@@ -38,7 +38,7 @@ void VideoFrameTransformer::recycle(TransformNode * transform_node)
     mTransformNodeCachePool.recycle_node(transform_node);
 }
 
-void VideoFrameTransformer::resize_target(int width, int height)
+void VideoFrameTransformer::retransform_cache_images()
 {
-    mTransformPorcessor.resize_target(width, height);
+    
 }

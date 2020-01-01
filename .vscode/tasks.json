@@ -2,13 +2,12 @@
     "tasks": [
         {
             "type": "shell",
-            "label": "clang++ build active file",
+            "label": "make test player",
             "command": "/usr/bin/clang++",
             "args": [
                 "-g",
                 "-v",
-                // "${workspaceFolder}/test.cpp",
-                "${workspaceFolder}/player/platform/mac/test.cpp",
+                "${workspaceFolder}/test.cpp",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}",
                 "-lavutil",//依赖
@@ -21,7 +20,17 @@
             "options": {
                 "cwd": "/usr/bin"
             }
+        },
+        {
+            "type": "shell",
+            "label": "make mac disco player",
+            "command": "/usr/bin/make",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
         }
+        
     ],
     "version": "2.0.0"
 }

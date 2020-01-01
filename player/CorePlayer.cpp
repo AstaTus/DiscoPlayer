@@ -21,12 +21,18 @@ pInputStream(nullptr),
 mVideoFrameTransformer(),
 pCurrentVideoNode(nullptr),
 pCurrentPlayItem(nullptr),
+mIsStop(false),
 mSyncClockManager(SyncClockManager::SYNC_STRATEGY_VIDEO)
 {
 }
 
 CorePlayer::~CorePlayer()
 {
+    mIsStop.store(true);
+    mVideoRenderFuture.wait();
+    mAudioRenderFuture.wait();
+    mVideoTransformFuture.wait();
+    mAudioTransformFuture.wait();
 }
 
 void CorePlayer::set_play_item(PlayItem * play_item)
@@ -68,11 +74,11 @@ void CorePlayer::init_task()
 void CorePlayer::video_frame_transform_loop_task()
 {
     //TODO 受状态控制
-    while (true)
+    while (!mIsStop)
     {
         //video 
         AVFrame * video_frame = pMediaDecoder->pop_frame(AVMEDIA_TYPE_VIDEO);
-        mVideoFrameTransformer.push_frame_to_transform(video_frame);
+        mVideoFrameTransformer.push_frame_to_transform(video_frame, pRenderView->get_width(), pRenderView->get_height());
     }
 }
 
@@ -96,7 +102,8 @@ void CorePlayer::video_render_loop_task()
                 break;
             }
              
-            sync_state = mSyncClockManager.get_current_video_sync_state(node->frame->pts, &remaining_time);
+            // sync_state = mSyncClockManager.get_current_video_sync_state(node->frame->pts, &remaining_time);
+            sync_state = SyncClockManager::SYNC_STATE_NEXT;
             if (sync_state == SyncClockManager::SYNC_STATE_KEEP)
             {
                 //显示当前帧

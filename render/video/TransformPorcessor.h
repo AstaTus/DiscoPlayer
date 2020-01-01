@@ -16,38 +16,11 @@ extern "C"
 
 class TransformPorcessor
 {
-private:
-    //视频目标宽高
-    int mScaleDstWidth;
-    int mScaleDstHeight;
-    //视频原始宽高
-    int mScaleSrcWidth;
-    int mScaleSrcHeight;
-    //视频原始的像素格式
-    AVPixelFormat mScalePixelFormat;
-
-    //当前需要的视频宽高
-    int mCurrentVideoWidth;
-    int mCurrentVideoHeight;
-
-    struct SwsContext *pSwsContext;
-
-    SwsContext * get_sws_context(int dst_width, 
-        int dst_height, int src_width, int src_height, AVPixelFormat src_format);
-
 public:
     TransformPorcessor(/* args */);
     ~TransformPorcessor();
 
-    void transform_by_ffmpeg(AVFrame *frame, Image * const image);
-
-    void transform_by_libyuv(AVFrame *frame, Image * const image);
-
-    /**调整 视频目标宽高
-     * @param width 目标宽度
-     * @param height 目标高度
-    */
-    void resize_target(int width, int height);
+    void transform_by_libyuv(AVFrame *frame, Image * const image, int width, int height);
 };
 
 #endif

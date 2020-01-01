@@ -11,7 +11,7 @@ extern "C"
 class IStreamIterator
 {
 public:
-    virtual const AVStream * next() const = 0;
+    virtual const AVStream * next() = 0;
     virtual const bool has_next() const = 0;
 };
 #endif

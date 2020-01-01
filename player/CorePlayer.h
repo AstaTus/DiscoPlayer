@@ -27,6 +27,8 @@ private:
     std::future<void> mVideoTransformFuture;
     std::future<void> mAudioTransformFuture;
 
+    std::atomic<bool> mIsStop;
+
     VideoFrameTransformer mVideoFrameTransformer;
     TransformNode * pCurrentVideoNode;
 

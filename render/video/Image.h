@@ -16,8 +16,6 @@ private:
     AVPixelFormat mPixelFormat;
     int mWidth;
     int mHeight;
-    //TODO 之后换成libyuv 就可以删掉AVFrame
-    AVFrame *pFrameYUV;
 
     void release_buffer();
 public:
@@ -27,8 +25,6 @@ public:
     void reformat(AVPixelFormat pix_fmt, int width, int height);
 
     uint8_t * const data() const;
-
-    AVFrame * const frame() const;
 
     int pitch() const;
 };

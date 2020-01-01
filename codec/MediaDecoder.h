@@ -49,11 +49,8 @@ private:
     std::future<void> mDecodePacketFuture;
     std::future<void> mDecodeFrameFuture;
     
-
     bool init_decodes();
 
-    static void unpack_packet_thread_func(void *self);
-    static void unpack_frame_thread_func(void *self);
     void unpack_packet_loop();
     void unpack_frame_loop();
 public:

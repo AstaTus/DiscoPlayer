@@ -4,3 +4,6 @@ test.dSYM/Contents/Resources/DWARF/test
 test.dSYM/Contents/Info.plist
 test
 build
+dependency/libyuv/include
+.vscode/launch.dSYM/Contents/Info.plist
+.vscode/launch.dSYM/Contents/Resources/DWARF/launch

@@ -50,10 +50,11 @@ int main()
         }
     }
 
-    delete render_view;
+    // delete render_view;
     SDL_DestroyRenderer(sdl_renderer);
     SDL_DestroyWindow(screen);
-    delete core_player;
-    delete play_item;
+    // delete core_player;
+    // delete play_item;
 	SDL_Quit();
+    return 0;
 }

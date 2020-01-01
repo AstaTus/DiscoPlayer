@@ -11,3 +11,12 @@ void RenderView::resize(int width, int height)
     mWidth = width;
     mHeight = height;
 }
+
+int RenderView::get_width()
+{
+    return mWidth;
+}
+int RenderView::get_height()
+{
+    return mHeight;
+}

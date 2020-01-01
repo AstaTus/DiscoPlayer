@@ -22,8 +22,9 @@ INCDIR=-I./dependency/libyuv/include -I./stream -I./render -I./codec -I./common/
 #添加静态链接库目录，如果你用到了第三方的静态链接库的话
 LIBDIR=-L./dependency/libyuv/debug
 
-all : clear_obj_dir \
-	build_dir \
+.default: all
+
+all : build_dir \
 	root_show_make_level \
 	stream_all \
 	render_all \
@@ -32,6 +33,8 @@ all : clear_obj_dir \
 	player_all \
 	player_mac_all \
 	disco_player_mac
+
+clean: clear_obj_dir
 
 clear_obj_dir:
 	@echo "    Clear directory $@ ..." 
@@ -44,7 +47,7 @@ root_show_make_level:
 	@echo "ROOT MAKE LEVEL:"$(MAKELEVEL)
 
 CPP = clang++
-CPPFLAGS = -std=c++11 ${INCDIR}
+CPPFLAGS = -g -std=c++11 ${INCDIR}
 
 include ./stream/disco_stream.mk
 include ./render/disco_render.mk
@@ -61,4 +64,4 @@ MAC_OBJECTS = ${STREAM_OBJECTS} \
 				${CLOCK_OBJECTS}
 
 disco_player_mac : $(MAC_OBJECTS) 
-	$(CC) $(FLAGS) -o $(BUILD_BIN_DIR)/disco_player_mac $(MAC_OBJECTS) -v -g ${LIBDIR} -lstdc++ -lavutil -lavcodec -lavformat -lswscale -lSDL2 -lyuv
+	$(CC) $(FLAGS) -o $(BUILD_BIN_DIR)/disco_player_mac $(MAC_OBJECTS) -v ${LIBDIR} -lstdc++ -lavutil -lavcodec -lavformat -lswscale -lSDL2 -lyuv

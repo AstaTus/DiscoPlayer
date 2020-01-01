@@ -12,7 +12,7 @@ InputStreamIterator::~InputStreamIterator()
 
 const bool InputStreamIterator::has_next() const
 {
-    if (mIndex < pFormatContext->nb_streams - 1)
+    if (mIndex < pFormatContext->nb_streams)
     {
         return true;
     }
@@ -22,11 +22,11 @@ const bool InputStreamIterator::has_next() const
     }
 }
 
-const AVStream * InputStreamIterator::next() const
+const AVStream * InputStreamIterator::next()
 {
-    if (mIndex < pFormatContext->nb_streams - 1)
+    if (mIndex < pFormatContext->nb_streams)
     {
-        return pFormatContext->streams[mIndex];
+        return pFormatContext->streams[mIndex++];
     }
     //TODO  是否要抛出异常
     return NULL;
