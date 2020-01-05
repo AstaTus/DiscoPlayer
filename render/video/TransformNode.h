@@ -2,11 +2,11 @@
 #ifndef __TRANSFORM_NODE_H__
 #define __TRANSFORM_NODE_H__
 class Image;
-class AVFrame;
+class FrameWrapper;
 
 struct TransformNode
 {
     Image *image;
-    AVFrame *frame;
+    FrameWrapper *frame_wrapper;
 };
 #endif

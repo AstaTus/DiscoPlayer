@@ -1,7 +1,7 @@
 #include "TransformPorcessor.h"
 #include "Image.h"
 #include "libyuv.h"
-
+// #include "../../common/log/Log.h"
 TransformPorcessor::TransformPorcessor()
 {
 }
@@ -48,5 +48,7 @@ void TransformPorcessor::transform_by_libyuv(AVFrame *frame, Image *const image,
                     width,
                     height,
                     libyuv::kFilterNone);
+    } else {
+        // Log::get_instance().log_error("[Dsico][TransformPorcessor] frame format in unsupport format = %d", format);
     }
 }

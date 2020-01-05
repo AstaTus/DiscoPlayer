@@ -10,7 +10,7 @@ InputStreamIterator::~InputStreamIterator()
 {
 }
 
-const bool InputStreamIterator::has_next() const
+bool InputStreamIterator::has_next() const
 {
     if (mIndex < pFormatContext->nb_streams)
     {
@@ -22,7 +22,7 @@ const bool InputStreamIterator::has_next() const
     }
 }
 
-const AVStream * InputStreamIterator::next()
+AVStream * InputStreamIterator::next()
 {
     if (mIndex < pFormatContext->nb_streams)
     {

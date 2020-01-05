@@ -31,7 +31,7 @@ AudioMasterSyncStrategy::~AudioMasterSyncStrategy()
     
 }
 
-SyncClockManager::SyncState AudioMasterSyncStrategy::get_current_video_sync_state(double next_pts, double * remaining_time)
+SyncClockManager::SyncState AudioMasterSyncStrategy::get_current_video_sync_state(double next_pts, AVRational & time_base, double * remaining_time)
 {
     double delay = compute_delay();
 
@@ -39,23 +39,23 @@ SyncClockManager::SyncState AudioMasterSyncStrategy::get_current_video_sync_stat
     //该帧还需继续显示
     if (current_time < mVideoClock.getLastUpdateTime() + delay)
     {
-        return SyncClockManager::SYNC_STATE_KEEP;
+        return SyncClockManager::SyncState::SYNC_STATE_KEEP;
     } 
     
     //更新时钟
     mVideoClock.update(current_time, next_pts - mVideoClock.getLastPts(), next_pts);
     if (current_time > mVideoClock.getLastUpdateTime() + mVideoClock.getLastDuration())
     {
-        return SyncClockManager::SYNC_STATE_DROP;
+        return SyncClockManager::SyncState::SYNC_STATE_DROP;
     }
     
-    return SyncClockManager::SYNC_STATE_NEXT;
+    return SyncClockManager::SyncState::SYNC_STATE_NEXT;
 
 }
 
-SyncClockManager::SyncState AudioMasterSyncStrategy::get_current_audio_sync_state(double next_pts, double * remaining_time)
+SyncClockManager::SyncState AudioMasterSyncStrategy::get_current_audio_sync_state(double next_pts, AVRational & time_base, double * remaining_time)
 {
-    return SyncClockManager::SYNC_STATE_KEEP;
+    return SyncClockManager::SyncState::SYNC_STATE_KEEP;
 }
 
 double AudioMasterSyncStrategy::compute_delay()
@@ -66,7 +66,7 @@ double AudioMasterSyncStrategy::compute_delay()
     
     /* if video is slave, we try to correct big delays by
         duplicating or deleting a frame */
-    diff = mVideoClock.getTime(mSpeed) - mAudioClock.getTime(mSpeed);
+    // diff = mVideoClock.getTime(mSpeed) - mAudioClock.getTime(mSpeed);
 
     /* skip or repeat frame. We take into account the
         delay to compute the threshold. I still don't know
@@ -97,4 +97,14 @@ double AudioMasterSyncStrategy::compute_delay()
 // #endif
 
     return delay;
+}
+
+void AudioMasterSyncStrategy::resume()
+{
+
+}
+
+void AudioMasterSyncStrategy::pause()
+{
+    
 }

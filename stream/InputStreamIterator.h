@@ -10,7 +10,7 @@ public:
     InputStreamIterator(AVFormatContext * format_context);
     ~InputStreamIterator();
 
-    const AVStream * next();
-    const bool has_next() const;
+    AVStream * next();
+    bool has_next() const;
 };
 #endif

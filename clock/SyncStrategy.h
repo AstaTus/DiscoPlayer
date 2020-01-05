@@ -22,10 +22,13 @@ public:
     SyncStrategy(/* args */);
     virtual ~SyncStrategy();
 
-    virtual SyncClockManager::SyncState get_current_video_sync_state(double next_pts, double * remaining_time) = 0;
+    virtual SyncClockManager::SyncState get_current_video_sync_state(double next_pts, AVRational & time_base, double * remaining_time) = 0;
 
-    virtual SyncClockManager::SyncState get_current_audio_sync_state(double next_pts, double * remaining_time) = 0;
+    virtual SyncClockManager::SyncState get_current_audio_sync_state(double next_pts, AVRational & time_base, double * remaining_time) = 0;
 
+    virtual void resume() = 0;
+
+    virtual void pause() = 0;
 
 
 

@@ -16,17 +16,22 @@ SyncClockManager::~SyncClockManager()
 {
 }
 
-void SyncClockManager::update_system_time()
+SyncClockManager::SyncState SyncClockManager::get_current_video_sync_state(double next_pts, AVRational & time_base, double * remaining_time)
 {
-
+    return pSyncStrategy->get_current_video_sync_state(next_pts, time_base, remaining_time);
 }
 
-SyncClockManager::SyncState SyncClockManager::get_current_video_sync_state(double next_pts, double * remaining_time)
+SyncClockManager::SyncState SyncClockManager::get_current_audio_sync_state(double next_pts, AVRational & time_base, double * remaining_time)
 {
-    return pSyncStrategy->get_current_video_sync_state(next_pts, remaining_time);
+    return pSyncStrategy->get_current_audio_sync_state(next_pts, time_base, remaining_time);
 }
 
-SyncClockManager::SyncState SyncClockManager::get_current_audio_sync_state(double next_pts, double * remaining_time)
+void SyncClockManager::pause() 
 {
-    return pSyncStrategy->get_current_audio_sync_state(next_pts, remaining_time);
+    pSyncStrategy->pause();
+}
+
+void SyncClockManager::resume()
+{
+    pSyncStrategy->resume();
 }

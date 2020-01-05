@@ -49,7 +49,7 @@ void ConcurrentQueue<T>::push_node(T *node)
 {
     std::lock_guard<std::mutex> queue_lock(mQueueMutex);
     mQueue.push(node);
-    mQueueCond.notify_one();
+    mQueueCond.notify_all();
 }
 
 template <class T>

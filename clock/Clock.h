@@ -29,25 +29,19 @@ public:
     Clock(/* args */);
     ~Clock();
 
+    /* 上次更新帧的系统时刻 */ 
     double getLastUpdateTime();
+    /* 上一帧需要展示的时长 */ 
     double getLastDuration();
+    /* 上次更新的帧的PTS 即播放时间轴的时刻（非系统时刻） */ 
     double getLastPts();
 
-    void setLastUpdateTime(double time);
-    void setLastDuration(double duration);
-    void setLastPts(double pts);
-
+    /* 更新时钟 */ 
     void update(double time, double duration, double pts);
 
     void pasue();
 
     void resume();
-
-    /* 获得该条时间轴的时刻 */
-    double getTime(double speed);
-
-    /* 获得该条时间轴映射到系统时间轴的时刻*/
-    double getMapingSystemTime(double speed);
 };
 
 #endif

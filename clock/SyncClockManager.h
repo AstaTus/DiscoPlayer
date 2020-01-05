@@ -2,6 +2,11 @@
 #define __SYNC_CLOCK_MANAGER_H__
 #include "Clock.h"
 
+extern "C"
+{
+#include "libavutil/rational.h"
+}
+
 class SyncStrategy;
 
 class SyncClockManager
@@ -17,7 +22,7 @@ public:
         SYNC_STRATEGY_NATURAL = 3
     };
 
-    enum SyncState {
+    enum class SyncState {
         SYNC_STATE_KEEP = 1,
         SYNC_STATE_NEXT = 2,
         SYNC_STATE_DROP = 3
@@ -26,13 +31,13 @@ public:
     SyncClockManager(SyncStrategy strategy);
     ~SyncClockManager();
 
-    
+    SyncState get_current_video_sync_state(double next_pts, AVRational & time_base, double * remaining_time);
 
-    void update_system_time();
+    SyncState get_current_audio_sync_state(double next_pts, AVRational & time_base, double * remaining_time);
 
-    SyncState get_current_video_sync_state(double next_pts, double * remaining_time);
+    void pause();
 
-    SyncState get_current_audio_sync_state(double next_pts, double * remaining_time);
+    void resume();
 
 
 };

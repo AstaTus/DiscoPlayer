@@ -24,7 +24,7 @@ using TransformNodeQueue = ConcurrentQueue<TransformNode>;
 class VideoFrameTransformer
 {
 private:
-    static const int IMAGE_CACHE_POOL_SIZE = 5;
+    static const int IMAGE_CACHE_POOL_SIZE = 100;
 
     TransformNodeQueue mTransformNodeQueue;
     ImageCachePool mImageCachePool;
@@ -35,7 +35,7 @@ public:
     VideoFrameTransformer(/* args */);
     ~VideoFrameTransformer();
 
-    void push_frame_to_transform(AVFrame * frame, int width, int height);
+    void push_frame_to_transform(FrameWrapper * frame, int width, int height);
 
     TransformNode * non_block_pop_transformed_node();
     TransformNode * non_block_peek_transformed_node();
