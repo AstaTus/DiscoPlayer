@@ -94,81 +94,82 @@ void MediaDecoder::unpack_packet_loop()
     }
 }
 
+//TODO COMBINE unpack_audio_frame_loop and unpack_video_frame_loop
 void MediaDecoder::unpack_audio_frame_loop()
 {
-    // int receive_frame_ret = 0;
-    // int send_packet_ret = 0;
-    // bool is_continue = true;
-    // //TODO 状态判断，如果暂停就挂起
-    // while (is_continue)
-    // {
-    //     AVPacket *packet = mAudioPacketQueue.block_pop_node();
-    //     FrameQueue *frame_queue = mFrameQueues[packet->stream_index];
-    //     AVCodecContext *codec_context = mDecodes[packet->stream_index];
-    //     FrameConcurrentCachePool *frame_pool = mFrameCachePools[packet->stream_index];
+    int receive_frame_ret = 0;
+    int send_packet_ret = 0;
+    bool is_continue = true;
+    //TODO 状态判断，如果暂停就挂起
+    while (is_continue)
+    {
+        AVPacket *packet = mAudioPacketQueue.block_pop_node();
+        FrameQueue *frame_queue = mFrameQueues[packet->stream_index];
+        AVCodecContext *codec_context = mDecodes[packet->stream_index];
+        FrameConcurrentCachePool *frame_pool = mFrameCachePools[packet->stream_index];
 
-    //     send_packet_ret = avcodec_send_packet(codec_context, packet);
-    //     if (0 == send_packet_ret)
-    //     {
-    //         Log::get_instance().log_debug("[Disco]MediaDecoder::unpack_audio_frame_loop avcodec_send_packet send a valid packet\n");
-    //         AVFrame *frame = frame_pool->get_empty_node();
-    //         receive_frame_ret = avcodec_receive_frame(codec_context, frame);
-    //         if (0 == receive_frame_ret)
-    //         {
-    //             frame_queue->push_node(frame);
-    //             Log::get_instance().log_debug("[Disco]MediaDecoder::unpack_audio_frame_loop avcodec_receive_frame receive a valid frame stream_index = %d\n", packet->stream_index);
-    //         }
-    //         else if (AVERROR(EAGAIN) == receive_frame_ret)
-    //         {
-    //             frame_pool->recycle_node(frame);
-    //             Log::get_instance().log_error("[Disco]MediaDecoder::unpack_audio_frame_loop avcodec_receive_frame return error code = AVERROR(EAGAIN)\n");
-    //         }
-    //         else if (AVERROR_EOF == receive_frame_ret)
-    //         {
-    //             is_continue = false;
-    //             Log::get_instance().log_error("[Disco]MediaDecoder::unpack_audio_frame_loop avcodec_receive_frame return error code = AVERROR_EOF\n");
-    //         }
-    //         else if (AVERROR(EINVAL) == receive_frame_ret)
-    //         {
-    //             is_continue = false;
-    //             Log::get_instance().log_error("[Disco]MediaDecoder::unpack_audio_frame_loop avcodec_receive_frame return error code = AVERROR(EINVAL)\n");
-    //         }
-    //         else
-    //         {
-    //             is_continue = false;
-    //             Log::get_instance().log_error("[Disco]MediaDecoder::unpack_audio_frame_loop avcodec_receive_frame return other error code = %d\n", receive_frame_ret);
-    //         }
-    //     }
-    //     else if (AVERROR(EAGAIN) == send_packet_ret)
-    //     {
-    //         is_continue = false;
-    //         Log::get_instance().log_debug("[Disco]MediaDecoder::unpack_audio_frame_loop avcodec_send_packet return error code = AVERROR(EAGAIN)\n");
-    //     }
-    //     else if (AVERROR_EOF == send_packet_ret)
-    //     {
-    //         is_continue = false;
-    //         Log::get_instance().log_debug("[Disco]MediaDecoder::unpack_audio_frame_loop avcodec_send_packet return error code = AVERROR_EOF\n");
-    //     }
-    //     else if (AVERROR(EINVAL) == send_packet_ret)
-    //     {
-    //         is_continue = false;
-    //         Log::get_instance().log_debug("[Disco]MediaDecoder::unpack_audio_frame_loop avcodec_send_packet return error code = AVERROR(EINVAL)\n");
-    //     }
-    //     else if (AVERROR(ENOMEM) == send_packet_ret)
-    //     {
-    //         is_continue = false;
-    //         Log::get_instance().log_debug("[Disco]MediaDecoder::unpack_audio_frame_loop avcodec_send_packet return error code = AVERROR(ENOMEM)\n");
-    //     }
-    //     else
-    //     {
-    //         is_continue = false;
-    //         Log::get_instance().log_debug("[Disco]MediaDecoder::unpack_audio_frame_loop avcodec_send_packet return other error code = %d\n", send_packet_ret);
-    //     }
+        send_packet_ret = avcodec_send_packet(codec_context, packet);
+        if (0 == send_packet_ret)
+        {
+            Log::get_instance().log_debug("[Disco]MediaDecoder::unpack_audio_frame_loop avcodec_send_packet send a valid packet\n");
+            FrameWrapper *frame_wrapper = frame_pool->get_empty_node();
+            receive_frame_ret = avcodec_receive_frame(codec_context, frame_wrapper->frame);
+            if (0 == receive_frame_ret)
+            {
+                frame_queue->push_node(frame_wrapper);
+                Log::get_instance().log_debug("[Disco]MediaDecoder::unpack_audio_frame_loop avcodec_receive_frame receive a valid frame stream_index = %d\n", packet->stream_index);
+            }
+            else if (AVERROR(EAGAIN) == receive_frame_ret)
+            {
+                frame_pool->recycle_node(frame_wrapper);
+                Log::get_instance().log_error("[Disco]MediaDecoder::unpack_audio_frame_loop avcodec_receive_frame return error code = AVERROR(EAGAIN)\n");
+            }
+            else if (AVERROR_EOF == receive_frame_ret)
+            {
+                is_continue = false;
+                Log::get_instance().log_error("[Disco]MediaDecoder::unpack_audio_frame_loop avcodec_receive_frame return error code = AVERROR_EOF\n");
+            }
+            else if (AVERROR(EINVAL) == receive_frame_ret)
+            {
+                is_continue = false;
+                Log::get_instance().log_error("[Disco]MediaDecoder::unpack_audio_frame_loop avcodec_receive_frame return error code = AVERROR(EINVAL)\n");
+            }
+            else
+            {
+                is_continue = false;
+                Log::get_instance().log_error("[Disco]MediaDecoder::unpack_audio_frame_loop avcodec_receive_frame return other error code = %d\n", receive_frame_ret);
+            }
+        }
+        else if (AVERROR(EAGAIN) == send_packet_ret)
+        {
+            is_continue = false;
+            Log::get_instance().log_debug("[Disco]MediaDecoder::unpack_audio_frame_loop avcodec_send_packet return error code = AVERROR(EAGAIN)\n");
+        }
+        else if (AVERROR_EOF == send_packet_ret)
+        {
+            is_continue = false;
+            Log::get_instance().log_debug("[Disco]MediaDecoder::unpack_audio_frame_loop avcodec_send_packet return error code = AVERROR_EOF\n");
+        }
+        else if (AVERROR(EINVAL) == send_packet_ret)
+        {
+            is_continue = false;
+            Log::get_instance().log_debug("[Disco]MediaDecoder::unpack_audio_frame_loop avcodec_send_packet return error code = AVERROR(EINVAL)\n");
+        }
+        else if (AVERROR(ENOMEM) == send_packet_ret)
+        {
+            is_continue = false;
+            Log::get_instance().log_debug("[Disco]MediaDecoder::unpack_audio_frame_loop avcodec_send_packet return error code = AVERROR(ENOMEM)\n");
+        }
+        else
+        {
+            is_continue = false;
+            Log::get_instance().log_debug("[Disco]MediaDecoder::unpack_audio_frame_loop avcodec_send_packet return other error code = %d\n", send_packet_ret);
+        }
 
-    //     mPacketConcurrentCachePool.recycle_node(packet);
-    // }
+        mPacketConcurrentCachePool.recycle_node(packet);
+    }
 
-    // Log::get_instance().log_debug("[Disco]MediaDecoder::unpack_audio_frame_loop unpack_frame_loop thread over");
+    Log::get_instance().log_debug("[Disco]MediaDecoder::unpack_audio_frame_loop unpack_frame_loop thread over");
 }
 
 void MediaDecoder::unpack_video_frame_loop()
@@ -259,7 +260,7 @@ FrameWrapper *MediaDecoder::pop_frame(AVMediaType type)
     }
 
     // TODO 无此type 抛异常
-    return NULL;
+    return nullptr;
 }
 void MediaDecoder::recycle_frame(AVMediaType type, FrameWrapper *frame)
 {

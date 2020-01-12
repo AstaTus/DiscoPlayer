@@ -14,11 +14,11 @@ extern "C"
 	// #include "libavutil/imgutils.h"
 }
 
-class TransformPorcessor
+class VideoTransformProcessor
 {
 public:
-    TransformPorcessor(/* args */);
-    ~TransformPorcessor();
+    VideoTransformProcessor(/* args */);
+    ~VideoTransformProcessor();
 
     void transform_by_libyuv(AVFrame *frame, Image * const image, int width, int height);
 };

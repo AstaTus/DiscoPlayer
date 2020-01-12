@@ -4,7 +4,7 @@
 class Image;
 class FrameWrapper;
 
-struct TransformNode
+struct VideoTransformNode
 {
     Image *image;
     FrameWrapper *frame_wrapper;

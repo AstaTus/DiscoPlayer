@@ -1,16 +1,16 @@
-#include "TransformPorcessor.h"
+#include "VideoTransformProcessor.h"
 #include "Image.h"
 #include "libyuv.h"
 // #include "../../common/log/Log.h"
-TransformPorcessor::TransformPorcessor()
+VideoTransformProcessor::VideoTransformProcessor()
 {
 }
 
-TransformPorcessor::~TransformPorcessor()
+VideoTransformProcessor::~VideoTransformProcessor()
 {
 }
 
-void TransformPorcessor::transform_by_libyuv(AVFrame *frame, Image *const image, int width, int height)
+void VideoTransformProcessor::transform_by_libyuv(AVFrame *frame, Image *const image, int width, int height)
 {
     image->reformat(AV_PIX_FMT_YUV420P, width, height);
     int format = frame->format;

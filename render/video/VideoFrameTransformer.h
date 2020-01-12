@@ -9,27 +9,25 @@ extern "C"
 	#include "libavutil/imgutils.h"
 }
 
-#include "TransformPorcessor.h"
-
-
+#include "VideoTransformProcessor.h"
 #include "../../common/structure/ConcurrentQueue.h"
 #include "../../common/cache/ConcurrentCachePool.h"
-#include "TransformNode.h"
+#include "VideoTransformNode.h"
 #include "Image.h"
 
-using TransformNodeCachePool = ConcurrentCachePool<TransformNode>;
+using TransformNodeCachePool = ConcurrentCachePool<VideoTransformNode>;
 using ImageCachePool = ConcurrentCachePool<Image>;
-using TransformNodeQueue = ConcurrentQueue<TransformNode>;
+using TransformNodeQueue = ConcurrentQueue<VideoTransformNode>;
 
 class VideoFrameTransformer
 {
 private:
-    static const int IMAGE_CACHE_POOL_SIZE = 100;
+    static const int IMAGE_CACHE_POOL_SIZE = 5;
 
     TransformNodeQueue mTransformNodeQueue;
     ImageCachePool mImageCachePool;
     TransformNodeCachePool mTransformNodeCachePool;
-    TransformPorcessor mTransformPorcessor;
+    VideoTransformProcessor mTransformPorcessor;
 
 public:
     VideoFrameTransformer(/* args */);
@@ -37,9 +35,9 @@ public:
 
     void push_frame_to_transform(FrameWrapper * frame, int width, int height);
 
-    TransformNode * non_block_pop_transformed_node();
-    TransformNode * non_block_peek_transformed_node();
-    void recycle(TransformNode * transform_node);
+    VideoTransformNode * non_block_pop_transformed_node();
+    VideoTransformNode * non_block_peek_transformed_node();
+    void recycle(VideoTransformNode * transform_node);
 
     //TODO 宽高改变， 重建缓存中的images
     void retransform_cache_images();

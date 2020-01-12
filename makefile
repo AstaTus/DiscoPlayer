@@ -58,10 +58,11 @@ include ./player/platform/mac/disco_player_mac.mk
 
 MAC_OBJECTS = ${STREAM_OBJECTS} \
 				${RENDER_VIDEO_OBJECTS} \
+				${RENDER_AUDIO_OBJECTS} \
 				${PLAYER_OBJECTS} \
 				${PLAYER_MAC_OBJECTS} \
 				${CODEC_OBJECTS} \
 				${CLOCK_OBJECTS}
 
 disco_player_mac : $(MAC_OBJECTS) 
-	$(CC) $(FLAGS) -o $(BUILD_BIN_DIR)/disco_player_mac $(MAC_OBJECTS) -v ${LIBDIR} -lstdc++ -lavutil -lavcodec -lavformat -lswscale -lSDL2 -lyuv
+	$(CC) $(FLAGS) -o $(BUILD_BIN_DIR)/disco_player_mac $(MAC_OBJECTS) -v ${LIBDIR} -lstdc++ -lavutil -lavcodec -lavformat -lswscale -lSDL2 -lyuv -lswresample
