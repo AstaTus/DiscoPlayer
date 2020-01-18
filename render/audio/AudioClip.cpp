@@ -67,7 +67,7 @@ bool AudioClip::isFinish()
     return mSize == mBufferPos;
 }
 
-void AudioClip::set_buffer_pos(int pos)
+void AudioClip::add_read_size(int size)
 {
-    mBufferPos = pos;
+    mBufferPos += size;
 }

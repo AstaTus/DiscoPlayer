@@ -3,7 +3,7 @@
 
 const uint64_t AudioTransformProcessor::OUT_CHANNEL_LAYOUT = AV_CH_LAYOUT_STEREO;
 const AVSampleFormat AudioTransformProcessor::OUT_SAMPLE_FORMAT = AV_SAMPLE_FMT_S16;
-const int AudioTransformProcessor::OUT_SAMPLE_RATE = 44800;
+const int AudioTransformProcessor::OUT_SAMPLE_RATE = 48000;
 
 AudioTransformProcessor::AudioTransformProcessor(/* args */)
     : pSwrContext(nullptr),
@@ -27,7 +27,7 @@ void AudioTransformProcessor::transform_by_ffmpeg(AVFrame *frame,
                                                   AudioClip *const clip)
 {
 
-    clip->reformat(frame->channel_layout, frame->nb_samples, static_cast<AVSampleFormat>(frame->format));
+    clip->reformat(OUT_CHANNEL_LAYOUT, frame->nb_samples, OUT_SAMPLE_FORMAT);
     fit_swr_context(frame->channel_layout, static_cast<AVSampleFormat>(frame->format), frame->sample_rate);
 
     //音频重采样

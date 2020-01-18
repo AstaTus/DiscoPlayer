@@ -18,7 +18,7 @@ bool SDLAudioDevice::open()
     /*** 初始化初始化SDL_AudioSpec结构体 ***/
 	
 	// 音频数据的采样率。常用的有48000，44100等
-	mAudioSpec.freq = 44800; 
+	mAudioSpec.freq = 48000; 
 	
 	// 音频数据的格式
 	mAudioSpec.format = AUDIO_S16SYS;
@@ -77,7 +77,7 @@ void SDLAudioDevice::fill_audio_buffer(Uint8 *stream, int len)
 		memcpy(stream + current_pos, audio_clip->data(), read_size);
 		len -= read_size;
 		current_pos += read_size;
-		audio_clip->set_buffer_pos(read_size);
+		audio_clip->add_read_size(read_size);
 	}
 
 	pAudioDataRequestListener->on_audio_data_request_end();

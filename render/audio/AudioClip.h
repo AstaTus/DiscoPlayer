@@ -35,7 +35,7 @@ public:
     int size() const;
 
     //
-    void set_buffer_pos(int pos);
+    void add_read_size(int size);
 
     //是否读取完成
     bool isFinish();
