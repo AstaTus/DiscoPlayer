@@ -23,7 +23,7 @@ CorePlayer::CorePlayer()
       pCurrentAudioNode(nullptr),
       pCurrentPlayItem(nullptr),
       mIsStop(false),
-      mSyncClockManager(SyncClockManager::SYNC_STRATEGY_VIDEO)
+      mSyncClockManager(SyncClockManager::SYNC_STRATEGY_AUDIO)
 {
 }
 
@@ -178,6 +178,7 @@ void CorePlayer::on_audio_data_request_end()
 
 AudioClip * const CorePlayer::on_audio_data_request(int len)
 {
+    double remaining_time = 0.0;
     //audio
     if (pCurrentAudioNode != nullptr)
     {
@@ -194,6 +195,11 @@ AudioClip * const CorePlayer::on_audio_data_request(int len)
     pCurrentAudioNode = mAudioFrameTransformer.non_block_pop_transformed_node();
     if (pCurrentAudioNode != nullptr)
     {
+        mSyncClockManager.get_current_audio_sync_state(
+            pCurrentAudioNode->frame_wrapper->frame->pts,
+                pCurrentAudioNode->frame_wrapper->time_base,
+                &remaining_time);
+                
         return pCurrentAudioNode->clip;
     }
     

@@ -1,21 +1,24 @@
 #define __STD_CONSTANT_MACROS
 
 #include<iostream>
-#include "SDL2/SDL.h"
+#include "SDL.h"
 #include <errno.h>
 #include <unistd.h>
+// #include <QApplication>
 
 using namespace std;
 
 #include "SDLRenderView.h"
 #include "SDLAudioDevice.h"
-#include "../../CorePlayer.h"
-#include "../../PlayItem.h"
+#include "../../player/CorePlayer.h"
+#include "../../player/PlayItem.h"
 
-const static int SCREEN_WIDTH = 640;
-const static int SCREEN_HEIGHT = 360;
+#include "DiscoMainWindow.h"
 
-int main()
+const static int SCREEN_WIDTH = 1920;
+const static int SCREEN_HEIGHT = 1080;
+
+int main(int argc, char *argv[])
 {
     SDL_Window *screen = NULL;
     SDL_Renderer *sdl_renderer = NULL;

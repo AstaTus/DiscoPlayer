@@ -1,15 +1,15 @@
 #ifndef __AUDIO_TRANSFORM_PROCESSOR_H__
 #define __AUDIO_TRANSFORM_PROCESSOR_H__
 
-extern "C"
-{
-#include "libavcodec/avcodec.h"
-#include "libavformat/avformat.h"
-#include "libswresample/swresample.h"
-#include "libavutil/audio_fifo.h"
-};
 
 class AudioClip;
+struct SwrContext;
+
+extern "C"
+{
+    #include "libavutil/samplefmt.h"
+}
+struct AVFrame;
 class AudioTransformProcessor
 {
 private:

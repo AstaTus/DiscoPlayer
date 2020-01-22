@@ -23,12 +23,36 @@
         },
         {
             "type": "shell",
+            "label": "qmake build makefile",
+            "command": "/Users/laoganbu/lib/QT/5.14.0/clang_64/bin/qmake",
+            "args": ["-makefile"],
+            "options": {},
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "type": "shell",
             "label": "make mac disco player",
             "command": "/usr/bin/make",
             "group": {
                 "kind": "build",
                 "isDefault": true
+            }
+        },
+        {
+            "type": "shell",
+            "label": "make mac disco player cmake",
+            "command": "cmake",
+            "args": [
+                "-S",
+                "${workspaceFolder}/platform/mac",
+                "-B",
+                "${workspaceFolder}/build/x86_64_debug"],
+            "group": {
+                "kind": "build",
+                "isDefault": true
             },
+            // "dependsOn": ["qmake build makefile"]
         }
         
     ],

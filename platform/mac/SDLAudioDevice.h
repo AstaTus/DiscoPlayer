@@ -2,9 +2,9 @@
 #define __DISCO_SDL_AUDIO_DEVICE_H__
 
 
-#include "SDL2/SDL.h"
+#include "SDL.h"
 
-#include "../../../render/audio/AudioDevice.h"
+#include "../../render/audio/AudioDevice.h"
 
 class SDLAudioDevice : public AudioDevice
 {

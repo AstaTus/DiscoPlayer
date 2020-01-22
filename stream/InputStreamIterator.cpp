@@ -1,4 +1,11 @@
 #include "InputStreamIterator.h"
+extern "C"
+{
+    // #include "libavcodec/avcodec.h"
+	#include "libavformat/avformat.h"
+	// #include "libswscale/swscale.h"
+	// #include "libavutil/imgutils.h"
+}
 
 InputStreamIterator::InputStreamIterator(AVFormatContext * format_context)
 : pFormatContext(format_context),
@@ -29,5 +36,5 @@ AVStream * InputStreamIterator::next()
         return pFormatContext->streams[mIndex++];
     }
     //TODO  是否要抛出异常
-    return NULL;
+    return nullptr;
 }

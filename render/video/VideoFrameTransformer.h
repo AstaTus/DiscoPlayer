@@ -1,14 +1,6 @@
 #ifndef __VIDEO_FRAME_TRANSFORMER_H__
 #define __VIDEO_FRAME_TRANSFORMER_H__
 
-extern "C"
-{
-    #include "libavcodec/avcodec.h"
-	#include "libavformat/avformat.h"
-	// #include "libswscale/swscale.h"
-	#include "libavutil/imgutils.h"
-}
-
 #include "VideoTransformProcessor.h"
 #include "../../common/structure/ConcurrentQueue.h"
 #include "../../common/cache/ConcurrentCachePool.h"

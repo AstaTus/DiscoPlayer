@@ -5,7 +5,6 @@ extern "C"
 {
     #include "libavutil/samplefmt.h"
 }
-
 class AudioClip
 {
 private:

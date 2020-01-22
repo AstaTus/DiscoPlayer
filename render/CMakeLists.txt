@@ -1,0 +1,7 @@
+
+
+set(DISCO_RENDER_VIDEO_DIR ${CMAKE_CURRENT_SOURCE_DIR}/video)
+set(DISCO_RENDER_AUDIO_DIR ${CMAKE_CURRENT_SOURCE_DIR}/audio)
+
+add_subdirectory(${DISCO_RENDER_VIDEO_DIR} video)
+add_subdirectory(${DISCO_RENDER_AUDIO_DIR} audio)

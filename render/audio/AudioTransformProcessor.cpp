@@ -1,6 +1,14 @@
 #include "AudioTransformProcessor.h"
 #include "AudioClip.h"
 
+extern "C"
+{
+#include "libavcodec/avcodec.h"
+#include "libavformat/avformat.h"
+#include "libswresample/swresample.h"
+#include "libavutil/audio_fifo.h"
+};
+
 const uint64_t AudioTransformProcessor::OUT_CHANNEL_LAYOUT = AV_CH_LAYOUT_STEREO;
 const AVSampleFormat AudioTransformProcessor::OUT_SAMPLE_FORMAT = AV_SAMPLE_FMT_S16;
 const int AudioTransformProcessor::OUT_SAMPLE_RATE = 48000;

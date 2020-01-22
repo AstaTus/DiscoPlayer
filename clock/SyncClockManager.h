@@ -2,13 +2,9 @@
 #define __SYNC_CLOCK_MANAGER_H__
 #include "Clock.h"
 
-extern "C"
-{
-#include "libavutil/rational.h"
-}
 
 class SyncStrategy;
-
+struct AVRational;
 class SyncClockManager
 {
 private:

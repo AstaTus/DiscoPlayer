@@ -19,7 +19,7 @@
     //     "MIMode": "lldb"
     // },
         {
-            "name": "mac disco launch",
+            "name": "mac disco launch make",
             "type": "lldb",
             "request": "launch",
             "program": "${workspaceRoot}/build/x86_64_release/bin/disco_player_mac",
@@ -31,6 +31,21 @@
             "externalConsole": false,
             "MIMode": "lldb",
             "preLaunchTask": "make mac disco player"
+            
+        },
+        {
+            "name": "mac disco launch cmake",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceRoot}/build/x86_64_debug/MacDiscoPlayer",
+            "args": [],
+            "stopAtEntry": false,
+            "logging": { "trace": true, "traceResponse": true },
+            "environment": [],
+            "externalConsole": false,
+            "cwd": "${workspaceRoot}/platform/mac/",
+            "MIMode": "lldb",
+            "preLaunchTask": "make mac disco player cmake"
             
         },
         {

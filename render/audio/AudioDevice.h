@@ -8,6 +8,7 @@ class AudioDevice
 protected:
     AudioDataRequestListener * pAudioDataRequestListener;
 public:
+    //TODO  增加提供format 接口 channel数 给子类调用
     AudioDevice();
     virtual ~AudioDevice();
     virtual bool open() = 0;

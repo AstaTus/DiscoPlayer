@@ -17,10 +17,12 @@ export BUILD_OBJ_DIR
 export BUILD_BIN_DIR
 
 #添加第三方头文件目录，如果你用到了第三方的源码、静态或者动态链接库的话
-INCDIR=-I./dependency/libyuv/include -I./stream -I./render -I./codec -I./common/cache -I./common/structure
+INCDIR=-I./dependency/libyuv/include \
+	-I/Users/laoganbu/lib/QT/5.14.0/Src/**
+# INCDIR=-I./dependency/libyuv/include -I./stream -I./render -I./codec -I./common/cache -I./common/structure
 
 #添加静态链接库目录，如果你用到了第三方的静态链接库的话
-LIBDIR=-L./dependency/libyuv/debug
+LIBDIR=-L./dependency/libyuv/debug -L/Users/laoganbu/lib/QT/5.14.0/clang_64/lib/*
 
 .default: all
 

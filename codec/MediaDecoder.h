@@ -7,14 +7,6 @@
 #include <map>
 #include <future>
 
-extern "C"
-{
-    #include "libavcodec/avcodec.h"
-	#include "libavformat/avformat.h"
-	// #include "libswscale/swscale.h"
-	#include "libavutil/imgutils.h"
-}
-
 #include "../common/structure/ConcurrentQueue.h"
 #include "../common/cache/ConcurrentCachePool.h"
 
@@ -24,6 +16,11 @@ class AVCodecContext;
 class AVPacket;
 class FrameWrapper;
 class AVStream;
+
+extern "C"
+{
+	#include "libavutil/avutil.h"
+}
 
 using namespace std;
 using FrameConcurrentCachePool = ConcurrentCachePool<FrameWrapper>;

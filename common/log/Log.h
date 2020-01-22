@@ -3,13 +3,13 @@
 
 #include <sstream>
 #include <string>
-extern "C"
-{
-    #include "libavcodec/avcodec.h"
-	#include "libavformat/avformat.h"
-	// #include "libswscale/swscale.h"
-	#include "libavutil/imgutils.h"
-}
+// extern "C"
+// {
+//     #include "libavcodec/avcodec.h"
+// 	#include "libavformat/avformat.h"
+// 	// #include "libswscale/swscale.h"
+// 	#include "libavutil/imgutils.h"
+// }
 
 
 class Log
@@ -41,28 +41,28 @@ Log & Log::get_instance() {
 
 Log::Log(/* args */)
 {
-    av_log_set_level(AV_LOG_DEBUG);
+    // av_log_set_level(AV_LOG_DEBUG);
 }
 
 
 template<typename... Args>
 void Log::log_error(const char *format, Args&&... args) {
-    av_log(NULL, AV_LOG_ERROR, format, std::forward<Args>(args)...);
+    // av_log(NULL, AV_LOG_ERROR, format, std::forward<Args>(args)...);
 }
 
 template<typename... Args>
 void Log::log_info(const char *format, Args&&... args) {
-    av_log(NULL, AV_LOG_INFO, format, std::forward<Args>(args)...);
+    // av_log(NULL, AV_LOG_INFO, format, std::forward<Args>(args)...);
 }
 
 template<typename... Args>
 void Log::log_warning(const char *format, Args&&... args) {
-    av_log(NULL, AV_LOG_WARNING, format, std::forward<Args>(args)...);
+    // av_log(NULL, AV_LOG_WARNING, format, std::forward<Args>(args)...);
 }
 
 template<typename... Args>
 void Log::log_debug(const char *format, Args&&... args) {
-    av_log(NULL, AV_LOG_DEBUG, format, std::forward<Args>(args)...);
+    // av_log(NULL, AV_LOG_DEBUG, format, std::forward<Args>(args)...);
 }
 
 #endif

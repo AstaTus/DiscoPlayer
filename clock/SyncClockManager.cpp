@@ -1,6 +1,10 @@
 #include "SyncClockManager.h"
 #include "AudioMasterSyncStrategy.h"
 #include "VideoMasterSyncStrategy.h"
+extern "C"
+{
+#include "libavutil/rational.h"
+}
 
 SyncClockManager::SyncClockManager(SyncStrategy strategy)
 {

@@ -6,7 +6,7 @@
 class AudioMasterSyncStrategy : public SyncStrategy
 {
 private:
-    double compute_delay();
+    double compute_real_video_last_duration();
 
 public:
     AudioMasterSyncStrategy(/* args */);

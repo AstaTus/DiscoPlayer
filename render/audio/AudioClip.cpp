@@ -4,6 +4,7 @@ extern "C"
 {
 #include "libavformat/avformat.h"
 #include "libavutil/audio_fifo.h"
+#include "libavutil/samplefmt.h"
 }
 
 AudioClip::AudioClip(/* args */)

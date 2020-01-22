@@ -2,8 +2,16 @@
 #include "../stream/IStreamIterator.h"
 #include "../stream/Reader.h"
 #include <future>
-#include "../log/Log.h"
+#include "../common/log/Log.h"
 #include "FrameWrapper.h"
+
+extern "C"
+{
+    #include "libavcodec/avcodec.h"
+	#include "libavformat/avformat.h"
+	// #include "libswscale/swscale.h"
+	#include "libavutil/avutil.h"
+}
 
 MediaDecoder::MediaDecoder(IStreamIterator *input_stream_iterator, Reader *packet_reader)
     : pInputStreamIterator(input_stream_iterator),

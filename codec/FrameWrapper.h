@@ -3,7 +3,8 @@
 
 extern "C"
 {
-#include "libavutil/imgutils.h"
+    #include "libavutil/frame.h"
+    #include "libavutil/avutil.h"
 }
 
 struct FrameWrapper

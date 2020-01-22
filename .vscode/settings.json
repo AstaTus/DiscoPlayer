@@ -74,7 +74,11 @@
         "thread": "cpp",
         "future": "cpp",
         "__functional_03": "cpp",
-        "memory_resource": "cpp"
+        "memory_resource": "cpp",
+        "qtwidgets": "cpp",
+        "qapplication": "cpp"
     },
-    "C_Cpp.errorSquiggles": "Disabled"
+    "C_Cpp.errorSquiggles": "Disabled",
+    "cmake.buildDirectory": "${workspaceFolder}/build/x86_64_debug",
+    "cmake.sourceDirectory": "${workspaceFolder}/platform/mac"
 }

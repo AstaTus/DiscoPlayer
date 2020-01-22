@@ -1,9 +1,9 @@
 #ifndef __SDL_RENDER_VIEW_H__
 #define __SDL_RENDER_VIEW_H__
 
-#include "SDL2/SDL.h"
+#include "SDL.h"
 
-#include "../../../render/video/RenderView.h"
+#include "../../render/video/RenderView.h"
 
 class SDLRenderView : public RenderView
 {
