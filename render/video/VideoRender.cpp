@@ -13,5 +13,10 @@ VideoRender::~VideoRender()
 
 void VideoRender::refresh(const Image * const image)
 {
-    pRenderView->refresh(image->data(), image->pitch());
+    pRenderView->refresh(image);
+}
+
+void VideoRender::invalid_image()
+{
+    pRenderView->invalid_image();
 }

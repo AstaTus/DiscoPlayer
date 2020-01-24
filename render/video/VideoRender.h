@@ -5,7 +5,7 @@
 #include<iostream>
 
 #include "RenderView.h"
-class AVFrame;
+struct AVFrame;
 class Image;
 
 class VideoRender
@@ -24,7 +24,10 @@ public:
     VideoRender(RenderView * const render_view);
     ~VideoRender();
 
+    //
     void refresh(const Image * const image);
+
+    void invalid_image();
 };
 
 #endif

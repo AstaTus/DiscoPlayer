@@ -133,7 +133,7 @@ int main()
 	//IYUV: Y + U + V  (3 planes)
 	//YV12: Y + V + U  (3 planes)
 	pixformat = SDL_PIXELFORMAT_IYUV;
-    SDL_Renderer *sdlRenderer = SDL_CreateRenderer(screen, -1, 0);  
+    SDL_Renderer *sdlRenderer = SDL_CreateRenderer(screen, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);  
 	SDL_Texture *sdlTexture = SDL_CreateTexture(sdlRenderer, pixformat, 
                                 SDL_TEXTUREACCESS_STREAMING, pCodecCtx->width, pCodecCtx->height);
 

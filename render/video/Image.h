@@ -1,11 +1,14 @@
 #ifndef __IMAGE_H__
 #define __IMAGE_H__
 
-#include <stdint.h>
+// #include <stdint.h>
 
 extern "C"
 {
-    #include "libavutil/pixfmt.h"
+    #include "libavcodec/avcodec.h"
+    #include "libavformat/avformat.h"
+	#include "libswscale/swscale.h"
+    #include "libavutil/imgutils.h"
 }
 class Image
 {
@@ -25,5 +28,9 @@ public:
     uint8_t * const data() const;
 
     int pitch() const;
+
+    int height() const;
+
+    int width() const;
 };
 #endif

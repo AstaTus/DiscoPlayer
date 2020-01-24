@@ -12,6 +12,10 @@ void RenderView::resize(int width, int height)
     mHeight = height;
 }
 
+void RenderView::invalid_image()
+{
+}
+
 int RenderView::get_width()
 {
     return mWidth;

@@ -3,7 +3,7 @@
 #include <iostream>
 #include "VideoHeader.h"
 
-class AVFrame;
+struct AVFrame;
 class Image;
 
 class VideoTransformProcessor

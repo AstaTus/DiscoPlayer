@@ -106,10 +106,6 @@ void CorePlayer::video_render_loop_task()
     //TODO 受状态控制
     while (true)
     {
-        // if(remaining_time > 0.0) {
-        //     av_usleep((int)(int64_t)(remaining_time * 1000000.0));
-        // }
-
         remaining_time = REFRESH_RATE;
         //TODO sleep
         do
@@ -139,6 +135,7 @@ void CorePlayer::video_render_loop_task()
                 //回收上一帧
                 if (pCurrentVideoNode != NULL)
                 {
+                    pVideoRender->invalid_image();
                     mVideoFrameTransformer.recycle(pCurrentVideoNode);
                     pMediaDecoder->recycle_frame(AVMEDIA_TYPE_VIDEO, pCurrentVideoNode->frame_wrapper);
                     pCurrentVideoNode = nullptr;

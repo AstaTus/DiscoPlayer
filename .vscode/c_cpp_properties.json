@@ -12,7 +12,8 @@
                 "path": [],
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": ""
-            }
+            },
+            "configurationProvider": "vector-of-bool.cmake-tools"
         }
     ]
 }

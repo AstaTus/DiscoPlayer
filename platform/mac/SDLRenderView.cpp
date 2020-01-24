@@ -1,5 +1,5 @@
 #include "SDLRenderView.h"
-
+#include "../../render/video/Image.h"
 SDLRenderView::SDLRenderView(SDL_Renderer *sdl_render, int width, int height)
     : RenderView(width, height),
       pSDLTexture(nullptr),
@@ -18,9 +18,9 @@ SDLRenderView::~SDLRenderView()
     }
 }
 
-void SDLRenderView::refresh(const uint8_t *const data, int pitch)
+void SDLRenderView::refresh(const Image * const image)
 {
-    SDL_UpdateTexture(pSDLTexture, NULL, data, pitch);
+    SDL_UpdateTexture(pSDLTexture, NULL, image->data(), image->pitch());
     SDL_RenderClear(pSDLRenderer);
     SDL_RenderCopy(pSDLRenderer, pSDLTexture, NULL, &mSDLRect);
     SDL_RenderPresent(pSDLRenderer);

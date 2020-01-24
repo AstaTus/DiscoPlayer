@@ -26,9 +26,28 @@ if(FFMPEG_FOUND)
     message("FFMPEG found")
 endif(FFMPEG_FOUND)
 
+find_package(Qt5 COMPONENTS Core Gui Widgets Test Concurrent OpenGL Qml Quick REQUIRED)
+if(Qt5_FOUND)
+    message("Qt5 found")
+endif(Qt5_FOUND)
+
+find_package(OPENGL REQUIRED)
+if(OPENGL_FOUND)
+    message("OPENGL found")
+endif(OPENGL_FOUND)
+
+message("Qt5Widgets_LIBRARIES"${Qt5Widgets_LIBRARIES})
+message("Qt5Core_LIBRARIES"${Qt5Core_LIBRARIES})
+message("Qt5Gui_LIBRARIES"${Qt5Gui_LIBRARIES})
+
 message(${MAC_DISCO_PLAYER_ROOT_DIR})
 message("SWRESAMPLE_INCLUDE_DIR"${SWRESAMPLE_INCLUDE_DIR})
 message("SWRESAMPLE_LIBRARY"${SWRESAMPLE_LIBRARIES})
+
+# run moc automatically
+set(CMAKE_AUTOMOC ON)
+# if you're using Widgets and editing .ui forms in Designer
+set(CMAKE_AUTOUIC ON)
 
 set(YUV_INCLUDE_DIR ${MAC_DISCO_PLAYER_ROOT_DIR}/dependency/libyuv/include)
 set(YUV_LIBRARY ${MAC_DISCO_PLAYER_ROOT_DIR}/dependency/libyuv/debug/libyuv.dylib)
@@ -47,23 +66,36 @@ add_subdirectory(${DISCO_PLAYER_DIR} player)
 add_subdirectory(${DISCO_RENDER_DIR} render)
 add_subdirectory(${DISCO_STREAM_DIR} stream)
 
-add_executable(MacDiscoPlayer ${DIR_SRCS})
+
+# 添加shader
+file(GLOB RES_FILES *.frag *.vert *.glsl)
+message("RES_FILES"${RES_FILES})
+
+add_executable(MacDiscoPlayer ${RES_FILES} ${DIR_SRCS})
 
 # 添加依赖的头文件目录
 target_include_directories(MacDiscoPlayer PRIVATE 
             ${SDL2_INCLUDE_DIRS}
-            ${AVUTIL_INCLUDE_DIR})
-
+            ${AVUTIL_INCLUDE_DIR}
+            ${Qt5Widgets_INCLUDE_DIRS}
+            ${Qt5Core_INCLUDE_DIRS}
+            ${Qt5Gui_INCLUDE_DIRS}
+            ${OPENGL_EGL_INCLUDE_DIRS})
+            
 # message(${DiscoClock})
 # message(${DiscoPlayer})
 # 添加链接库
 target_link_libraries(MacDiscoPlayer 
-        ${SDL2_LIBRARIES} 
+        ${SDL2_LIBRARIES}
         ${AVCODEC_LIBRARIES}
         ${AVFORMAT_LIBRARIES}
         ${AVUTIL_LIBRARIES}
         ${SWRESAMPLE_LIBRARIES}
         ${YUV_LIBRARY}
+        ${Qt5Widgets_LIBRARIES}
+        ${Qt5Core_LIBRARIES}
+        ${Qt5Gui_LIBRARIES}
+        ${OPENGL_glu_LIBRARY}
         DiscoClock
         DiscoCodec
         DiscoPlayer

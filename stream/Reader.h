@@ -1,7 +1,7 @@
 #ifndef __READER_H__
 #define __READER_H__
 
-class AVPacket;
+struct AVPacket;
 class Reader
 {
 public:

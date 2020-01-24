@@ -12,10 +12,10 @@
 
 class IStreamIterator;
 class Reader;
-class AVCodecContext;
-class AVPacket;
-class FrameWrapper;
-class AVStream;
+struct AVCodecContext;
+struct AVPacket;
+struct FrameWrapper;
+struct AVStream;
 
 extern "C"
 {

@@ -57,3 +57,14 @@ int Image::pitch() const
 {
     return mWidth;
 }
+
+
+int Image::height() const
+{
+    return mHeight;
+}
+
+int Image::width() const
+{
+    return mWidth;
+}

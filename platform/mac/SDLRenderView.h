@@ -18,9 +18,9 @@ public:
     SDLRenderView(SDL_Renderer * sdl_render, int width, int height);
     virtual ~SDLRenderView();
 
-    void refresh(const uint8_t * const data, int pitch);
+    void refresh(const Image * const image) override;
 
-    void resize(int width, int height);
+    void resize(int width, int height) override;
 };
 
 
