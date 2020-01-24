@@ -66,12 +66,16 @@ add_subdirectory(${DISCO_PLAYER_DIR} player)
 add_subdirectory(${DISCO_RENDER_DIR} render)
 add_subdirectory(${DISCO_STREAM_DIR} stream)
 
+#添加资源文件
+set(RCC_FILES ./resources/resource.qrc)
+
+set(UI_FILES ./resources/mainwindow.ui)
 
 # 添加shader
-file(GLOB RES_FILES *.frag *.vert *.glsl)
-message("RES_FILES"${RES_FILES})
+file(GLOB SHADER_FILES *.frag *.vert *.glsl)
+message("RES_FILES"${SHADER_FILES})
 
-add_executable(MacDiscoPlayer ${RES_FILES} ${DIR_SRCS})
+add_executable(MacDiscoPlayer ${SHADER_FILES} ${DIR_SRCS} ${RCC_FILES} ${UI_FILES})
 
 # 添加依赖的头文件目录
 target_include_directories(MacDiscoPlayer PRIVATE 
