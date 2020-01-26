@@ -265,3 +265,18 @@ StateManager::PlayState CorePlayer::get_current_play_state()
 {
     return mStateManager.get_play_state();
 }
+
+int64_t CorePlayer::get_duration()
+{
+    if (pInputStream != nullptr)
+    {
+        return pInputStream->get_duration();
+    }
+    
+    return 0;
+}
+
+int64_t CorePlayer::get_current_position()
+{
+    return mSyncClockManager.get_current_position();
+}

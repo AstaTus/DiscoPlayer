@@ -19,6 +19,8 @@ public:
     bool open(const string& url);
     bool close();
     bool pause();
+
+    int64_t get_duration();
     IStreamIterator* get_stream_iterator() const;
     Reader* get_packet_reader() const;
 };

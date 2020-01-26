@@ -16,12 +16,15 @@
 #include "OpenGLRenderWidget.h"
 #include <QVBoxLayout>
 #include <QPushButton>
+#include <QTime>
 const static int SCREEN_WIDTH = 1080;
 const static int SCREEN_HEIGHT = 720;
 
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
+    : QMainWindow(parent),
+    mpProgressLabel(nullptr),
+    mpTimer(nullptr)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
@@ -36,10 +39,19 @@ MainWindow::~MainWindow()
 
 void MainWindow::init()
 {
+    mpTimer = new QTimer();
+    mpTimer->setSingleShot(false);
+    //启动或重启定时器, 并设置定时器时间：毫秒
+    mpTimer->start(1000);
+    //定时器触发信号槽
+    connect(mpTimer, SIGNAL(timeout()), this, SLOT(PlayProgressTimerTimeOut()));
+
     mpOpenGLRenderWidget = new OpenGLRenderWidget();
     QVBoxLayout * layout = findChild<QVBoxLayout*>("verticalLayout");
+    mpProgressLabel = findChild<QLabel*>("label");
     layout->insertWidget(0, mpOpenGLRenderWidget, 16);
     // MainWindow 是程序帮我创建一个窗口类。所有继承QWidget类都是窗口类。
+    mpOpenGLRenderWidget->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
     mpOpenGLRenderWidget->resize(1920, 1080);
 
     QPushButton * button = findChild<QPushButton *>("pushButton");
@@ -83,5 +95,38 @@ void MainWindow::pause()
 void MainWindow::resume()
 {
     mpCorePlayer->resume();
+}
+
+void MainWindow::PlayProgressTimerTimeOut()
+{
+    if (mpCorePlayer != nullptr && mpProgressLabel != nullptr)
+    {
+        QString duration_str = formatTime(mpCorePlayer->get_duration());
+        QString current_pos_str = formatTime(mpCorePlayer->get_current_position() * 1000);
+        mpProgressLabel->setText(current_pos_str + " / " + duration_str);
+    }
+}
+
+QString MainWindow::formatTime(int ms)
+{
+    int ss = 1000;
+    int mi = ss * 60;
+    int hh = mi * 60;
+    int dd = hh * 24;
+ 
+    long day = ms / dd;
+    long hour = (ms - day * dd) / hh;
+    long minute = (ms - day * dd - hour * hh) / mi;
+    long second = (ms - day * dd - hour * hh - minute * mi) / ss;
+    long milliSecond = ms - day * dd - hour * hh - minute * mi - second * ss;
+ 
+    QString hou = QString::number(hour,10);
+    QString min = QString::number(minute,10);
+    QString sec = QString::number(second,10);
+    QString msec = QString::number(milliSecond,10);
+ 
+    //qDebug() << "minute:" << min << "second" << sec << "ms" << msec <<endl;
+ 
+    return hou + ":" + min + ":" + sec ;
 }
 

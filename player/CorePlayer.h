@@ -82,5 +82,9 @@ public:
     void stop();
 
     void init_states();
+
+    int64_t get_duration();
+
+    int64_t get_current_position();
 };
 #endif

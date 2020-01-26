@@ -3,6 +3,7 @@
 
 #include "SyncClockManager.h"
 #include "Clock.h"
+#include <stdint.h>
 class SyncStrategy
 {
 protected:
@@ -30,7 +31,6 @@ public:
 
     virtual void pause() = 0;
 
-
-
+    virtual int64_t get_current_position() = 0;
 };
 #endif

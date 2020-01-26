@@ -37,7 +37,7 @@ SyncClockManager::SyncState AudioMasterSyncStrategy::get_current_audio_sync_stat
     SyncClockManager::SyncState state;
     double current_time = av_gettime_relative() / 1000000.0;
     //更新时钟
-    mAudioClock.update(current_time, next_pts - mAudioClock.getLastPts(), next_pts);
+    mAudioClock.update(current_time, next_pts - mAudioClock.getLastPts(), next_pts, time_base);
     return SyncClockManager::SyncState::SYNC_STATE_NEXT;
 }
 
@@ -53,7 +53,7 @@ SyncClockManager::SyncState AudioMasterSyncStrategy::get_current_video_sync_stat
         state = SyncClockManager::SyncState::SYNC_STATE_KEEP;
     } else {
         //更新时钟
-        mVideoClock.update(current_time, next_pts - mVideoClock.getLastPts(), next_pts);
+        mVideoClock.update(current_time, next_pts - mVideoClock.getLastPts(), next_pts, time_base);
         if (current_time > mVideoClock.getLastUpdateTime())
         {
             state = SyncClockManager::SyncState::SYNC_STATE_DROP;
@@ -101,4 +101,9 @@ void AudioMasterSyncStrategy::resume()
 void AudioMasterSyncStrategy::pause()
 {
     
+}
+
+int64_t AudioMasterSyncStrategy::get_current_position()
+{
+    return mAudioClock.getTransformedLastPts();
 }

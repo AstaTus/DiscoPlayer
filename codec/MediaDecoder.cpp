@@ -31,7 +31,7 @@ bool MediaDecoder::init_decodes()
     while (pInputStreamIterator->has_next())
     {
         AVStream *stream = pInputStreamIterator->next();
-        if (stream != NULL)
+        if (stream != nullptr)
         {
             AVCodec *codec = avcodec_find_decoder(stream->codecpar->codec_id);
             if (codec != 0)
@@ -115,7 +115,7 @@ void MediaDecoder::unpack_audio_frame_loop()
         FrameQueue *frame_queue = mFrameQueues[packet->stream_index];
         AVCodecContext *codec_context = mDecodes[packet->stream_index];
         FrameConcurrentCachePool *frame_pool = mFrameCachePools[packet->stream_index];
-
+        AVStream * stream = mStreams[packet->stream_index];
         send_packet_ret = avcodec_send_packet(codec_context, packet);
         if (0 == send_packet_ret)
         {
@@ -124,6 +124,7 @@ void MediaDecoder::unpack_audio_frame_loop()
             receive_frame_ret = avcodec_receive_frame(codec_context, frame_wrapper->frame);
             if (0 == receive_frame_ret)
             {
+                frame_wrapper->time_base = stream->time_base;
                 frame_queue->push_node(frame_wrapper);
                 Log::get_instance().log_debug("[Disco]MediaDecoder::unpack_audio_frame_loop avcodec_receive_frame receive a valid frame stream_index = %d\n", packet->stream_index);
             }

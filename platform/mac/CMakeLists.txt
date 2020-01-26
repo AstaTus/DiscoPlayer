@@ -48,6 +48,7 @@ message("SWRESAMPLE_LIBRARY"${SWRESAMPLE_LIBRARIES})
 set(CMAKE_AUTOMOC ON)
 # if you're using Widgets and editing .ui forms in Designer
 set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
 
 set(YUV_INCLUDE_DIR ${MAC_DISCO_PLAYER_ROOT_DIR}/dependency/libyuv/include)
 set(YUV_LIBRARY ${MAC_DISCO_PLAYER_ROOT_DIR}/dependency/libyuv/debug/libyuv.dylib)

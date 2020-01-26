@@ -80,7 +80,9 @@
         "qwidget": "cpp",
         "list": "cpp",
         "numeric": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "qpushbutton": "cpp",
+        "qtime": "cpp"
     },
     "C_Cpp.errorSquiggles": "Disabled",
     "cmake.buildDirectory": "${workspaceFolder}/build/x86_64_debug",

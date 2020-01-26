@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QTimer>
+#include <QLabel>
 class OpenGLRenderWidget;
 class CorePlayer;
 class AudioDevice;
@@ -28,9 +30,15 @@ private:
     void pause();
     void resume();
 
+    QString formatTime(int ms);
+
+    QTimer *mpTimer;
     Ui::MainWindow *ui;
     OpenGLRenderWidget* mpOpenGLRenderWidget;
+    QLabel * mpProgressLabel;
     CorePlayer* mpCorePlayer;
     AudioDevice* mpAudioDevice;
+private slots:
+    void PlayProgressTimerTimeOut();
 };
 #endif // MAINWINDOW_H

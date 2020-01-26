@@ -19,6 +19,8 @@ public:
     void resume() override;
 
     void pause() override;
+
+    int64_t get_current_position() override;
 };
 
 #endif

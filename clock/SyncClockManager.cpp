@@ -1,6 +1,7 @@
 #include "SyncClockManager.h"
 #include "AudioMasterSyncStrategy.h"
 #include "VideoMasterSyncStrategy.h"
+#include <stdint.h>
 extern "C"
 {
 #include "libavutil/rational.h"
@@ -38,4 +39,9 @@ void SyncClockManager::pause()
 void SyncClockManager::resume()
 {
     pSyncStrategy->resume();
+}
+
+int64_t SyncClockManager::get_current_position()
+{
+    return pSyncStrategy->get_current_position();
 }

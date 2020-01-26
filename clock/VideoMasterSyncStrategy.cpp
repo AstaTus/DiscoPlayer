@@ -28,7 +28,7 @@ SyncClockManager::SyncState VideoMasterSyncStrategy::get_current_video_sync_stat
         state = SyncClockManager::SyncState::SYNC_STATE_KEEP;
     } else {
         //更新时钟
-        mVideoClock.update(current_time, next_pts - mVideoClock.getLastPts(), next_pts);
+        mVideoClock.update(current_time, next_pts - mVideoClock.getLastPts(), next_pts, time_base);
         if (current_time > mVideoClock.getLastUpdateTime())
         {
             state = SyncClockManager::SyncState::SYNC_STATE_DROP;
@@ -56,5 +56,10 @@ void VideoMasterSyncStrategy::resume()
 void VideoMasterSyncStrategy::pause()
 {
 
+}
+
+int64_t VideoMasterSyncStrategy::get_current_position()
+{
+    return 0;
 }
 

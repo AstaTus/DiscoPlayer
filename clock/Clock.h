@@ -1,5 +1,10 @@
 #ifndef __CLOCK_H__
 #define __CLOCK_H__
+#include <stdint.h>
+extern "C"
+{
+    #include "libavutil/rational.h"
+}
 class Clock
 {
 private:
@@ -24,7 +29,8 @@ private:
     double mPauseStartTime;
     /* 是否暂停 */ 
     bool mIsPause;
-
+    /*PTS时间单位*/
+    AVRational mRational;
 public:
     Clock(/* args */);
     ~Clock();
@@ -35,9 +41,10 @@ public:
     double getLastDuration();
     /* 上次更新的帧的PTS 即播放时间轴的时刻（非系统时刻） */ 
     double getLastPts();
-
+    /* 转换过后的上次更新的帧的PTS */
+    int64_t getTransformedLastPts();
     /* 更新时钟 */ 
-    void update(double time, double duration, double pts);
+    void update(double time, double duration, double pts, AVRational & time_base);
 
     void pasue();
 

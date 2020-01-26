@@ -34,7 +34,7 @@ Reader* MediaInputStream::get_packet_reader() const
 
 bool MediaInputStream::open(const string& url) 
 {
-    if (pFormatContext != NULL)
+    if (pFormatContext != nullptr)
     {
         return false;
     }
@@ -58,4 +58,14 @@ bool MediaInputStream::close()
 bool MediaInputStream::pause()
 {
     return true;
+}
+
+int64_t MediaInputStream::get_duration()
+{
+    if (pFormatContext != nullptr)
+    {
+        return pFormatContext->duration / 1000;
+    }
+
+    return 0;
 }

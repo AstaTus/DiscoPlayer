@@ -2,7 +2,7 @@
 #define __SYNC_CLOCK_MANAGER_H__
 #include "Clock.h"
 
-
+#include <stdint.h>
 class SyncStrategy;
 struct AVRational;
 class SyncClockManager
@@ -35,6 +35,6 @@ public:
 
     void resume();
 
-
+    int64_t get_current_position();
 };
 #endif
