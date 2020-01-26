@@ -15,6 +15,7 @@
 
 #include "../clock/SyncClockManager.h"
 
+#include "StateManager.h"
 #include <future>
 class CorePlayer : public AudioDataRequestListener
 {
@@ -46,6 +47,8 @@ private:
 
     SyncClockManager mSyncClockManager;
 
+    StateManager mStateManager;
+
     void init_task();
     void video_render_loop_task();
     void video_frame_transform_loop_task();
@@ -68,6 +71,8 @@ public:
 
     void replace_play_item(const PlayItem * const play_item);
 
+    StateManager::PlayState get_current_play_state();
+
     void start();
 
     void pause();
@@ -75,5 +80,7 @@ public:
     void resume();
 
     void stop();
+
+    void init_states();
 };
 #endif

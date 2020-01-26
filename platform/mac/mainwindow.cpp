@@ -61,15 +61,19 @@ void MainWindow::start()
     mpCorePlayer->set_play_item(play_item);
 
     mpCorePlayer->start();
+    mpCorePlayer->resume();
 }
 
 void MainWindow::onPlayAndPauseButtonClicked()
 {
-    if (true)
+    if (mpCorePlayer->get_current_play_state() == StateManager::PlayState::PLAYING)
     {
         pause();
     }
-    
+    else if (mpCorePlayer->get_current_play_state() == StateManager::PlayState::PAUSED)
+    {
+        resume();
+    }
 }
 void MainWindow::pause()
 {

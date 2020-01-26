@@ -13,7 +13,7 @@ SDLAudioDevice::~SDLAudioDevice()
 {
 }
 
-bool SDLAudioDevice::open()
+bool SDLAudioDevice::start()
 {
     /*** 初始化初始化SDL_AudioSpec结构体 ***/
 	
@@ -44,14 +44,9 @@ bool SDLAudioDevice::open()
 		return false;
 	}
 
-	SDL_PauseAudio(0);
-
     return true;
 }
-bool SDLAudioDevice::close()
-{
-    SDL_CloseAudio();
-}
+
 
 void SDLAudioDevice::fill_audio_buffer(Uint8 *stream, int len)
 {
@@ -81,4 +76,22 @@ void SDLAudioDevice::fill_audio_buffer(Uint8 *stream, int len)
 	}
 
 	pAudioDataRequestListener->on_audio_data_request_end();
+}
+
+bool SDLAudioDevice::pause()
+{
+	SDL_PauseAudio(1);
+	return true;
+}
+
+bool SDLAudioDevice::resume()
+{
+	SDL_PauseAudio(0);
+	return true;
+}
+
+bool SDLAudioDevice::stop()
+{
+    SDL_CloseAudio();
+	return true;
 }

@@ -18,7 +18,10 @@ public:
 
     void fill_audio_buffer(Uint8 *stream, int len);
 
-    bool open() override;
-    bool close() override;
+    bool start() override;
+    bool pause() override;
+    bool resume() override;
+
+    bool stop() override;
 };
 #endif
