@@ -2,7 +2,7 @@
 
 #include <math.h>
 #include <algorithm>
-
+#include "../common/log/Log.h"
 extern "C"
 {
     #include "libavutil/time.h"
@@ -32,18 +32,18 @@ AudioMasterSyncStrategy::~AudioMasterSyncStrategy()
     
 }
 
-SyncClockManager::SyncState AudioMasterSyncStrategy::get_current_audio_sync_state(double next_pts, AVRational & time_base, double * remaining_time)
+SyncClockManager::SyncState AudioMasterSyncStrategy::get_current_audio_sync_state(double next_pts, AVRational & time_base, int serial, double * remaining_time)
 {
     SyncClockManager::SyncState state;
     double current_time = av_gettime_relative() / 1000000.0;
     //更新时钟
-    mAudioClock.update(current_time, next_pts - mAudioClock.getLastPts(), next_pts, time_base);
+    mAudioClock.update(current_time, next_pts, time_base, serial);
     return SyncClockManager::SyncState::SYNC_STATE_NEXT;
 }
 
-SyncClockManager::SyncState AudioMasterSyncStrategy::get_current_video_sync_state(double next_pts, AVRational & time_base, double * remaining_time)
+SyncClockManager::SyncState AudioMasterSyncStrategy::get_current_video_sync_state(double next_pts, AVRational & time_base, int serial, double * remaining_time)
 {
-        SyncClockManager::SyncState state;
+    SyncClockManager::SyncState state;
     double current_time = av_gettime_relative() / 1000000.0;
     //该帧还需继续显示
     double change_video_time = mVideoClock.getLastUpdateTime() + av_q2d(time_base) * compute_real_video_last_duration() / mSpeed;
@@ -53,7 +53,7 @@ SyncClockManager::SyncState AudioMasterSyncStrategy::get_current_video_sync_stat
         state = SyncClockManager::SyncState::SYNC_STATE_KEEP;
     } else {
         //更新时钟
-        mVideoClock.update(current_time, next_pts - mVideoClock.getLastPts(), next_pts, time_base);
+        mVideoClock.update(current_time, next_pts, time_base, serial);
         if (current_time > mVideoClock.getLastUpdateTime())
         {
             state = SyncClockManager::SyncState::SYNC_STATE_DROP;
@@ -62,7 +62,7 @@ SyncClockManager::SyncState AudioMasterSyncStrategy::get_current_video_sync_stat
         }
     }
 
-    // av_log(nullptr, AV_LOG_DEBUG, "[Disco][VideoMasterSyncStrategy::get_current_video_sync_state] sync_state = %d\n", state);
+    Log::get_instance().log_debug("[Disco][VideoMasterSyncStrategy::get_current_video_sync_state] sync_state = %d\n", state);
     return state;
 
 }
@@ -106,4 +106,11 @@ void AudioMasterSyncStrategy::pause()
 int64_t AudioMasterSyncStrategy::get_current_position()
 {
     return mAudioClock.getTransformedLastPts();
+}
+
+void AudioMasterSyncStrategy::seek(uint64_t postion)
+{
+    int64_t current_time = av_gettime_relative() / 1000000.0;
+    mAudioClock.seek(current_time, postion);
+    mVideoClock.seek(current_time, postion);
 }

@@ -24,13 +24,16 @@ private:
     double mLastPts;
     /* 展示视频帧或者音频帧期间暂停的时长 */
     double mLastPauseDuration;
-
+    /* 帧的serial*/
+    int mLastSerial;
     /* 暂停时的系统时刻 */
     double mPauseStartTime;
     /* 是否暂停 */ 
     bool mIsPause;
     /*PTS时间单位*/
     AVRational mRational;
+    /*seek后的当前系统时间无法通过 AVRational 和 pts 给出，则用seek_position*/
+    int64_t mSeekPosition;
 public:
     Clock(/* args */);
     ~Clock();
@@ -44,7 +47,10 @@ public:
     /* 转换过后的上次更新的帧的PTS */
     int64_t getTransformedLastPts();
     /* 更新时钟 */ 
-    void update(double time, double duration, double pts, AVRational & time_base);
+    void update(double time, double pts, AVRational & time_base, int serial);
+
+    /* seek */
+    void seek(int64_t time, int64_t position);
 
     void pasue();
 

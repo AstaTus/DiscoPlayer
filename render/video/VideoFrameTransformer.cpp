@@ -1,6 +1,6 @@
 #include "VideoFrameTransformer.h"
 #include "../../codec/FrameWrapper.h"
-
+#include "../../common/log/Log.h"
 extern "C"
 {
     #include "libavcodec/avcodec.h"
@@ -36,7 +36,7 @@ VideoTransformNode * VideoFrameTransformer::non_block_pop_transformed_node()
     VideoTransformNode * node = mTransformNodeQueue.non_block_pop_node();
     if (node != nullptr)
     {
-        av_log(nullptr, AV_LOG_DEBUG, "[Disco][VideoFrameTransformer] non_block_pop_transformed_node pop node\n");
+        Log::get_instance().log_debug("[Disco][VideoFrameTransformer] non_block_pop_transformed_node pop node\n");
     }
     
     return node;

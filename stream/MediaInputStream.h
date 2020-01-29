@@ -6,12 +6,14 @@
 #include <string>
 using namespace std;
 
-
 struct AVFormatContext;
 class MediaInputStream
 {
 private:
     AVFormatContext	*pFormatContext;
+    int mSerial;
+    int64_t mSerialStartTime;
+
 public:
     MediaInputStream(/* args */);
     ~MediaInputStream();
@@ -20,8 +22,13 @@ public:
     bool close();
     bool pause();
 
+    int get_serial();
+    int64_t get_serial_start_time();
+
     int64_t get_duration();
     IStreamIterator* get_stream_iterator() const;
     Reader* get_packet_reader() const;
+
+    void seek(int64_t position);
 };
 #endif

@@ -16,6 +16,7 @@ struct AVCodecContext;
 struct AVPacket;
 struct FrameWrapper;
 struct AVStream;
+struct PacketWrapper;
 
 extern "C"
 {
@@ -41,9 +42,9 @@ private:
 
     //解packet
     Reader * pPacketReader;
-    ConcurrentCachePool<AVPacket> mPacketConcurrentCachePool;
-    ConcurrentQueue<AVPacket> mVideoPacketQueue;
-    ConcurrentQueue<AVPacket> mAudioPacketQueue;
+    ConcurrentCachePool<PacketWrapper> mPacketWrapperConcurrentCachePool;
+    ConcurrentQueue<PacketWrapper> mVideoWrapperPacketQueue;
+    ConcurrentQueue<PacketWrapper> mAudioWrapperPacketQueue;
 
     //解frame
     vector<FrameQueue*> mFrameQueues;
@@ -52,6 +53,11 @@ private:
     std::future<void> mDecodePacketFuture;
     std::future<void> mDecodeVideoFrameFuture;
     std::future<void> mDecodeAudioFrameFuture;
+
+    std::atomic<bool> mIsVideoPause;
+    std::atomic<bool> mIsAudioPause;
+    std::atomic<bool> mIsVideoRequestSeek;
+    std::atomic<bool> mIsAudioRequestSeek;
     
     
     bool init_decodes();
@@ -59,9 +65,15 @@ private:
     void unpack_packet_loop();
     void unpack_video_frame_loop();
     void unpack_audio_frame_loop();
+
+    void unpack_frame_loop(ConcurrentQueue<PacketWrapper> * concurrent_queue,
+        std::atomic<bool>& is_pause, 
+        std::atomic<bool>& is_request_seek);
 public:
     MediaDecoder(IStreamIterator * input_stream_iterator, Reader * packet_reader);
     ~MediaDecoder();
+
+    void flush();
 
     FrameWrapper * pop_frame(AVMediaType type);
     void recycle_frame(AVMediaType type, FrameWrapper* frame);
@@ -70,5 +82,8 @@ public:
     bool stop();
     bool pause();
     bool resume();
+    void invalid_cache();
+
+    bool is_seeking();
 };
 #endif

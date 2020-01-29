@@ -1,6 +1,6 @@
 #include "AudioFrameTransformer.h"
 #include "../../codec/FrameWrapper.h"
-
+#include "../../common/log/Log.h"
 AudioFrameTransformer::AudioFrameTransformer(/* args */)
 :mTransformNodeQueue(),
 mClipCachePool(AUDIO_CLIP_CACHE_POOL_SIZE),
@@ -29,7 +29,7 @@ AudioTransformNode * AudioFrameTransformer::non_block_pop_transformed_node()
     AudioTransformNode * node = mTransformNodeQueue.non_block_pop_node();
     if (node != nullptr)
     {
-        av_log(nullptr, AV_LOG_DEBUG, "[Disco][AudioFrameTransformer] non_block_pop_transformed_node pop node\n");
+        Log::get_instance().log_debug("[Disco][AudioFrameTransformer] non_block_pop_transformed_node pop node\n");
     }
     
     return node;

@@ -17,6 +17,7 @@
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QTime>
+#include <QKeyEvent>
 const static int SCREEN_WIDTH = 1080;
 const static int SCREEN_HEIGHT = 720;
 
@@ -28,6 +29,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    this->grabKeyboard();
     init();
     start();
 }
@@ -35,6 +37,29 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::keyPressEvent(QKeyEvent *ev)
+{
+    if(ev->key() == Qt::Key_Right)
+    {
+        int64_t position = mpCorePlayer->get_current_position() + 3000;
+        if(position > mpCorePlayer->get_duration()) {
+            position = mpCorePlayer->get_duration();
+        }
+       mpCorePlayer->seek(position);
+       return;
+    } else if (ev->key() == Qt::Key_Left)
+    {
+        int64_t position = mpCorePlayer->get_current_position() - 3000;
+        if(position < 0) {
+            position = 0;
+        }
+       mpCorePlayer->seek(position);
+        return;
+    }
+
+    QWidget::keyPressEvent(ev);
 }
 
 void MainWindow::init()
@@ -102,7 +127,7 @@ void MainWindow::PlayProgressTimerTimeOut()
     if (mpCorePlayer != nullptr && mpProgressLabel != nullptr)
     {
         QString duration_str = formatTime(mpCorePlayer->get_duration());
-        QString current_pos_str = formatTime(mpCorePlayer->get_current_position() * 1000);
+        QString current_pos_str = formatTime(mpCorePlayer->get_current_position());
         mpProgressLabel->setText(current_pos_str + " / " + duration_str);
     }
 }

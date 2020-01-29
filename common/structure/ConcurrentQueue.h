@@ -95,7 +95,7 @@ T *ConcurrentQueue<T>::block_peek_node()
 template <class T>
 T *ConcurrentQueue<T>::non_block_pop_node()
 {
-    T *node = NULL;
+    T *node = nullptr;
     std::lock_guard<std::mutex> queue_lock(mQueueMutex);
     if (mQueue.size() > 0)
     {

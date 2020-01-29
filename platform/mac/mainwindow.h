@@ -23,6 +23,7 @@ public:
 
 protected:
     void onPlayAndPauseButtonClicked();
+    void keyPressEvent(QKeyEvent *ev) override;
 private:
 
     void init();

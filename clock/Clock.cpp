@@ -12,7 +12,9 @@ mLastPts(0.0),
 mLastPauseDuration(0.0),
 mIsPause(false),
 mPauseStartTime(0.0),
-mRational()
+mRational(),
+mSeekPosition(0),
+mLastSerial(-1)
 {
 }
 
@@ -34,14 +36,22 @@ double Clock::getLastPts()
     return mLastPts;
 }
 
-void Clock::update(double time, double duration, double pts, AVRational & time_base)
+void Clock::update(double time, double pts, AVRational & time_base, int serial)
 {
-    mLastDuration = duration;
+    if (mLastSerial != serial)
+    {
+        mLastDuration = 0;
+    } else {
+        mLastDuration = pts - mLastPts;
+    }
+
     mLastUpdateTime = time;
     mLastPts = pts;
+    mLastSerial = serial;
     mLastPauseDuration = 0.0;
     mRational.den = time_base.den;
     mRational.num = time_base.num;
+    mSeekPosition = 0;
 }
 
 void Clock::pasue()
@@ -63,6 +73,21 @@ void Clock::resume()
 
 int64_t Clock::getTransformedLastPts()
 {
-    return av_q2d(mRational) * getLastPts();
+    if (mRational.den == 0 && mRational.num == 0)
+    {
+        return mSeekPosition;
+    } else {
+        return av_q2d(mRational) * getLastPts() * 1000;
+    } 
+}
+
+void Clock::seek(int64_t time, int64_t position)
+{
+    // mSeekPosition = position;
+    // mLastUpdateTime = time;
+    // mLastPts = position;
+    // mLastDuration = 0;
+    // mRational.den = 0;
+    // mRational.num = 0;
 }
 

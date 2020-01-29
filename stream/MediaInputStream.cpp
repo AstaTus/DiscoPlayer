@@ -11,7 +11,9 @@ extern "C"
 }
 
 MediaInputStream::MediaInputStream(/* args */)
-:pFormatContext(NULL)
+:pFormatContext(nullptr),
+mSerial(0),
+mSerialStartTime(0)
 {
 }
 
@@ -28,7 +30,7 @@ IStreamIterator* MediaInputStream::get_stream_iterator() const
 
 Reader* MediaInputStream::get_packet_reader() const
 {
-    Reader * reader = new PacketReader(pFormatContext);
+    Reader * reader = new PacketReader(pFormatContext, &mSerial, &mSerialStartTime);
     return reader;
 }
 
@@ -68,4 +70,31 @@ int64_t MediaInputStream::get_duration()
     }
 
     return 0;
+}
+
+void MediaInputStream::seek(int64_t position)
+{
+    int64_t start_timestamp = pFormatContext->start_time == AV_NOPTS_VALUE ? 0 : pFormatContext->start_time;
+    for (int i = 0; i < pFormatContext->nb_streams; i++)
+    {
+        // pFormatContext->streams[i]->timesc
+        int64_t timestamp = start_timestamp + position / 1000 / av_q2d(pFormatContext->streams[i]->time_base);
+        int ret = av_seek_frame(pFormatContext, i, timestamp, AVSEEK_FLAG_BACKWARD); 
+        if (ret < 0) {
+            // ERR("mod:%d, %s: could not seek to position %d\n", handle->id,
+            //     handle->params.path, handle->params.seekoffset);
+        }
+    }
+    mSerial++;
+    mSerialStartTime = position;
+}
+
+int MediaInputStream::get_serial()
+{
+    return mSerial;
+}
+
+int64_t MediaInputStream::get_serial_start_time()
+{
+    return mSerialStartTime;
 }

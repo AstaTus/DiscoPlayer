@@ -55,18 +55,17 @@ set(YUV_LIBRARY ${MAC_DISCO_PLAYER_ROOT_DIR}/dependency/libyuv/debug/libyuv.dyli
 # 添加其他模块
 set( DISCO_CLOCK_DIR ${MAC_DISCO_PLAYER_ROOT_DIR}/clock)
 set( DISCO_CODEC_DIR ${MAC_DISCO_PLAYER_ROOT_DIR}/codec)
-# set( DISCO_COMMON_DIR ${MAC_DISCO_PLAYER_ROOT_DIR}/common)
+set( DISCO_COMMON_DIR ${MAC_DISCO_PLAYER_ROOT_DIR}/common)
 set( DISCO_PLAYER_DIR ${MAC_DISCO_PLAYER_ROOT_DIR}/player)
 set( DISCO_RENDER_DIR ${MAC_DISCO_PLAYER_ROOT_DIR}/render)
 set( DISCO_STREAM_DIR ${MAC_DISCO_PLAYER_ROOT_DIR}/stream)
-
+set( DISCO_COMMON_DIR ${MAC_DISCO_PLAYER_ROOT_DIR}/common)
 add_subdirectory(${DISCO_CLOCK_DIR} clock)
 add_subdirectory(${DISCO_CODEC_DIR} codec)
-# add_subdirectory(${DISCO_COMMON_DIR} common)
+add_subdirectory(${DISCO_COMMON_DIR} common)
 add_subdirectory(${DISCO_PLAYER_DIR} player)
 add_subdirectory(${DISCO_RENDER_DIR} render)
 add_subdirectory(${DISCO_STREAM_DIR} stream)
-
 #添加资源文件
 set(RCC_FILES ./resources/resource.qrc)
 
@@ -106,4 +105,5 @@ target_link_libraries(MacDiscoPlayer
         DiscoPlayer
         DiscoVideo
         DiscoAudio
-        DiscoStream)    
+        DiscoStream
+        DiscoCommon)    

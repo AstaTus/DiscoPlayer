@@ -27,10 +27,12 @@ public:
     SyncClockManager(SyncStrategy strategy);
     ~SyncClockManager();
 
-    SyncState get_current_video_sync_state(double next_pts, AVRational & time_base, double * remaining_time);
+    SyncState get_current_video_sync_state(double next_pts, AVRational & time_base, int serial, double * remaining_time);
 
-    SyncState get_current_audio_sync_state(double next_pts, AVRational & time_base, double * remaining_time);
+    SyncState get_current_audio_sync_state(double next_pts, AVRational & time_base, int serial, double * remaining_time);
 
+    void seek(int64_t position);
+    
     void pause();
 
     void resume();

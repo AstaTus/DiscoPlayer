@@ -36,6 +36,7 @@ private:
     std::future<void> mAudioRenderFuture;
     std::future<void> mVideoTransformFuture;
     std::future<void> mAudioTransformFuture;
+    std::future<void> mSeekFuture;
 
     std::atomic<bool> mIsStop;
 
@@ -53,6 +54,7 @@ private:
     void video_render_loop_task();
     void video_frame_transform_loop_task();
     void audio_frame_transform_loop_task();
+    void seek_task(int64_t position);
 
     void on_audio_data_request_begin() override;
     void on_audio_data_request_end() override;
@@ -81,10 +83,21 @@ public:
 
     void stop();
 
+    /**
+     * @param position 单位毫秒
+    */
+    void seek(int64_t position);
+
     void init_states();
 
+    /**
+     * @return 返回目前视频长度，单位毫秒
+    */
     int64_t get_duration();
 
+    /**
+     * @return 返回目前视频播放的进度，单位毫秒
+    */
     int64_t get_current_position();
 };
 #endif
