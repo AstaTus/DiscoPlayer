@@ -13,9 +13,10 @@ find_library(AVDEVICE_LIBRARY avdevice)
 
 # 查找当前目录下的所有源文件
 # 并将名称保存到 DIR_LIB_SRCS 变量
-aux_source_directory(./log DIR_LIB_SRCS)
-message("DiscoCommon include " ${DIR_LIB_SRCS})
+aux_source_directory(./log DIR_LOG_LIB_SRCS)
+aux_source_directory(./thread DIR_THREAD_LIB_SRCS)
+message("DiscoCommon include " ${DIR_LOG_LIB_SRCS})
 # 生成链接库
-add_library(DiscoCommon ${DIR_LIB_SRCS})
+add_library(DiscoCommon ${DIR_LOG_LIB_SRCS} ${DIR_THREAD_LIB_SRCS})
 
 target_include_directories(DiscoCommon PRIVATE ${AVUTIL_INCLUDE_DIR})

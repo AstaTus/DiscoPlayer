@@ -15,7 +15,9 @@
 
 #include "../clock/SyncClockManager.h"
 
-#include "StateManager.h"
+#include "state/StateManager.h"
+
+#include "ActivateNodeManager.h"
 #include <future>
 class CorePlayer : public AudioDataRequestListener
 {
@@ -35,25 +37,23 @@ private:
     std::future<void> mVideoRenderFuture;
     std::future<void> mAudioRenderFuture;
     std::future<void> mVideoTransformFuture;
-    std::future<void> mAudioTransformFuture;
+
     std::future<void> mSeekFuture;
 
     std::atomic<bool> mIsStop;
 
-    VideoFrameTransformer mVideoFrameTransformer;
-    VideoTransformNode * pCurrentVideoNode;
-
-    AudioFrameTransformer mAudioFrameTransformer;
-    AudioTransformNode * pCurrentAudioNode;
+    VideoFrameTransformer * mpVideoFrameTransformer;
+    AudioFrameTransformer * mpAudioFrameTransformer;
 
     SyncClockManager mSyncClockManager;
 
     StateManager mStateManager;
 
+    ActivateNodeManager * mpActivateNodeManager;
+
     void init_task();
     void video_render_loop_task();
-    void video_frame_transform_loop_task();
-    void audio_frame_transform_loop_task();
+    
     void seek_task(int64_t position);
 
     void on_audio_data_request_begin() override;

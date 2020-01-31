@@ -10,22 +10,22 @@
 #include "../common/structure/ConcurrentQueue.h"
 #include "../common/cache/ConcurrentCachePool.h"
 
+#include "CodecHeader.h"
+
 class IStreamIterator;
 class Reader;
 struct AVCodecContext;
 struct AVPacket;
-struct FrameWrapper;
 struct AVStream;
 struct PacketWrapper;
-
+class FrameReader;
 extern "C"
 {
 	#include "libavutil/avutil.h"
 }
 
 using namespace std;
-using FrameConcurrentCachePool = ConcurrentCachePool<FrameWrapper>;
-using FrameQueue = ConcurrentQueue<FrameWrapper>;
+
 
 class MediaDecoder
 {
@@ -75,9 +75,6 @@ public:
 
     void flush();
 
-    FrameWrapper * pop_frame(AVMediaType type);
-    void recycle_frame(AVMediaType type, FrameWrapper* frame);
-
     bool start();
     bool stop();
     bool pause();
@@ -85,5 +82,9 @@ public:
     void invalid_cache();
 
     bool is_seeking();
+
+    FrameReader * get_video_frame_reader();
+
+    FrameReader * get_audio_frame_reader();
 };
 #endif

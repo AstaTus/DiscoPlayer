@@ -1,0 +1,151 @@
+Date : 2020-01-31 01:46:24
+Directory : /Users/laoganbu/project/player
+Total : 105 files,  3831 codes, 453 comments, 994 blanks, all 5278 lines
+
+Languages
++--------------+------------+------------+------------+------------+------------+
+| language     | files      | code       | comment    | blank      | total      |
++--------------+------------+------------+------------+------------+------------+
+| C++          |         90 |      3,384 |        405 |        839 |      4,628 |
+| Makefile     |          9 |        291 |         48 |        133 |        472 |
+| CMake        |          1 |        129 |          0 |         22 |        151 |
+| GLSL         |          2 |         24 |          0 |          0 |         24 |
+| XML          |          2 |          2 |          0 |          0 |          2 |
+| Shell Script |          1 |          1 |          0 |          0 |          1 |
++--------------+------------+------------+------------+------------+------------+
+
+Directories
++-------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                    | files      | code       | comment    | blank      | total      |
++-------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                       |        105 |      3,831 |        453 |        994 |      5,278 |
+| clock                                                                   |         13 |        415 |         50 |        125 |        590 |
+| cmake-modules                                                           |          1 |        129 |          0 |         22 |        151 |
+| codec                                                                   |          5 |        429 |         79 |        110 |        618 |
+| common                                                                  |          5 |        257 |          6 |         59 |        322 |
+| common/cache                                                            |          1 |         78 |          3 |         16 |         97 |
+| common/log                                                              |          2 |         57 |          1 |         14 |         72 |
+| common/structure                                                        |          1 |        109 |          2 |         21 |        132 |
+| platform                                                                |         24 |        635 |        134 |        180 |        949 |
+| platform/mac                                                            |         24 |        635 |        134 |        180 |        949 |
+| platform/mac/resources                                                  |          2 |          2 |          0 |          0 |          2 |
+| platform/mac/shader                                                     |          2 |         24 |          0 |          0 |         24 |
+| player                                                                  |         18 |        762 |         76 |        195 |      1,033 |
+| player/state                                                            |          7 |        267 |         34 |         69 |        370 |
+| render                                                                  |         26 |        698 |         50 |        182 |        930 |
+| render/audio                                                            |         12 |        328 |         15 |         86 |        429 |
+| render/video                                                            |         13 |        316 |         33 |         74 |        423 |
+| stream                                                                  |         11 |        280 |         11 |         58 |        349 |
++-------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++-------------------------------------------------------------------------+--------------+------------+------------+------------+------------+
+| filename                                                                | language     | code       | comment    | blank      | total      |
++-------------------------------------------------------------------------+--------------+------------+------------+------------+------------+
+| /Users/laoganbu/project/player/clock/AudioMasterSyncStrategy.cpp        | C++          |         81 |         13 |         23 |        117 |
+| /Users/laoganbu/project/player/clock/AudioMasterSyncStrategy.h          | C++          |         18 |          1 |          9 |         28 |
+| /Users/laoganbu/project/player/clock/Clock.cpp                          | C++          |         74 |          6 |         14 |         94 |
+| /Users/laoganbu/project/player/clock/Clock.h                            | C++          |         32 |         22 |          6 |         60 |
+| /Users/laoganbu/project/player/clock/NaturalMasterSyncStrategy.cpp      | C++          |          0 |          0 |          1 |          1 |
+| /Users/laoganbu/project/player/clock/NaturalMasterSyncStrategy.h        | C++          |          0 |          0 |          1 |          1 |
+| /Users/laoganbu/project/player/clock/SyncClockManager.cpp               | C++          |         44 |          0 |          9 |         53 |
+| /Users/laoganbu/project/player/clock/SyncClockManager.h                 | C++          |         31 |          0 |         11 |         42 |
+| /Users/laoganbu/project/player/clock/SyncStrategy.cpp                   | C++          |         12 |          0 |          5 |         17 |
+| /Users/laoganbu/project/player/clock/SyncStrategy.h                     | C++          |         24 |          5 |          9 |         38 |
+| /Users/laoganbu/project/player/clock/VideoMasterSyncStrategy.cpp        | C++          |         55 |          2 |         17 |         74 |
+| /Users/laoganbu/project/player/clock/VideoMasterSyncStrategy.h          | C++          |         17 |          1 |         10 |         28 |
+| /Users/laoganbu/project/player/clock/disco_clock.mk                     | Makefile     |         27 |          0 |         10 |         37 |
+| /Users/laoganbu/project/player/cmake-modules/FindFFmpeg.cmake           | CMake        |        129 |          0 |         22 |        151 |
+| /Users/laoganbu/project/player/codec/FrameWrapper.h                     | C++          |         27 |          0 |          4 |         31 |
+| /Users/laoganbu/project/player/codec/Makefile                           | Makefile     |         76 |         43 |         48 |        167 |
+| /Users/laoganbu/project/player/codec/MediaDecoder.cpp                   | C++          |        248 |         34 |         32 |        314 |
+| /Users/laoganbu/project/player/codec/MediaDecoder.h                     | C++          |         67 |          2 |         20 |         89 |
+| /Users/laoganbu/project/player/codec/disco_codec.mk                     | Makefile     |         11 |          0 |          6 |         17 |
+| /Users/laoganbu/project/player/common/cache/ConcurrentCachePool.h       | C++          |         78 |          3 |         16 |         97 |
+| /Users/laoganbu/project/player/common/disco_common.mk                   | Makefile     |         13 |          0 |          8 |         21 |
+| /Users/laoganbu/project/player/common/log/Log.cpp                       | C++          |          9 |          0 |          3 |         12 |
+| /Users/laoganbu/project/player/common/log/Log.h                         | C++          |         48 |          1 |         11 |         60 |
+| /Users/laoganbu/project/player/common/structure/ConcurrentQueue.h       | C++          |        109 |          2 |         21 |        132 |
+| /Users/laoganbu/project/player/makefile                                 | Makefile     |         53 |          3 |         14 |         70 |
+| /Users/laoganbu/project/player/platform/mac/DiscoMainWindow.cpp         | C++          |          0 |         12 |          2 |         14 |
+| /Users/laoganbu/project/player/platform/mac/DiscoMainWindow.h           | C++          |          0 |         16 |          7 |         23 |
+| /Users/laoganbu/project/player/platform/mac/MacDiscoPlayer.cpp          | C++          |          2 |          0 |          2 |          4 |
+| /Users/laoganbu/project/player/platform/mac/MacDiscoPlayer.h            | C++          |          3 |          3 |          4 |         10 |
+| /Users/laoganbu/project/player/platform/mac/OpenGLRenderWidget.cpp      | C++          |        136 |         31 |         28 |        195 |
+| /Users/laoganbu/project/player/platform/mac/OpenGLRenderWidget.h        | C++          |         32 |          2 |         11 |         45 |
+| /Users/laoganbu/project/player/platform/mac/QRenderWidget.cpp           | C++          |         61 |          0 |          9 |         70 |
+| /Users/laoganbu/project/player/platform/mac/QRenderWidget.h             | C++          |         27 |          0 |          8 |         35 |
+| /Users/laoganbu/project/player/platform/mac/QSeekBar.cpp                | C++          |          0 |          0 |          1 |          1 |
+| /Users/laoganbu/project/player/platform/mac/QSeekBar.h                  | C++          |          4 |          0 |          1 |          5 |
+| /Users/laoganbu/project/player/platform/mac/QtTest.cpp                  | C++          |         16 |          2 |          3 |         21 |
+| /Users/laoganbu/project/player/platform/mac/SDLAudioDevice.cpp          | C++          |         66 |         11 |         21 |         98 |
+| /Users/laoganbu/project/player/platform/mac/SDLAudioDevice.h            | C++          |         18 |          0 |          9 |         27 |
+| /Users/laoganbu/project/player/platform/mac/SDLRenderView.cpp           | C++          |         44 |          0 |          7 |         51 |
+| /Users/laoganbu/project/player/platform/mac/SDLRenderView.h             | C++          |         18 |          0 |          9 |         27 |
+| /Users/laoganbu/project/player/platform/mac/build.sh                    | Shell Script |          1 |          0 |          0 |          1 |
+| /Users/laoganbu/project/player/platform/mac/disco_player_mac.mk         | Makefile     |         18 |          0 |          8 |         26 |
+| /Users/laoganbu/project/player/platform/mac/mainwindow.cpp              | C++          |        127 |          5 |         26 |        158 |
+| /Users/laoganbu/project/player/platform/mac/mainwindow.h                | C++          |         36 |          0 |         10 |         46 |
+| /Users/laoganbu/project/player/platform/mac/resources/pause.svg         | XML          |          1 |          0 |          0 |          1 |
+| /Users/laoganbu/project/player/platform/mac/resources/play.svg          | XML          |          1 |          0 |          0 |          1 |
+| /Users/laoganbu/project/player/platform/mac/shader/YUV2RGB.frag         | GLSL         |         16 |          0 |          0 |         16 |
+| /Users/laoganbu/project/player/platform/mac/shader/YUV2RGB.vert         | GLSL         |          8 |          0 |          0 |          8 |
+| /Users/laoganbu/project/player/platform/mac/test.cpp                    | C++          |          0 |         52 |         14 |         66 |
+| /Users/laoganbu/project/player/player/ActivateNodeManager.cpp           | C++          |         92 |          0 |         16 |        108 |
+| /Users/laoganbu/project/player/player/ActivateNodeManager.h             | C++          |         34 |         13 |          8 |         55 |
+| /Users/laoganbu/project/player/player/CorePlayer.cpp                    | C++          |        239 |         16 |         43 |        298 |
+| /Users/laoganbu/project/player/player/CorePlayer.h                      | C++          |         63 |         10 |         32 |        105 |
+| /Users/laoganbu/project/player/player/IDiscoPlayer.h                    | C++          |         19 |          2 |         11 |         32 |
+| /Users/laoganbu/project/player/player/PlayItem.cpp                      | C++          |          9 |          0 |          2 |         11 |
+| /Users/laoganbu/project/player/player/PlayItem.h                        | C++          |         13 |          0 |          3 |         16 |
+| /Users/laoganbu/project/player/player/RenderSynchronizer.cpp            | C++          |          0 |          0 |          1 |          1 |
+| /Users/laoganbu/project/player/player/RenderSynchronizer.h              | C++          |          0 |          0 |          1 |          1 |
+| /Users/laoganbu/project/player/player/StateChangedListener.h            | C++          |         11 |          1 |          2 |         14 |
+| /Users/laoganbu/project/player/player/disco_player.mk                   | Makefile     |         15 |          0 |          7 |         22 |
+| /Users/laoganbu/project/player/player/state/BaseState.h                 | C++          |         10 |          0 |          1 |         11 |
+| /Users/laoganbu/project/player/player/state/PlayingState.cpp            | C++          |         18 |          0 |          7 |         25 |
+| /Users/laoganbu/project/player/player/state/PlayingState.h              | C++          |         15 |          0 |          4 |         19 |
+| /Users/laoganbu/project/player/player/state/SeekingState.cpp            | C++          |         47 |         12 |         13 |         72 |
+| /Users/laoganbu/project/player/player/state/SeekingState.h              | C++          |         29 |          1 |          5 |         35 |
+| /Users/laoganbu/project/player/player/state/StateManager.cpp            | C++          |        103 |          3 |         21 |        127 |
+| /Users/laoganbu/project/player/player/state/StateManager.h              | C++          |         45 |         18 |         18 |         81 |
+| /Users/laoganbu/project/player/render/audio/AudioClip.cpp               | C++          |         62 |          0 |         12 |         74 |
+| /Users/laoganbu/project/player/render/audio/AudioClip.h                 | C++          |         26 |          8 |          9 |         43 |
+| /Users/laoganbu/project/player/render/audio/AudioDataRequestListener.h  | C++          |         14 |          1 |          2 |         17 |
+| /Users/laoganbu/project/player/render/audio/AudioDevice.cpp             | C++          |         11 |          0 |          4 |         15 |
+| /Users/laoganbu/project/player/render/audio/AudioDevice.h               | C++          |         18 |          1 |          3 |         22 |
+| /Users/laoganbu/project/player/render/audio/AudioFrameTransformer.cpp   | C++          |         46 |          1 |         10 |         57 |
+| /Users/laoganbu/project/player/render/audio/AudioFrameTransformer.h     | C++          |         29 |          1 |         14 |         44 |
+| /Users/laoganbu/project/player/render/audio/AudioRender.cpp             | C++          |         10 |          0 |          2 |         12 |
+| /Users/laoganbu/project/player/render/audio/AudioRender.h               | C++          |         12 |          1 |          4 |         17 |
+| /Users/laoganbu/project/player/render/audio/AudioTransformNode.h        | C++          |         10 |          0 |          4 |         14 |
+| /Users/laoganbu/project/player/render/audio/AudioTransformProcessor.cpp | C++          |         64 |          2 |         13 |         79 |
+| /Users/laoganbu/project/player/render/audio/AudioTransformProcessor.h   | C++          |         26 |          0 |          9 |         35 |
+| /Users/laoganbu/project/player/render/disco_render.mk                   | Makefile     |         54 |          2 |         22 |         78 |
+| /Users/laoganbu/project/player/render/video/AsynRenderRefreshListener.h | C++          |         11 |          1 |          2 |         14 |
+| /Users/laoganbu/project/player/render/video/Image.cpp                   | C++          |         58 |          1 |         11 |         70 |
+| /Users/laoganbu/project/player/render/video/Image.h                     | C++          |         27 |          1 |          8 |         36 |
+| /Users/laoganbu/project/player/render/video/RenderView.cpp              | C++          |         22 |          0 |          4 |         26 |
+| /Users/laoganbu/project/player/render/video/RenderView.h                | C++          |         19 |          1 |          5 |         25 |
+| /Users/laoganbu/project/player/render/video/VideoFrameTransformer.cpp   | C++          |         49 |          2 |          8 |         59 |
+| /Users/laoganbu/project/player/render/video/VideoFrameTransformer.h     | C++          |         28 |          1 |          8 |         37 |
+| /Users/laoganbu/project/player/render/video/VideoHeader.h               | C++          |          4 |          0 |          2 |          6 |
+| /Users/laoganbu/project/player/render/video/VideoRender.cpp             | C++          |         17 |          0 |          5 |         22 |
+| /Users/laoganbu/project/player/render/video/VideoRender.h               | C++          |         18 |          6 |          9 |         33 |
+| /Users/laoganbu/project/player/render/video/VideoTransformNode.h        | C++          |         10 |          0 |          3 |         13 |
+| /Users/laoganbu/project/player/render/video/VideoTransformProcessor.cpp | C++          |         39 |         20 |          4 |         63 |
+| /Users/laoganbu/project/player/render/video/VideoTransformProcessor.h   | C++          |         14 |          0 |          5 |         19 |
+| /Users/laoganbu/project/player/stream/IStreamIterator.h                 | C++          |         10 |          0 |          3 |         13 |
+| /Users/laoganbu/project/player/stream/InputStreamIterator.cpp           | C++          |         32 |          4 |          4 |         40 |
+| /Users/laoganbu/project/player/stream/InputStreamIterator.h             | C++          |         17 |          0 |          1 |         18 |
+| /Users/laoganbu/project/player/stream/MediaInputStream.cpp              | C++          |         79 |          6 |         15 |        100 |
+| /Users/laoganbu/project/player/stream/MediaInputStream.h                | C++          |         27 |          0 |          8 |         35 |
+| /Users/laoganbu/project/player/stream/PacketReader.cpp                  | C++          |         30 |          0 |          4 |         34 |
+| /Users/laoganbu/project/player/stream/PacketReader.h                    | C++          |         19 |          0 |          4 |         23 |
+| /Users/laoganbu/project/player/stream/PacketWrapper.h                   | C++          |         25 |          1 |          4 |         30 |
+| /Users/laoganbu/project/player/stream/Reader.cpp                        | C++          |          4 |          0 |          2 |          6 |
+| /Users/laoganbu/project/player/stream/Reader.h                          | C++          |         13 |          0 |          3 |         16 |
+| /Users/laoganbu/project/player/stream/disco_stream.mk                   | Makefile     |         24 |          0 |         10 |         34 |
+| /Users/laoganbu/project/player/test.cpp                                 | C++          |        173 |         44 |         49 |        266 |
+| Total                                                                   |              |      3,831 |        453 |        994 |      5,278 |
++-------------------------------------------------------------------------+--------------+------------+------------+------------+------------+

@@ -2,10 +2,11 @@
 #include "BaseState.h"
 
 StateManager::StateManager(/* args */)
-:mCurrentPlayState(StateManager::PlayState::IDLE),
+:mCurrentPlayState(StateManager::PlayState::INIT),
 mIsPlayingByUser(false),
 mIsFirstFrameShown(false),
-mStates()
+mStates(),
+mLastPlayState(StateManager::PlayState::INIT)
 {
 }
 
@@ -28,10 +29,28 @@ void StateManager::onRenderStart()
 
 }
 
+bool StateManager::onSeekStart()
+{
+    //TODO 播放完成状态（COMPLETED）是否可以seek 
+    if (mCurrentPlayState == StateManager::PlayState::PLAYING ||
+        mCurrentPlayState == StateManager::PlayState::PAUSED ||
+        mCurrentPlayState == StateManager::PlayState::BUFFERING)
+    {
+        update_play_state(StateManager::PlayState::SEEKING);
+    }
+    
+}
+
+bool StateManager::onSeekEnd()
+{
+    // if ()
+    // {
+    //     /* code */
+    // }
+}
+
 void StateManager::onPauseByUser()
 {
-    std::lock_guard<std::mutex> state_lock(mStateMutex);
-
     mIsPlayingByUser = false;
     if (mCurrentPlayState == StateManager::PlayState::PLAYING)
     {
@@ -41,10 +60,8 @@ void StateManager::onPauseByUser()
 
 void StateManager::onResumeByUser()
 {
-    std::lock_guard<std::mutex> state_lock(mStateMutex);
     mIsPlayingByUser = true;
-    if (mCurrentPlayState == StateManager::PlayState::PREPARED ||
-        mCurrentPlayState == StateManager::PlayState::PAUSED)
+    if (mCurrentPlayState == StateManager::PlayState::PAUSED)
     {
         update_play_state(StateManager::PlayState::PLAYING);
     }
@@ -52,9 +69,7 @@ void StateManager::onResumeByUser()
 
 void StateManager::onInit()
 {
-    std::lock_guard<std::mutex> state_lock(mStateMutex);
-
-    if (mCurrentPlayState == StateManager::PlayState::IDLE)
+    if (mCurrentPlayState == StateManager::PlayState::INIT)
     {
         update_play_state(StateManager::PlayState::PREPARING);
     }
@@ -67,11 +82,8 @@ bool StateManager::onFirstFramePrepared()
         return false;
     }
 
-    std::lock_guard<std::mutex> state_lock(mStateMutex);
-
     if (mCurrentPlayState == StateManager::PlayState::PREPARING)
     {
-        update_play_state(StateManager::PlayState::PREPARED);
         if (mIsPlayingByUser)
         {
             update_play_state(StateManager::PlayState::PLAYING);
@@ -90,12 +102,15 @@ StateManager::PlayState StateManager::get_play_state()
 
 void StateManager::update_play_state(PlayState state)
 {
+    // std::lock_guard<std::mutex> state_lock(mStateMutex);
+    
     BaseState * current_state = mStates[mCurrentPlayState];
     BaseState * next_state = mStates[state];
     if(current_state != nullptr) 
     {
         current_state->on_state_exit();
     }
+    mLastPlayState.store(mCurrentPlayState.load());
     mCurrentPlayState = state;
     if(next_state != nullptr) 
     {

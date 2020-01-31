@@ -5,7 +5,7 @@
 #include <future>
 #include "../common/log/Log.h"
 #include "FrameWrapper.h"
-
+#include "FrameReader.h"
 extern "C"
 {
     #include "libavcodec/avcodec.h"
@@ -235,42 +235,18 @@ void MediaDecoder::unpack_video_frame_loop()
     unpack_frame_loop(&mVideoWrapperPacketQueue, mIsVideoPause, mIsVideoRequestSeek);
 }
 
-FrameWrapper *MediaDecoder::pop_frame(AVMediaType type)
-{
-    map<AVMediaType, int>::iterator itr = mMediaTypeIndexMap.find(type);
-    if (itr != mMediaTypeIndexMap.end())
-    {
-        FrameQueue *frame_queue = mFrameQueues[itr->second];
-        return frame_queue->block_pop_node();
-    }
-
-    // TODO 无此type 抛异常
-    return nullptr;
-}
-void MediaDecoder::recycle_frame(AVMediaType type, FrameWrapper *frame)
-{
-    map<AVMediaType, int>::iterator itr = mMediaTypeIndexMap.find(type);
-    if (itr != mMediaTypeIndexMap.end())
-    {
-        FrameConcurrentCachePool *frame_cache_pool = mFrameCachePools[itr->second];
-        frame_cache_pool->recycle_node(frame);
-    }
-    else
-    {
-        // TODO 无此type 抛异常
-    }
-}
-
 bool MediaDecoder::pause()
 {
     mIsVideoPause.store(true);
     mIsAudioPause.store(true);
+    return true;
 }
 
 bool MediaDecoder::resume()
 {
     mIsVideoRequestSeek.store(true);
     mIsAudioRequestSeek.store(true);
+    return true;
 }
 
 void MediaDecoder::invalid_cache()
@@ -287,26 +263,26 @@ bool MediaDecoder::is_seeking()
     return mIsAudioPause || mIsVideoPause;
 }
 
-void MediaDecoder::flush()
+FrameReader * MediaDecoder::get_video_frame_reader()
 {
-    // PacketWrapper * packet_wrapper = nullptr;
-    // packet_wrapper = mAudioWrapperPacketQueue.non_block_pop_node();
-    // while(packet_wrapper != nullptr) {
-    //     mPacketWrapperConcurrentCachePool.recycle_node(packet_wrapper);
-    //     packet_wrapper = mAudioWrapperPacketQueue.non_block_pop_node();
-    // }
+    std::map<AVMediaType, int>::iterator itr = mMediaTypeIndexMap.find(AVMEDIA_TYPE_VIDEO);
+    if (itr != mMediaTypeIndexMap.end())
+    {
+        return new FrameReader(mFrameQueues[itr->second],
+            mFrameCachePools[itr->second]);
+    }
+    //TODO  异常
+    return nullptr;
+}
 
-    // packet_wrapper = mVideoWrapperPacketQueue.non_block_pop_node();
-    // while(packet_wrapper != nullptr) {
-    //     mPacketWrapperConcurrentCachePool.recycle_node(packet_wrapper);
-    //     packet_wrapper = mVideoWrapperPacketQueue.non_block_pop_node();
-    // }
-
-    // for (size_t i = 0; i < mDecodes.size(); i++)
-    // {
-    //     avcodec_flush_buffers(mDecodes[i]);
-    // }
-
-    // for_each(mDecodes.begin(), mDecodes.end(), 
-    //     [](AVCodecContext* context)->void{avcodec_flush_buffers(context);});
+FrameReader * MediaDecoder::get_audio_frame_reader()
+{
+    std::map<AVMediaType, int>::iterator itr = mMediaTypeIndexMap.find(AVMEDIA_TYPE_AUDIO);
+    if (itr != mMediaTypeIndexMap.end())
+    {
+        return new FrameReader(mFrameQueues[itr->second],
+            mFrameCachePools[itr->second]);
+    }
+    //TODO  异常
+    return nullptr;
 }

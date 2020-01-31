@@ -12,7 +12,7 @@ extern "C"
 #include "libavutil/time.h"
 }
 
-#include "PlayingState.h"
+#include "./state/PlayingState.h"
 
 #define REFRESH_RATE 0.01
 
@@ -21,15 +21,11 @@ CorePlayer::CorePlayer()
       pVideoRender(nullptr),
       pRenderView(nullptr),
       pInputStream(nullptr),
-      mVideoFrameTransformer(),
-      pCurrentVideoNode(nullptr),
-      pCurrentAudioNode(nullptr),
       pCurrentPlayItem(nullptr),
       mIsStop(false),
-      mStateManager(),
-      mSyncClockManager(SyncClockManager::SYNC_STRATEGY_AUDIO)
+      mSyncClockManager(SyncClockManager::SYNC_STRATEGY_AUDIO),
+      mStateManager()
 {
-
 }
 
 CorePlayer::~CorePlayer()
@@ -37,8 +33,12 @@ CorePlayer::~CorePlayer()
     mIsStop.store(true);
     mVideoRenderFuture.wait();
     mAudioRenderFuture.wait();
-    mVideoTransformFuture.wait();
-    mAudioTransformFuture.wait();
+    mpVideoFrameTransformer->stop();
+    mpAudioFrameTransformer->stop();
+
+    delete mpVideoFrameTransformer;
+    delete mpAudioFrameTransformer;
+    delete mpActivateNodeManager;
 
     pRenderView = nullptr;
     pAudioDevice = nullptr;
@@ -82,28 +82,21 @@ void CorePlayer::init_task()
     pInputStream->open(pCurrentPlayItem->get_data_source());
     pMediaDecoder = new MediaDecoder(pInputStream->get_stream_iterator(),
                                      pInputStream->get_packet_reader());
+    mpVideoFrameTransformer = new VideoFrameTransformer(pMediaDecoder->get_video_frame_reader());
+    mpAudioFrameTransformer = new AudioFrameTransformer(pMediaDecoder->get_audio_frame_reader());
+    mpActivateNodeManager = new ActivateNodeManager(mpVideoFrameTransformer, mpAudioFrameTransformer);
+
+    mpVideoFrameTransformer->on_resize_render_view(
+        pRenderView->get_width(), pRenderView->get_height());
     pMediaDecoder->start();
+    mpAudioFrameTransformer->start();
+    mpVideoFrameTransformer->start();
     pAudioDevice->start();
 
-    mVideoRenderFuture = std::async(std::launch::async, &CorePlayer::video_render_loop_task, this);
-    // mAudioRenderFuture = std::async(std::launch::async, &CorePlayer::audio_render_loop_task, this);
-    mVideoTransformFuture = std::async(std::launch::async, &CorePlayer::video_frame_transform_loop_task, this);
-    mAudioTransformFuture = std::async(std::launch::async, &CorePlayer::audio_frame_transform_loop_task, this);
+    mVideoRenderFuture = std::async(std::launch::async, &CorePlayer::video_render_loop_task, this);    
 }
 
-void CorePlayer::video_frame_transform_loop_task()
-{
-    //只要播放器不销毁，就一直循环
-    while (mStateManager.get_play_state() != StateManager::PlayState::RELEASING)
-    {
-        //video
-        FrameWrapper *video_frame_wrapper = pMediaDecoder->pop_frame(AVMEDIA_TYPE_VIDEO);
-        mVideoFrameTransformer.push_frame_to_transform(video_frame_wrapper, pRenderView->get_width(), pRenderView->get_height());
-        Log::get_instance().log_debug("[Disco][CorePlayer] video_frame_transform_loop_task add frame to transform\n");
-    }
 
-    Log::get_instance().log_debug("[Disco][CorePlayer] video_frame_transform_loop_task thread over\n");
-}
 
 void CorePlayer::video_render_loop_task()
 {
@@ -116,7 +109,7 @@ void CorePlayer::video_render_loop_task()
         //TODO sleep
         do
         {
-            VideoTransformNode *node = mVideoFrameTransformer.non_block_peek_transformed_node();
+            VideoTransformNode *node = mpActivateNodeManager->peek_video_queue_node();
             if (node == nullptr)
             {
                 break;
@@ -126,14 +119,10 @@ void CorePlayer::video_render_loop_task()
             if (node->frame_wrapper->serial != pInputStream->get_serial() || 
                 node->frame_wrapper->frame->pts * 1000 * av_q2d(node->frame_wrapper->time_base) < pInputStream->get_serial_start_time())
             {
-                /* code */
-                mVideoFrameTransformer.non_block_pop_transformed_node();
-                mVideoFrameTransformer.recycle(node);
-                pMediaDecoder->recycle_frame(AVMEDIA_TYPE_VIDEO, node->frame_wrapper);
+                mpActivateNodeManager->recyle_peek_video_node();
                 break;
             }
             
-
             if(!mStateManager.onFirstFramePrepared() && mStateManager.get_play_state() != StateManager::PlayState::PLAYING) {
                 break;
             }
@@ -147,28 +136,22 @@ void CorePlayer::video_render_loop_task()
             if (sync_state == SyncClockManager::SyncState::SYNC_STATE_KEEP)
             {
                 //显示当前帧
-                if (pCurrentVideoNode != nullptr)
+                if (mpActivateNodeManager->get_current_video_node() != nullptr)
                 {
-                    pVideoRender->refresh(pCurrentVideoNode->image);
+                    pVideoRender->refresh(mpActivateNodeManager->get_current_video_node()->image);
                 }
             }
             else
             {
-                mVideoFrameTransformer.non_block_pop_transformed_node();
-                //回收上一帧
-                if (pCurrentVideoNode != nullptr)
-                {
-                    pVideoRender->invalid_image();
-                    mVideoFrameTransformer.recycle(pCurrentVideoNode);
-                    pMediaDecoder->recycle_frame(AVMEDIA_TYPE_VIDEO, pCurrentVideoNode->frame_wrapper);
-                    pCurrentVideoNode = nullptr;
-                }
+                mpActivateNodeManager->obtain_current_video_node();
 
                 if (sync_state == SyncClockManager::SyncState::SYNC_STATE_NEXT)
                 {
                     //显示下一帧
-                    pCurrentVideoNode = node;
-                    pVideoRender->refresh(pCurrentVideoNode->image);
+                    if (mpActivateNodeManager->get_current_video_node())
+                    {
+                        pVideoRender->refresh(mpActivateNodeManager->get_current_video_node()->image);
+                    }
                 }
             }
         } while (sync_state == SyncClockManager::SyncState::SYNC_STATE_DROP);
@@ -183,14 +166,10 @@ void CorePlayer::on_audio_data_request_begin()
 
 void CorePlayer::on_audio_data_request_end()
 {
-    if (pCurrentAudioNode != nullptr)
+    if (mpActivateNodeManager->get_current_audio_node() != nullptr && 
+        mpActivateNodeManager->get_current_audio_node()->clip->isFinish())
     {
-        if (pCurrentAudioNode->clip->isFinish())
-        {
-            pMediaDecoder->recycle_frame(AVMEDIA_TYPE_AUDIO, pCurrentAudioNode->frame_wrapper);
-            mAudioFrameTransformer.recycle(pCurrentAudioNode);
-            pCurrentAudioNode = nullptr;
-        }
+        mpActivateNodeManager->recyle_current_audio_node();
     }
 }
 
@@ -198,32 +177,31 @@ AudioClip *const CorePlayer::on_audio_data_request(int len)
 {
     double remaining_time = 0.0;
     //audio
-    if (pCurrentAudioNode == nullptr)
+    if (mpActivateNodeManager->get_current_audio_node() == nullptr)
     {
-        pCurrentAudioNode = mAudioFrameTransformer.non_block_pop_transformed_node();
+        mpActivateNodeManager->obtain_current_audio_node();
     }
 
-    if (pCurrentAudioNode != nullptr)
+    AudioTransformNode * node = mpActivateNodeManager->get_current_audio_node();
+    if (node != nullptr)
     {
         //播放完或者非当前serial的帧 回收
-        if (pCurrentAudioNode->clip->isFinish() || 
-            (pCurrentAudioNode->frame_wrapper->serial != pInputStream->get_serial() || 
-            pCurrentAudioNode->frame_wrapper->frame->pts * av_q2d(pCurrentAudioNode->frame_wrapper->time_base) * 1000 < pInputStream->get_serial_start_time()))
+        if (node->clip->isFinish() || 
+            (node->frame_wrapper->serial != pInputStream->get_serial() || 
+            node->frame_wrapper->frame->pts * av_q2d(node->frame_wrapper->time_base) * 1000 < pInputStream->get_serial_start_time()))
         {
-            pMediaDecoder->recycle_frame(AVMEDIA_TYPE_AUDIO, pCurrentAudioNode->frame_wrapper);
-            mAudioFrameTransformer.recycle(pCurrentAudioNode);
-            pCurrentAudioNode = nullptr;
+            mpActivateNodeManager->recyle_current_audio_node();
             return nullptr;
-        } 
+        }
         else 
         {
             mSyncClockManager.get_current_audio_sync_state(
-                pCurrentAudioNode->frame_wrapper->frame->pts,
-                pCurrentAudioNode->frame_wrapper->time_base,
-                pCurrentAudioNode->frame_wrapper->serial,
+                node->frame_wrapper->frame->pts,
+                node->frame_wrapper->time_base,
+                node->frame_wrapper->serial,
                 &remaining_time);
             
-            return pCurrentAudioNode->clip;
+            return node->clip;
         }
     }
 
@@ -231,19 +209,6 @@ AudioClip *const CorePlayer::on_audio_data_request(int len)
     //同步音频
     // audio_transform_node->clip
     //     pAudioRender->refresh();
-}
-
-void CorePlayer::audio_frame_transform_loop_task()
-{
-    while (mStateManager.get_play_state() != StateManager::PlayState::RELEASING)
-    {
-        //video
-        FrameWrapper *audio_frame_wrapper = pMediaDecoder->pop_frame(AVMEDIA_TYPE_AUDIO);
-        mAudioFrameTransformer.push_frame_to_transform(audio_frame_wrapper);
-        Log::get_instance().log_debug("[Disco][CorePlayer] audio_frame_transform_loop_task add frame to transform\n");
-    }
-
-    Log::get_instance().log_debug("[Disco][CorePlayer] audio_frame_transform_loop_task thread over\n");
 }
 
 void CorePlayer::start()
@@ -306,13 +271,5 @@ void CorePlayer::seek(int64_t position)
 
 void CorePlayer::seek_task(int64_t position)
 {
-    if (!pMediaDecoder->is_seeking())
-    {
-        pAudioDevice->pause();
-        pMediaDecoder->pause();
-        pInputStream->seek(position);
-        pMediaDecoder->resume();
-        pAudioDevice->resume();
-        Log::get_instance().log_debug("[Disco][CorePlayer::seek]");
-    }
+
 }

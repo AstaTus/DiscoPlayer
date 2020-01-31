@@ -13,8 +13,9 @@ find_library(AVDEVICE_LIBRARY avdevice)
 
 # 查找当前目录下的所有源文件
 # 并将名称保存到 DIR_LIB_SRCS 变量
-aux_source_directory(. DIR_LIB_SRCS)
+aux_source_directory(. DIR_LIB_SRCS1)
+aux_source_directory(./state DIR_LIB_SRCS2)
 # 生成链接库
-add_library (DiscoPlayer ${DIR_LIB_SRCS})
+add_library (DiscoPlayer ${DIR_LIB_SRCS1} ${DIR_LIB_SRCS2})
 
 target_include_directories(DiscoPlayer PRIVATE ${AVCODEC_INCLUDE_DIR})

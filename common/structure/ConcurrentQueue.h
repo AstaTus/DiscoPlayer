@@ -96,13 +96,16 @@ template <class T>
 T *ConcurrentQueue<T>::non_block_pop_node()
 {
     T *node = nullptr;
-    std::lock_guard<std::mutex> queue_lock(mQueueMutex);
-    if (mQueue.size() > 0)
+    std::unique_lock<std::mutex> queue_try_lock(mQueueMutex, std::try_to_lock);
+    if (queue_try_lock.owns_lock())
     {
-        node = mQueue.front();
-        mQueue.pop();
+        if (mQueue.size() > 0)
+        {
+            node = mQueue.front();
+            mQueue.pop();
+        }
     }
-
+    
     return node;
 }
 

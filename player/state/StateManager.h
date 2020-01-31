@@ -3,18 +3,22 @@
 
 #include <condition_variable>
 #include <map>
+#include <queue>
+#include <atomic>
 class BaseState;
 class StateManager
 {
 public:
     //外部状态
     enum class PlayState {
-        IDLE,
+        INIT,
         PREPARING, //播放器开始创建各种对象，拉视频数据解码变换等
-        PREPARED, //首帧准备就绪
         PLAYING, //播放中
         PAUSED, //用户暂停
         COMPLETED, //播放完成
+        SEEKING, //SEEK
+        //TODO
+        BUFFERING, //当前无帧可以播放-音频和视频帧差的较大时也走这个状态
         STOPPED, //播放器停止？？？
         ERROR, //播放出错
         RELEASING, //播放器开始释放各种对象
@@ -37,8 +41,19 @@ public:
      * @return 是否首帧已经展示过
     */
     bool onFirstFramePrepared();
+
+    /**
+     * 
+    */
+    bool onSeekStart();
+
+    bool onSeekEnd();
+
+
     void onPauseByUser();
     void onResumeByUser();
+
+
 
     StateManager::PlayState get_play_state();
 
@@ -46,9 +61,12 @@ public:
 
 private:
     /* data */
-    std::mutex mStateMutex;
+    std::atomic<StateManager::PlayState> mCurrentPlayState;
 
-    StateManager::PlayState mCurrentPlayState;
+    std::atomic<StateManager::PlayState> mLastPlayState;
+    //TODO 可能需要历史的播放状态改变
+    // std::mutex mHistoryStatesMutex;
+    // std::queue<StateManager::PlayState> mHistoryPlayStateQueue;
 
     bool mIsPlayingByUser;
 
