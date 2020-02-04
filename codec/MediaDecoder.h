@@ -9,6 +9,7 @@
 
 #include "../common/structure/ConcurrentQueue.h"
 #include "../common/cache/ConcurrentCachePool.h"
+#include "../common/thread/Semaphore.h"
 
 #include "CodecHeader.h"
 
@@ -30,13 +31,19 @@ using namespace std;
 class MediaDecoder
 {
 private:
-    static const int PACKET_QUEUE_CACHE_SIZE = 400;
+    static const int PACKET_QUEUE_CACHE_SIZE = 150;
     static const int FRAME_QUEUE_CACHE_SIZE = 2;
 
     IStreamIterator * pInputStreamIterator;
     
     vector<AVCodecContext*> mDecodes;
+    AVCodecContext * mpVideoCodecContext;
+    AVCodecContext * mpAudioCodecContext;
+
     vector<AVStream*> mStreams;
+    AVStream * mpVideoStream;
+    AVStream * mpAudioStream;
+
     map<AVMediaType, int> mMediaTypeIndexMap;
     map<int, AVMediaType> mMediaIndexTypeMap;
 
@@ -50,15 +57,28 @@ private:
     vector<FrameQueue*> mFrameQueues;
     vector<FrameConcurrentCachePool*> mFrameCachePools;
 
+    FrameQueue * mpVideoQueue;
+    FrameQueue * mpAudioQueue;
+
+    FrameConcurrentCachePool * mpVideoFrameCachePool;
+    FrameConcurrentCachePool * mpAudioFrameCachePool;
+
+
     std::future<void> mDecodePacketFuture;
     std::future<void> mDecodeVideoFrameFuture;
     std::future<void> mDecodeAudioFrameFuture;
 
-    std::atomic<bool> mIsVideoPause;
-    std::atomic<bool> mIsAudioPause;
-    std::atomic<bool> mIsVideoRequestSeek;
-    std::atomic<bool> mIsAudioRequestSeek;
-    
+    std::atomic<bool> mIsClearVideoBufferAndPause;
+    std::atomic<bool> mIsClearAudioBufferAndPause;
+    std::atomic<bool> mIsClearPacketBufferAndPause;
+
+    Semaphore mVideoDecodeSemaphore;
+    Semaphore mAudioDecodeSemaphore;
+    Semaphore mPacketUnpackSemaphore;
+    Semaphore mClearBufferSemaphore;
+    Semaphore mClearBufferSyncSemaphore;
+
+    std::atomic<bool> mIsStop;
     
     bool init_decodes();
 
@@ -66,22 +86,27 @@ private:
     void unpack_video_frame_loop();
     void unpack_audio_frame_loop();
 
-    void unpack_frame_loop(ConcurrentQueue<PacketWrapper> * concurrent_queue,
-        std::atomic<bool>& is_pause, 
-        std::atomic<bool>& is_request_seek);
+    void clear_packet_buffer();
+    void clear_frame_buffer(FrameQueue* frame_queue, 
+        FrameConcurrentCachePool* frame_cache_pool,
+        AVCodecContext * codec_context);
+
+    void unpack_frame_loop(
+        ConcurrentQueue<PacketWrapper> * packet_queue,
+        FrameQueue * frame_queue,
+        AVCodecContext * codec_context,
+        FrameConcurrentCachePool * frame_cache_pool,
+        AVStream * stream,
+        std::atomic<bool>& is_clear_buffer,
+        Semaphore& semaphore);
 public:
     MediaDecoder(IStreamIterator * input_stream_iterator, Reader * packet_reader);
     ~MediaDecoder();
 
-    void flush();
-
     bool start();
     bool stop();
-    bool pause();
+    bool clear_buffer_and_pause();
     bool resume();
-    void invalid_cache();
-
-    bool is_seeking();
 
     FrameReader * get_video_frame_reader();
 

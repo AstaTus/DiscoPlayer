@@ -7,8 +7,8 @@ extern "C"
 	// #include "libavutil/imgutils.h"
 }
 
-InputStreamIterator::InputStreamIterator(AVFormatContext * format_context)
-: pFormatContext(format_context),
+InputStreamIterator::InputStreamIterator(AVFormatContext * const * format_context)
+: mppFormatContext(format_context),
 mIndex(0)
 {
     
@@ -19,7 +19,7 @@ InputStreamIterator::~InputStreamIterator()
 
 bool InputStreamIterator::has_next() const
 {
-    if (mIndex < pFormatContext->nb_streams)
+    if (mIndex < (*mppFormatContext)->nb_streams)
     {
         return true;
     }
@@ -31,9 +31,9 @@ bool InputStreamIterator::has_next() const
 
 AVStream * InputStreamIterator::next()
 {
-    if (mIndex < pFormatContext->nb_streams)
+    if (mIndex < (*mppFormatContext)->nb_streams)
     {
-        return pFormatContext->streams[mIndex++];
+        return (*mppFormatContext)->streams[mIndex++];
     }
     //TODO  是否要抛出异常
     return nullptr;

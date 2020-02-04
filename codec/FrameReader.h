@@ -8,10 +8,10 @@
 class FrameReader
 {
 private:
-    FrameConcurrentCachePool * const mpFrameCachePool;
-    FrameQueue* const mpFrameQueue;
+    FrameConcurrentCachePool * const * mppFrameCachePool;
+    FrameQueue * const * mppFrameQueue;
 public:
-    FrameReader(FrameQueue * frame_queue, FrameConcurrentCachePool* frame_cache_pool);
+    FrameReader(FrameQueue * const * frame_queue, FrameConcurrentCachePool * const * frame_cache_pool);
     ~FrameReader();
     FrameWrapper * pop_frame();
     void recycle_frame(FrameWrapper* frame);

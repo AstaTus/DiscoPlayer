@@ -8,9 +8,9 @@
 #include "../render/video/VideoRender.h"
 #include "../render/video/RenderView.h"
 #include "../render/video/VideoFrameTransformer.h"
-
-#include "../render/audio/AudioRender.h"
 #include "../render/audio/AudioDevice.h"
+#include "../render/audio/AudioRender.h"
+
 #include "../render/audio/AudioFrameTransformer.h"
 
 #include "../clock/SyncClockManager.h"
@@ -19,7 +19,7 @@
 
 #include "ActivateNodeManager.h"
 #include <future>
-class CorePlayer : public AudioDataRequestListener
+class CorePlayer
 {
 private:
     MediaDecoder * pMediaDecoder;
@@ -35,12 +35,6 @@ private:
 
     std::future<void> mInitFuture;
     std::future<void> mVideoRenderFuture;
-    std::future<void> mAudioRenderFuture;
-    std::future<void> mVideoTransformFuture;
-
-    std::future<void> mSeekFuture;
-
-    std::atomic<bool> mIsStop;
 
     VideoFrameTransformer * mpVideoFrameTransformer;
     AudioFrameTransformer * mpAudioFrameTransformer;
@@ -52,14 +46,6 @@ private:
     ActivateNodeManager * mpActivateNodeManager;
 
     void init_task();
-    void video_render_loop_task();
-    
-    void seek_task(int64_t position);
-
-    void on_audio_data_request_begin() override;
-    void on_audio_data_request_end() override;
-    AudioClip * const on_audio_data_request(int len) override;
-
 public:
     CorePlayer();
     virtual ~CorePlayer();

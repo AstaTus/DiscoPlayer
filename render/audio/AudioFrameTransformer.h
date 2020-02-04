@@ -29,7 +29,9 @@ private:
 
     std::future<void> mAudioTransformFuture;
     Semaphore mTransformSemaphore;
-    std::atomic_bool mIsTransformTaskPause;
+    Semaphore mClearBufferSemaphore;
+
+    std::atomic_bool mIsClearBufferAndPause;
     std::atomic_bool mIsTransformTaskStop;
 
     FrameReader * const mpFrameReader;
@@ -38,12 +40,18 @@ private:
 
     void push_frame_to_transform(FrameWrapper * frame);
 
+    void clear_buffer();
+
 public:
     AudioFrameTransformer(FrameReader * frame_reader);
     ~AudioFrameTransformer();
 
     AudioTransformNode * non_block_pop_transformed_node();
     AudioTransformNode * non_block_peek_transformed_node();
+
+    AudioTransformNode *block_peek_transformed_node();
+    AudioTransformNode *block_pop_transformed_node();
+
     void recycle(AudioTransformNode * transform_node);
 
     
@@ -54,11 +62,9 @@ public:
 
     void stop();
 
-    void pause();
+    bool clear_buffer_and_pause();
 
     void resume();
-
-    void clear_buffer();
 };
 #endif
 

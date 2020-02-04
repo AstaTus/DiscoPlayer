@@ -8,9 +8,11 @@ class Semaphore
 private:
     std::mutex mSemaphoreMutex;
     std::condition_variable mSemaphoreCond;
-    int mFlag;
+    //针对多个线程
+    int mCount;
+    int mInitCount;
 public:
-    Semaphore(/* args */);
+    Semaphore(int count = 1);
     ~Semaphore();
     Semaphore(const Semaphore&) = delete;
     Semaphore& operator=(const Semaphore&) = delete;

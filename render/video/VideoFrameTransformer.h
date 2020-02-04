@@ -29,7 +29,8 @@ private:
 
     std::future<void> mVideoTransformFuture;
     Semaphore mTransformSemaphore;
-    std::atomic_bool mIsTransformTaskPause;
+    Semaphore mClearBufferSemaphore;
+    std::atomic_bool mIsClearBufferAndPause;
     std::atomic_bool mIsTransformTaskStop;
 
     FrameReader *const mpFrameReader;
@@ -38,6 +39,10 @@ private:
 
     void video_frame_transform_loop_task();
     void push_frame_to_transform(FrameWrapper *frame, int width, int height);
+
+    void clear_frame_buffer();
+
+    void clear_buffer();
 public:
     VideoFrameTransformer(FrameReader *frame_reader);
     ~VideoFrameTransformer();
@@ -45,6 +50,9 @@ public:
     
     VideoTransformNode *non_block_pop_transformed_node();
     VideoTransformNode *non_block_peek_transformed_node();
+
+    VideoTransformNode *block_peek_transformed_node();
+    VideoTransformNode *block_pop_transformed_node();
     void recycle(VideoTransformNode *transform_node);
 
     //TODO 宽高改变， 重建缓存中的images
@@ -54,11 +62,9 @@ public:
 
     void stop();
 
-    void pause();
+    bool clear_buffer_and_pause();
 
     void resume();
-
-    void clear_buffer();
 
     void on_resize_render_view(int width, int height);
 };

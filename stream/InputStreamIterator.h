@@ -6,10 +6,10 @@ struct AVStream;
 class InputStreamIterator : public IStreamIterator
 {
 private:
-    AVFormatContext *pFormatContext;
+    AVFormatContext * const * mppFormatContext;
     int mIndex;
 public:
-    InputStreamIterator(AVFormatContext * format_context);
+    InputStreamIterator(AVFormatContext * const * format_context);
     ~InputStreamIterator();
 
     AVStream * next();

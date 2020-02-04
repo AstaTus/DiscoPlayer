@@ -6,11 +6,11 @@ class AVFormatContext;
 class PacketReader : public Reader
 {
 private:
-    AVFormatContext *pFormatContext;
+    AVFormatContext * const * mppFormatContext;
     const int * mpSerial;
     const int64_t * mpSerialStartTime;
 public:
-    PacketReader(AVFormatContext * format_context, 
+    PacketReader(AVFormatContext * const * format_context, 
             const int * serial, const int64_t * serial_start_time);
     virtual ~PacketReader();
 

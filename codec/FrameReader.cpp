@@ -1,8 +1,9 @@
 #include "FrameReader.h"
 
-FrameReader::FrameReader(FrameQueue *frame_queue, FrameConcurrentCachePool * frame_cache_pool)
-    : mpFrameCachePool(frame_cache_pool),
-      mpFrameQueue(frame_queue)
+FrameReader::FrameReader(FrameQueue * const * frame_queue, 
+                        FrameConcurrentCachePool * const * frame_cache_pool)
+    : mppFrameCachePool(frame_cache_pool),
+      mppFrameQueue(frame_queue)
 {
 }
 
@@ -12,9 +13,9 @@ FrameReader::~FrameReader()
 
 FrameWrapper *FrameReader::pop_frame()
 {
-    return mpFrameQueue->block_pop_node();
+    return (*mppFrameQueue)->block_pop_node();
 }
 void FrameReader::recycle_frame(FrameWrapper *frame)
 {
-    mpFrameCachePool->recycle_node(frame);
+    (*mppFrameCachePool)->recycle_node(frame);
 }

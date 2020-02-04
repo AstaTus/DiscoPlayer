@@ -2,6 +2,7 @@
 #include "../../codec/FrameWrapper.h"
 #include "../../codec/FrameReader.h"
 #include "../../common/log/Log.h"
+#include "../../common/thread/ThreadUtils.h"
 
 AudioFrameTransformer::AudioFrameTransformer(FrameReader * frame_reader)
 :mpFrameReader(frame_reader),
@@ -10,7 +11,7 @@ mClipCachePool(AUDIO_CLIP_CACHE_POOL_SIZE),
 mTransformNodeCachePool(AUDIO_CLIP_CACHE_POOL_SIZE),
 mTransformProcessor(),
 mTransformSemaphore(),
-mIsTransformTaskPause(false),
+mIsClearBufferAndPause(false),
 mIsTransformTaskStop(false)
 {
 }
@@ -44,6 +45,17 @@ AudioTransformNode * AudioFrameTransformer::non_block_peek_transformed_node()
 {
     return mTransformNodeQueue.non_block_peek_node();
 }
+
+AudioTransformNode *AudioFrameTransformer::block_peek_transformed_node()
+{
+    return mTransformNodeQueue.block_peek_node();
+}
+
+AudioTransformNode *AudioFrameTransformer::block_pop_transformed_node()
+{
+    return mTransformNodeQueue.block_pop_node();
+}
+
 void AudioFrameTransformer::recycle(AudioTransformNode * transform_node)
 {
     mpFrameReader->recycle_frame(transform_node->frame_wrapper);
@@ -59,11 +71,16 @@ void AudioFrameTransformer::start()
 
 void AudioFrameTransformer::audio_frame_transform_loop_task()
 {
+    ThreadUtils::set_thread_name("Disco Audio Frame Transformer");
     while (!mIsTransformTaskStop)
     {
-        if (mIsTransformTaskPause)
+        
+        if (mIsClearBufferAndPause)
         {
+            clear_buffer();
+            mClearBufferSemaphore.signal();
             mTransformSemaphore.wait();
+            mIsClearBufferAndPause = true;
         }
 
         FrameWrapper *audio_frame_wrapper = mpFrameReader->pop_frame();
@@ -80,14 +97,20 @@ void AudioFrameTransformer::stop()
     mIsTransformTaskStop = true;
 }
 
-void AudioFrameTransformer::pause()
+bool AudioFrameTransformer::clear_buffer_and_pause()
 {
-    mIsTransformTaskPause = true;
+    if (!mIsClearBufferAndPause)
+    {
+        mIsClearBufferAndPause = true;
+        mClearBufferSemaphore.wait();
+        return true;
+    } else {
+        return false;
+    }
 }
 
 void AudioFrameTransformer::resume()
 {
-    mIsTransformTaskPause = false;
     mTransformSemaphore.signal();
 }
 
@@ -100,6 +123,10 @@ void AudioFrameTransformer::retransform_cache_audio_clips()
 
 void AudioFrameTransformer::clear_buffer()
 {
-    
+    AudioTransformNode * node = mTransformNodeQueue.non_block_pop_node();
+    while (node != nullptr)
+    {
+        recycle(node);
+        node = mTransformNodeQueue.non_block_pop_node();
+    }
 }
-

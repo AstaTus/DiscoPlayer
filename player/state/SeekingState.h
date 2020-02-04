@@ -1,6 +1,9 @@
 #ifndef __SEEKING_STATE_H__
 #define __SEEKING_STATE_H__
 
+#include <stdint.h>
+#include "../RenderSynchronizerFinishListener.h"
+#include <future>
 #include "BaseState.h"
 
 class AudioDevice;
@@ -9,9 +12,12 @@ class MediaDecoder;
 class VideoFrameTransformer;
 class AudioFrameTransformer;
 class ActivateNodeManager;
-class SeekingState : public BaseState
+class RenderSynchronizer;
+class StateManager;
+class SeekingState : public BaseState, public RenderSynchronizerFinishListener
 {
 private:
+    StateManager * const mpStateManager;
     AudioDevice * const mpAudioDevice;
     MediaInputStream * const mpInputStream;
     MediaDecoder * const mpMediaDecoder;
@@ -19,9 +25,16 @@ private:
     AudioFrameTransformer * const mpAudioFrameTransformer;
     ActivateNodeManager * const mpActivateNodeManager;
 
-    /* data */
+    RenderSynchronizer * mpRenderSynchronizer;
+
+    std::future<void> mSeekingFuture;
+
+    void inner_seek(int64_t position);
+
+    virtual void on_synchronizer_finish() override;
 public:
-    SeekingState(AudioDevice * audio_device, 
+    SeekingState(StateManager * state_manager,
+                AudioDevice * audio_device, 
                 MediaInputStream * input_stream,
                 MediaDecoder * media_decoder,
                 VideoFrameTransformer * video_frame_transformer,
@@ -29,7 +42,7 @@ public:
                 ActivateNodeManager * activate_node_manager);
     ~SeekingState();
 
-    void on_state_enter() override;
+    virtual void on_state_enter(...) override;
     void on_state_exit() override;
 };
 

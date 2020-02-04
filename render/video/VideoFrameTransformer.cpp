@@ -9,6 +9,8 @@ extern "C"
 // #include "libswscale/swscale.h"
 #include "libavutil/imgutils.h"
 }
+#include "../../common/thread/ThreadUtils.h"
+
 VideoFrameTransformer::VideoFrameTransformer(FrameReader *frame_reader)
     : mpFrameReader(frame_reader),
       mTransformNodeQueue(),
@@ -16,7 +18,7 @@ VideoFrameTransformer::VideoFrameTransformer(FrameReader *frame_reader)
       mTransformNodeCachePool(IMAGE_CACHE_POOL_SIZE),
       mTransformPorcessor(),
       mTransformSemaphore(),
-      mIsTransformTaskPause(false),
+      mIsClearBufferAndPause(false),
       mIsTransformTaskStop(false)
 {
 }
@@ -52,6 +54,16 @@ VideoTransformNode *VideoFrameTransformer::non_block_peek_transformed_node()
     return mTransformNodeQueue.non_block_peek_node();
 }
 
+VideoTransformNode *VideoFrameTransformer::block_peek_transformed_node()
+{
+    return mTransformNodeQueue.block_peek_node();
+}
+
+VideoTransformNode *VideoFrameTransformer::block_pop_transformed_node()
+{
+    return mTransformNodeQueue.block_pop_node();
+}
+
 void VideoFrameTransformer::recycle(VideoTransformNode *transform_node)
 {
     mpFrameReader->recycle_frame(transform_node->frame_wrapper);
@@ -65,13 +77,18 @@ void VideoFrameTransformer::retransform_cache_images()
 
 void VideoFrameTransformer::video_frame_transform_loop_task()
 {
+    ThreadUtils::set_thread_name("Disco Video Frame Transformer");
     //只要播放器不销毁，就一直循环
     while (!mIsTransformTaskStop)
     {
-        if (mIsTransformTaskPause)
+        if (mIsClearBufferAndPause)
         {
+            clear_buffer();
+            mClearBufferSemaphore.signal();
             mTransformSemaphore.wait();
+            mIsClearBufferAndPause = true;
         }
+
         //video
         FrameWrapper *video_frame_wrapper = mpFrameReader->pop_frame();
         push_frame_to_transform(video_frame_wrapper, mRenderViewWidth, mRenderViewHeight);
@@ -92,14 +109,20 @@ void VideoFrameTransformer::stop()
     mIsTransformTaskStop = true;
 }
 
-void VideoFrameTransformer::pause()
+bool VideoFrameTransformer::clear_buffer_and_pause()
 {
-    mIsTransformTaskPause = true;
+    if (!mIsClearBufferAndPause)
+    {
+        mIsClearBufferAndPause = true;
+        mClearBufferSemaphore.wait();
+        return true;
+    } else {
+        return false;
+    }
 }
 
 void VideoFrameTransformer::resume()
 {
-    mIsTransformTaskPause = false;
     mTransformSemaphore.signal();
 }
 
@@ -107,4 +130,19 @@ void VideoFrameTransformer::on_resize_render_view(int width, int height)
 {
     mRenderViewWidth = width;
     mRenderViewHeight = height;
+}
+
+void VideoFrameTransformer::clear_frame_buffer()
+{
+
+}
+
+void VideoFrameTransformer::clear_buffer()
+{
+    VideoTransformNode * node = mTransformNodeQueue.non_block_pop_node();
+    while (node != nullptr)
+    {
+        recycle(node);
+        node = mTransformNodeQueue.non_block_pop_node();
+    }
 }

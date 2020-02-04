@@ -1,10 +1,9 @@
 #include "StateManager.h"
-#include "BaseState.h"
+
 
 StateManager::StateManager(/* args */)
 :mCurrentPlayState(StateManager::PlayState::INIT),
 mIsPlayingByUser(false),
-mIsFirstFrameShown(false),
 mStates(),
 mLastPlayState(StateManager::PlayState::INIT)
 {
@@ -29,24 +28,26 @@ void StateManager::onRenderStart()
 
 }
 
-bool StateManager::onSeekStart()
+bool StateManager::onSeekStart(int64_t position)
 {
     //TODO 播放完成状态（COMPLETED）是否可以seek 
     if (mCurrentPlayState == StateManager::PlayState::PLAYING ||
         mCurrentPlayState == StateManager::PlayState::PAUSED ||
         mCurrentPlayState == StateManager::PlayState::BUFFERING)
     {
-        update_play_state(StateManager::PlayState::SEEKING);
+        update_play_state(StateManager::PlayState::SEEKING, position);
+        return true;
     }
-    
+
+    return false;
 }
 
 bool StateManager::onSeekEnd()
 {
-    // if ()
-    // {
-    //     /* code */
-    // }
+    if (mCurrentPlayState == StateManager::PlayState::SEEKING)
+    {
+        update_play_state(mLastPlayState);
+    }
 }
 
 void StateManager::onPauseByUser()
@@ -67,31 +68,25 @@ void StateManager::onResumeByUser()
     }
 }
 
-void StateManager::onInit()
+void StateManager::on_prepare(bool is_start_pause, int64_t seek_position, const std::string& data_source)
 {
     if (mCurrentPlayState == StateManager::PlayState::INIT)
     {
-        update_play_state(StateManager::PlayState::PREPARING);
+        update_play_state(StateManager::PlayState::PREPARING, is_start_pause, seek_position, data_source.c_str());
     }
 }
 
-bool StateManager::onFirstFramePrepared()
+bool StateManager::onFirstFramePrepared(bool is_pause)
 {
-    if (mIsFirstFrameShown)
-    {
-        return false;
-    }
-
     if (mCurrentPlayState == StateManager::PlayState::PREPARING)
     {
-        if (mIsPlayingByUser)
+        if (!is_pause)
         {
             update_play_state(StateManager::PlayState::PLAYING);
         } else {
-            update_play_state(StateManager::PlayState::PAUSED);
+            update_play_state(StateManager::PlayState::PREPARED);
         }
     }
-    mIsFirstFrameShown = true;
     return true;
 }
 
@@ -100,23 +95,7 @@ StateManager::PlayState StateManager::get_play_state()
     return mCurrentPlayState;
 }
 
-void StateManager::update_play_state(PlayState state)
-{
-    // std::lock_guard<std::mutex> state_lock(mStateMutex);
-    
-    BaseState * current_state = mStates[mCurrentPlayState];
-    BaseState * next_state = mStates[state];
-    if(current_state != nullptr) 
-    {
-        current_state->on_state_exit();
-    }
-    mLastPlayState.store(mCurrentPlayState.load());
-    mCurrentPlayState = state;
-    if(next_state != nullptr) 
-    {
-        next_state->on_state_enter();
-    }
-}
+
 
 void StateManager::add_state(StateManager::PlayState play_state, BaseState * state)
 {

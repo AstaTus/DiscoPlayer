@@ -77,14 +77,14 @@ template <class T>
 T *ConcurrentQueue<T>::block_peek_node()
 {
     T *node = nullptr;
-    std::lock_guard<std::mutex> queue_lock(mQueueMutex);
-    if (mQueue.size > 0)
+    std::unique_lock<std::mutex> queue_lock(mQueueMutex);
+    if (mQueue.size() > 0)
     {
         node = mQueue.front();
     }
     else
     {
-        mQueueCond.wait(queue_lock, [this] () { mQueue.size > 0; });
+        mQueueCond.wait(queue_lock, [this] () { return mQueue.size() > 0; });
         node = mQueue.front();
     }
 
@@ -114,12 +114,15 @@ T *ConcurrentQueue<T>::non_block_peek_node()
 {
     T *node = NULL;
 
-    std::lock_guard<std::mutex> queue_lock(mQueueMutex);
-    if (mQueue.size() > 0)
+    std::unique_lock<std::mutex> queue_try_lock(mQueueMutex, std::try_to_lock);
+    if (queue_try_lock.owns_lock())
     {
-        node = mQueue.front();
+        if (mQueue.size() > 0)
+        {
+            node = mQueue.front();
+        }
     }
-
+    
     return node;
 }
 

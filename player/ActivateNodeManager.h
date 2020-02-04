@@ -2,7 +2,7 @@
 #define __ACTIVATE_MANAGER_H__
 
 class VideoTransformNode;
-class AudioTransformNode;
+struct AudioTransformNode;
 class MediaDecoder;
 class VideoFrameTransformer;
 class AudioFrameTransformer;

@@ -1,7 +1,7 @@
 #include "MediaInputStream.h"
 #include "InputStreamIterator.h"
 #include "PacketReader.h"
-
+#include "../common/log/Log.h"
 extern "C"
 {
     // #include "libavcodec/avcodec.h"
@@ -24,13 +24,13 @@ MediaInputStream::~MediaInputStream()
 
 IStreamIterator* MediaInputStream::get_stream_iterator() const
 {
-    InputStreamIterator * stream_iterator = new InputStreamIterator(pFormatContext);
+    InputStreamIterator * stream_iterator = new InputStreamIterator(&pFormatContext);
     return stream_iterator;
 }
 
 Reader* MediaInputStream::get_packet_reader() const
 {
-    Reader * reader = new PacketReader(pFormatContext, &mSerial, &mSerialStartTime);
+    Reader * reader = new PacketReader(&pFormatContext, &mSerial, &mSerialStartTime);
     return reader;
 }
 
@@ -74,6 +74,8 @@ int64_t MediaInputStream::get_duration()
 
 void MediaInputStream::seek(int64_t position)
 {
+    Log::get_instance().log_error("[Disco]MediaInputStream::seek start\n");
+
     int64_t start_timestamp = pFormatContext->start_time == AV_NOPTS_VALUE ? 0 : pFormatContext->start_time;
     for (int i = 0; i < pFormatContext->nb_streams; i++)
     {
@@ -87,6 +89,8 @@ void MediaInputStream::seek(int64_t position)
     }
     mSerial++;
     mSerialStartTime = position;
+    Log::get_instance().log_error("[Disco]MediaInputStream::seek end\n");
+
 }
 
 int MediaInputStream::get_serial()

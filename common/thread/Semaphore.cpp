@@ -1,7 +1,8 @@
 #include "Semaphore.h"
 
-Semaphore::Semaphore(/* args */)
-:mFlag(0)
+Semaphore::Semaphore(int count)
+:mCount(0),
+mInitCount(count)
 {
 }
 
@@ -13,14 +14,15 @@ void Semaphore::signal()
 {
     {
         std::unique_lock<std::mutex> semaphore_lock(mSemaphoreMutex);
-        mFlag = 1;
+        mCount--;
     }
-    mSemaphoreCond.notify_one();
+    mSemaphoreCond.notify_all();
 }
  
 void Semaphore::wait()
 {
     std::unique_lock<std::mutex> semaphore_lock(mSemaphoreMutex);
-    mSemaphoreCond.wait(semaphore_lock, [this] () { return mFlag == 1;});
-    mFlag = 0;
+    mCount = mInitCount;
+    mSemaphoreCond.wait(semaphore_lock, [this] () { return mCount == 0;});
+    mCount = 0;
 }
