@@ -4,7 +4,7 @@
 #include "../codec/FrameWrapper.h"
 #include "RenderSynchronizerFinishListener.h"
 #include "../common/thread/ThreadUtils.h"
-
+#include "../common/log/Log.h"
 RenderSynchronizer::RenderSynchronizer(VideoFrameTransformer * video_frame_transformer, 
         AudioFrameTransformer * audio_frame_transformer,
         RenderSynchronizerFinishListener * finish_listener)
@@ -20,28 +20,39 @@ RenderSynchronizer::~RenderSynchronizer()
 
 void RenderSynchronizer::start(int serial)
 {
+    Log::get_instance().log_debug("[Disco][RenderSynchronizer::start] serial = %d\n", serial);
     mSerial = serial;
     mSynchronizerFutrue = std::async(std::launch::async, &RenderSynchronizer::wait_for_synchronizer, this);
 }
 
 void RenderSynchronizer::wait_for_synchronizer()
 {
-    ThreadUtils::set_thread_name("Disco Render Synchronizer");
-    VideoTransformNode * video_node = mpVideoFrameTransformer->block_peek_transformed_node();
-    while (video_node->frame_wrapper->serial != mSerial)
+    Log::get_instance().log_debug("[Disco][RenderSynchronizer::wait_for_synchronizer start]\n");
+    try
     {
-        mpVideoFrameTransformer->block_pop_transformed_node();
-        mpVideoFrameTransformer->recycle(video_node);
-        video_node = mpVideoFrameTransformer->block_peek_transformed_node();
-    }
+        ThreadUtils::set_thread_name("Disco Render Synchronizer");
+        VideoTransformNode * video_node = mpVideoFrameTransformer->block_peek_transformed_node();
+        while (video_node->frame_wrapper->serial != mSerial)
+        {
+            mpVideoFrameTransformer->block_pop_transformed_node();
+            mpVideoFrameTransformer->recycle(video_node);
+            video_node = mpVideoFrameTransformer->block_peek_transformed_node();
+        }
 
-    AudioTransformNode * audio_node = mpAudioFrameTransformer->block_peek_transformed_node();
-    while (audio_node->frame_wrapper->serial != mSerial)
+        AudioTransformNode * audio_node = mpAudioFrameTransformer->block_peek_transformed_node();
+        while (audio_node->frame_wrapper->serial != mSerial)
+        {
+            mpAudioFrameTransformer->block_pop_transformed_node();
+            mpAudioFrameTransformer->recycle(audio_node);
+            audio_node = mpAudioFrameTransformer->block_peek_transformed_node();
+        }
+
+        mpFinishListener->on_synchronizer_finish();
+        Log::get_instance().log_debug("[Disco][RenderSynchronizer::wait_for_synchronizer end]\n");
+    }   
+    catch(const std::exception& e)
     {
-        mpAudioFrameTransformer->block_pop_transformed_node();
-        mpAudioFrameTransformer->recycle(audio_node);
-        audio_node = mpAudioFrameTransformer->block_peek_transformed_node();
+        std::cerr << e.what() << '\n';
     }
-
-    mpFinishListener->on_synchronizer_finish();
+    Log::get_instance().log_debug("[Disco][RenderSynchronizer::wait_for_synchronizer catch finish]\n");
 }

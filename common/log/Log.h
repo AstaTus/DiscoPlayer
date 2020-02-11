@@ -3,6 +3,7 @@
 
 #include <sstream>
 #include <string>
+
 extern "C"
 {
 #include "libavcodec/avcodec.h"
@@ -10,11 +11,13 @@ extern "C"
 // #include "libswscale/swscale.h"
 #include "libavutil/imgutils.h"
 }
-
+#define LOG_CHAR_SIZE 200
 class Log
 {
 private:
     Log(/* args */);
+
+    void format_time_log(char *result, const char *format, int total_size);
 
 public:
     Log(const Log &) = delete;
@@ -37,24 +40,32 @@ public:
 template <typename... Args>
 void Log::log_error(const char *format, Args &&... args)
 {
-    av_log(NULL, AV_LOG_ERROR, format, std::forward<Args>(args)...);
+    static char result[LOG_CHAR_SIZE];
+    format_time_log(result, format, LOG_CHAR_SIZE);
+    av_log(NULL, AV_LOG_ERROR, result, std::forward<Args>(args)...);
 }
 
 template <typename... Args>
 void Log::log_info(const char *format, Args &&... args)
 {
-    av_log(NULL, AV_LOG_INFO, format, std::forward<Args>(args)...);
+    static char result[LOG_CHAR_SIZE];
+    format_time_log(result, format, LOG_CHAR_SIZE);
+    av_log(NULL, AV_LOG_INFO, result, std::forward<Args>(args)...);
 }
 
 template <typename... Args>
 void Log::log_warning(const char *format, Args &&... args)
 {
-    av_log(NULL, AV_LOG_WARNING, format, std::forward<Args>(args)...);
+    static char result[LOG_CHAR_SIZE];
+    format_time_log(result, format, LOG_CHAR_SIZE);
+    av_log(NULL, AV_LOG_WARNING, result, std::forward<Args>(args)...);
 }
 
 template <typename... Args>
 void Log::log_debug(const char *format, Args &&... args)
 {
-    av_log(NULL, AV_LOG_DEBUG, format, std::forward<Args>(args)...);
+    static char result[LOG_CHAR_SIZE];
+    format_time_log(result, format, LOG_CHAR_SIZE);
+    av_log(NULL, AV_LOG_DEBUG, result, std::forward<Args>(args)...);
 }
 #endif

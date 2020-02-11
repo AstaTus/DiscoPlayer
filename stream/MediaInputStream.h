@@ -11,9 +11,7 @@ class MediaInputStream
 {
 private:
     AVFormatContext	*pFormatContext;
-    int mSerial;
-    int64_t mSerialStartTime;
-
+    Reader * mpReader;
 public:
     MediaInputStream(/* args */);
     ~MediaInputStream();
@@ -27,7 +25,7 @@ public:
 
     int64_t get_duration();
     IStreamIterator* get_stream_iterator() const;
-    Reader* get_packet_reader() const;
+    Reader* get_packet_reader();
 
     void seek(int64_t position);
 };

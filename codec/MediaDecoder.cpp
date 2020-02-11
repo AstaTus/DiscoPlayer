@@ -18,7 +18,8 @@ extern "C"
 MediaDecoder::MediaDecoder(IStreamIterator *input_stream_iterator, Reader *packet_reader)
     : pInputStreamIterator(input_stream_iterator),
       pPacketReader(packet_reader),
-      mPacketWrapperConcurrentCachePool(PACKET_QUEUE_CACHE_SIZE),
+      mVideoPacketWrapperConcurrentCachePool(PACKET_QUEUE_CACHE_SIZE),
+      mAudioPacketWrapperConcurrentCachePool(PACKET_QUEUE_CACHE_SIZE),
       mIsClearVideoBufferAndPause(false),
       mIsClearAudioBufferAndPause(false),
       mIsClearPacketBufferAndPause(false),
@@ -113,16 +114,16 @@ void MediaDecoder::unpack_packet_loop()
     while (!mIsStop)
     {
         
-        if (mIsClearPacketBufferAndPause)
-        {
-            clear_packet_buffer();
-            mClearBufferSemaphore.signal();
-            mPacketUnpackSemaphore.wait();
-            mIsClearPacketBufferAndPause = false;
-        }
+        // if (mIsClearPacketBufferAndPause)
+        // {
+        //     clear_packet_buffer();
+        //     mClearBufferSemaphore.signal();
+        //     mPacketUnpackSemaphore.wait();
+        //     mIsClearPacketBufferAndPause = false;
+        // }
 
         //TODO 此处可能视频或者音频在外部不消费，此处mPacketConcurrentCachePool达到上线后就会挂起
-        PacketWrapper *packet_wrapper = mPacketWrapperConcurrentCachePool.get_empty_node();
+        PacketWrapper *packet_wrapper = mVideoPacketWrapperConcurrentCachePool.get_empty_node();
         pPacketReader->read(packet_wrapper);
         AVMediaType type = mMediaIndexTypeMap[packet_wrapper->packet->stream_index];
         if (type == AVMEDIA_TYPE_VIDEO)
@@ -155,26 +156,32 @@ void MediaDecoder::unpack_frame_loop(
     int receive_frame_ret = 0;
     int send_packet_ret = 0;
     bool is_continue = true;
+    int last_packet_serial = 0;
 
     while (is_continue && !mIsStop)
     {
-        if (is_clear_buffer)
-        {
-            clear_frame_buffer(frame_queue, frame_cache_pool, codec_context);
-            mClearBufferSyncSemaphore.signal();
-            semaphore.wait();
-            is_clear_buffer = false;
-        }
+        // if (is_clear_buffer)
+        // {
+        //     clear_frame_buffer(frame_queue, frame_cache_pool, codec_context);
+        //     mClearBufferSyncSemaphore.signal();
+        //     semaphore.wait();
+        //     is_clear_buffer = false;
+        // }
         
         PacketWrapper *packet_wrapper = packet_queue->block_pop_node();
 
         if (packet_wrapper->serial != pPacketReader->serial())
         {
-            mPacketWrapperConcurrentCachePool.recycle_node(packet_wrapper);
+            mVideoPacketWrapperConcurrentCachePool.recycle_node(packet_wrapper);
             continue;
+        }
+        if (packet_wrapper->serial != last_packet_serial)
+        {
+            avcodec_flush_buffers(codec_context);
         }
         
         send_packet_ret = avcodec_send_packet(codec_context, packet_wrapper->packet);
+        last_packet_serial =  packet_wrapper->serial;
         if (0 == send_packet_ret)
         {
             Log::get_instance().log_debug("[Disco]MediaDecoder::unpack_frame_loop avcodec_send_packet send a valid packet\n");
@@ -183,7 +190,7 @@ void MediaDecoder::unpack_frame_loop(
             if (0 == receive_frame_ret)
             {
                 frame_wrapper->serial = packet_wrapper->serial;
-                if (frame_wrapper->serial != pPacketReader->serial() && 
+                if (frame_wrapper->serial != pPacketReader->serial() ||
                         frame_wrapper->frame->pts * 1000 * av_q2d(stream->time_base) < pPacketReader->serial_start_time())
                 {
                     frame_cache_pool->recycle_node(frame_wrapper);
@@ -240,7 +247,7 @@ void MediaDecoder::unpack_frame_loop(
             Log::get_instance().log_debug("[Disco]MediaDecoder::unpack_frame_loop avcodec_send_packet return other error code = %d\n", send_packet_ret);
         }
 
-        mPacketWrapperConcurrentCachePool.recycle_node(packet_wrapper);
+        mVideoPacketWrapperConcurrentCachePool.recycle_node(packet_wrapper);
     }
 
     Log::get_instance().log_debug("[Disco]MediaDecoder::unpack_audio_frame_loop unpack_frame_loop thread over\n");
@@ -297,12 +304,12 @@ bool MediaDecoder::stop()
 
 FrameReader * MediaDecoder::get_video_frame_reader()
 {
-    return new FrameReader(&mpVideoQueue, &mpVideoFrameCachePool);
+    return new FrameReader(&mpVideoQueue, &mpVideoFrameCachePool, &pPacketReader);
 }
 
 FrameReader * MediaDecoder::get_audio_frame_reader()
 {
-    return new FrameReader(&mpAudioQueue, &mpAudioFrameCachePool);
+    return new FrameReader(&mpAudioQueue, &mpAudioFrameCachePool, &pPacketReader);
 }
 
 void MediaDecoder::clear_packet_buffer()
@@ -312,14 +319,14 @@ void MediaDecoder::clear_packet_buffer()
     packet_wrapper = mVideoWrapperPacketQueue.non_block_pop_node();
     while (packet_wrapper != nullptr)
     {
-        mPacketWrapperConcurrentCachePool.recycle_node(packet_wrapper);
+        mVideoPacketWrapperConcurrentCachePool.recycle_node(packet_wrapper);
         packet_wrapper = mVideoWrapperPacketQueue.non_block_pop_node();
     }
 
     packet_wrapper = mAudioWrapperPacketQueue.non_block_pop_node();
     while (packet_wrapper != nullptr)
     {
-        mPacketWrapperConcurrentCachePool.recycle_node(packet_wrapper);
+        mVideoPacketWrapperConcurrentCachePool.recycle_node(packet_wrapper);
         packet_wrapper = mAudioWrapperPacketQueue.non_block_pop_node();
     }
 }

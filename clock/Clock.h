@@ -46,6 +46,8 @@ public:
     double getLastPts();
     /* 转换过后的上次更新的帧的PTS */
     int64_t getTransformedLastPts();
+    /* 转换过后的上次更新的帧的显示时长 */
+    int64_t getTransformedLastDuration();
     /* 更新时钟 */ 
     void update(double time, double pts, AVRational & time_base, int serial);
 

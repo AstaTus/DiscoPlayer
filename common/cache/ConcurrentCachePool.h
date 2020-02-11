@@ -77,8 +77,11 @@ T * ConcurrentCachePool<T>::get_empty_node()
 template <class T>
 void ConcurrentCachePool<T>::recycle_node(T *node)
 {
-    std::lock_guard<std::mutex> cache_lock(mCacheMutex);
-    mCacheQueue.push(node);
+    {
+        std::lock_guard<std::mutex> cache_lock(mCacheMutex);
+        mCacheQueue.push(node);
+    }
+    
     mCacheCond.notify_all();
 }
 

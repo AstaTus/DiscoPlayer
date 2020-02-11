@@ -47,7 +47,8 @@ PlayingState::PlayingState(VideoRender *video_render,
       mpStateManager(state_manager),
       mIsExit(true),
       mIsRelease(false),
-      mRenderSemaphore()
+      mRenderSemaphore(),
+      mRenderAudioSemaphore()
 {
     mpAudioDevice->set_audio_data_request_listener(this);
     mVideoRenderFuture = std::async(std::launch::async, &PlayingState::video_render_loop_task, this);
@@ -70,7 +71,6 @@ void PlayingState::on_inner_state_enter()
 void PlayingState::on_state_exit()
 {
     mIsExit = true;
-    mpAudioDevice->pause();
 }
 
 void PlayingState::video_render_loop_task()
@@ -141,10 +141,18 @@ void PlayingState::on_audio_data_request_begin()
 
 void PlayingState::on_audio_data_request_end()
 {
-    if (mpActivateNodeManager->get_current_audio_node() != nullptr &&
-        mpActivateNodeManager->get_current_audio_node()->clip->isFinish())
+    double remaining_time = 0.0;
+    if (mpActivateNodeManager->get_current_audio_node() != nullptr)
     {
-        mpActivateNodeManager->recyle_current_audio_node();
+        mpSyncClockManager->get_current_audio_sync_state(
+                mpActivateNodeManager->get_current_audio_node()->frame_wrapper->frame->pts,
+                mpActivateNodeManager->get_current_audio_node()->frame_wrapper->time_base,
+                mpActivateNodeManager->get_current_audio_node()->frame_wrapper->serial,
+                &remaining_time);
+        if (mpActivateNodeManager->get_current_audio_node()->clip->isFinish())
+        {
+            mpActivateNodeManager->recyle_current_audio_node();
+        }
     }
 }
 
@@ -170,12 +178,11 @@ AudioClip *const PlayingState::on_audio_data_request(int len)
         }
         else
         {
-            mpSyncClockManager->get_current_audio_sync_state(
-                node->frame_wrapper->frame->pts,
-                node->frame_wrapper->time_base,
-                node->frame_wrapper->serial,
-                &remaining_time);
-
+            if (node != nullptr)
+            {
+                Log::get_instance().log_debug("[Disco][PlayinState] on_audio_data_request add audio clip serial = %d\n", node->frame_wrapper->serial);
+            }
+            
             return node->clip;
         }
     }

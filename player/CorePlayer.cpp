@@ -125,7 +125,8 @@ void CorePlayer::init_states()
         mpActivateNodeManager, &mSyncClockManager, pInputStream, &mStateManager);
     mStateManager.add_state(StateManager::PlayState::PLAYING, playing_state);
     SeekingState * seeking_state = new SeekingState(&mStateManager, pAudioDevice, pInputStream, 
-        pMediaDecoder, mpVideoFrameTransformer, mpAudioFrameTransformer, mpActivateNodeManager);
+        pMediaDecoder, mpVideoFrameTransformer, mpAudioFrameTransformer, 
+        mpActivateNodeManager, &mSyncClockManager);
     mStateManager.add_state(StateManager::PlayState::SEEKING, seeking_state);
     InitState * init_state = new InitState(pInputStream, pMediaDecoder, mpVideoFrameTransformer, 
         mpAudioFrameTransformer, pAudioDevice, &mStateManager);

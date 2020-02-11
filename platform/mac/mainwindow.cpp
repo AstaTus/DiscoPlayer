@@ -85,8 +85,8 @@ void MainWindow::init()
 
 void MainWindow::start()
 {
-    // string video_path1 = "/Users/laoganbu/happy/movie/阳光电影www.ygdy8.com.小丑.HD.720p.韩版英语中字.mkv";
-    string video_path1 = "/Users/laoganbu/learn/ffmpeg/改名字才让分享啊课程视频/改名字才让分享啊课件资料/代码/(5) 参考答案-FFmpeg+SDL视频播放器/屌丝男士.mov";
+    string video_path1 = "/Users/laoganbu/happy/movie/阳光电影www.ygdy8.com.地久天长.HD.720p.国语中字.mkv";
+    // string video_path1 = "/Users/laoganbu/learn/ffmpeg/改名字才让分享啊课程视频/改名字才让分享啊课件资料/代码/(5) 参考答案-FFmpeg+SDL视频播放器/屌丝男士.mov";
     
     mpCorePlayer = new CorePlayer();
     mpAudioDevice = new SDLAudioDevice();

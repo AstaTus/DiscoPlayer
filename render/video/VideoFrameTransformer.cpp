@@ -81,18 +81,25 @@ void VideoFrameTransformer::video_frame_transform_loop_task()
     //只要播放器不销毁，就一直循环
     while (!mIsTransformTaskStop)
     {
-        if (mIsClearBufferAndPause)
-        {
-            clear_buffer();
-            mClearBufferSemaphore.signal();
-            mTransformSemaphore.wait();
-            mIsClearBufferAndPause = true;
-        }
+        // if (mIsClearBufferAndPause)
+        // {
+        //     clear_buffer();
+        //     mClearBufferSemaphore.signal();
+        //     mTransformSemaphore.wait();
+        //     mIsClearBufferAndPause = true;
+        // }
 
         //video
         FrameWrapper *video_frame_wrapper = mpFrameReader->pop_frame();
-        push_frame_to_transform(video_frame_wrapper, mRenderViewWidth, mRenderViewHeight);
-        Log::get_instance().log_debug("[Disco][CorePlayer] video_frame_transform_loop_task add frame to transform\n");
+        if (video_frame_wrapper->serial != mpFrameReader->serial() ||
+            video_frame_wrapper->frame->pts * 1000 * av_q2d(video_frame_wrapper->time_base) < mpFrameReader->serial_start_time())
+        {
+            mpFrameReader->recycle_frame(video_frame_wrapper);
+        } else {
+            push_frame_to_transform(video_frame_wrapper, mRenderViewWidth, mRenderViewHeight);
+            Log::get_instance().log_debug("[Disco][CorePlayer] video_frame_transform_loop_task add frame to transform\n");
+        }
+        
     }
 
     Log::get_instance().log_debug("[Disco][CorePlayer] video_frame_transform_loop_task thread over\n");

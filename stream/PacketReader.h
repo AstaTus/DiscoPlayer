@@ -1,23 +1,26 @@
 #ifndef __PACKET_READER_H__
 #define __PACKET_READER_H__
 #include "Reader.h"
-class AVFormatContext;
+#include <mutex>
+struct AVFormatContext;
 
 class PacketReader : public Reader
 {
 private:
     AVFormatContext * const * mppFormatContext;
-    const int * mpSerial;
-    const int64_t * mpSerialStartTime;
+    int mSerial;
+    int64_t mSerialStartTime;
+    std::mutex mSeekMutex;
 public:
-    PacketReader(AVFormatContext * const * format_context, 
-            const int * serial, const int64_t * serial_start_time);
+    PacketReader(AVFormatContext * const * format_context);
     virtual ~PacketReader();
 
-    int read(PacketWrapper * packet_wrapper) const override;
+    int read(PacketWrapper * packet_wrapper) override;
 
     int serial() override;
 
     virtual int64_t serial_start_time() override;
+
+    virtual void seek(int64_t position) override;
 };
 #endif

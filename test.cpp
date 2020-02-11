@@ -39,8 +39,8 @@ SDL_Thread *video_tid;
 const static int BPP = 12;
 const static int TEXTURE_SIZE = PIXEL_WIDTH * PIXEL_HEIGHT * BPP / 8;
 unsigned char buffer[TEXTURE_SIZE];
-string video_path = "/Users/laoganbu/Movies/vlog.mp4";
-string video_path1 = "/Users/laoganbu/learn/ffmpeg/改名字才让分享啊课程视频/改名字才让分享啊课件资料/代码/(5) 参考答案-FFmpeg+SDL视频播放器/屌丝男士.mov";
+string video_path1 = "/Users/laoganbu/happy/movie/阳光电影www.ygdy8.com.小丑.HD.720p.韩版英语中字.mkv";
+string video_path = "/Users/laoganbu/learn/ffmpeg/改名字才让分享啊课程视频/改名字才让分享啊课件资料/代码/(5) 参考答案-FFmpeg+SDL视频播放器/屌丝男士.mov";
 
 int thread_exit=0;
 int thread_pause=0;

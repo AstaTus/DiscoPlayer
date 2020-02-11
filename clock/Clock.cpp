@@ -81,13 +81,25 @@ int64_t Clock::getTransformedLastPts()
     } 
 }
 
+int64_t Clock::getTransformedLastDuration()
+{
+    if (mRational.den == 0 && mRational.num == 0)
+    {
+        return 0;
+    } else {
+        return av_q2d(mRational) * getLastDuration() * 1000;
+    }
+}
+
 void Clock::seek(int64_t time, int64_t position)
 {
-    // mSeekPosition = position;
-    // mLastUpdateTime = time;
+    mSeekPosition = position;
+    mLastUpdateTime = time;
+    //TODO mLastPts 赋值
     // mLastPts = position;
-    // mLastDuration = 0;
-    // mRational.den = 0;
-    // mRational.num = 0;
+    mLastDuration = 0;
+    mRational.den = 0;
+    mRational.num = 0;
+    mLastSerial = -1;
 }
 

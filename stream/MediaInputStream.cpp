@@ -12,8 +12,7 @@ extern "C"
 
 MediaInputStream::MediaInputStream(/* args */)
 :pFormatContext(nullptr),
-mSerial(0),
-mSerialStartTime(0)
+mpReader(nullptr)
 {
 }
 
@@ -28,10 +27,14 @@ IStreamIterator* MediaInputStream::get_stream_iterator() const
     return stream_iterator;
 }
 
-Reader* MediaInputStream::get_packet_reader() const
+Reader* MediaInputStream::get_packet_reader()
 {
-    Reader * reader = new PacketReader(&pFormatContext, &mSerial, &mSerialStartTime);
-    return reader;
+    if (mpReader == nullptr)
+    {
+        mpReader = new PacketReader(&pFormatContext);
+    }
+
+    return mpReader;
 }
 
 bool MediaInputStream::open(const string& url) 
@@ -74,31 +77,18 @@ int64_t MediaInputStream::get_duration()
 
 void MediaInputStream::seek(int64_t position)
 {
-    Log::get_instance().log_error("[Disco]MediaInputStream::seek start\n");
-
-    int64_t start_timestamp = pFormatContext->start_time == AV_NOPTS_VALUE ? 0 : pFormatContext->start_time;
-    for (int i = 0; i < pFormatContext->nb_streams; i++)
+    if (mpReader != nullptr)
     {
-        // pFormatContext->streams[i]->timesc
-        int64_t timestamp = start_timestamp + position / 1000 / av_q2d(pFormatContext->streams[i]->time_base);
-        int ret = av_seek_frame(pFormatContext, i, timestamp, AVSEEK_FLAG_BACKWARD); 
-        if (ret < 0) {
-            // ERR("mod:%d, %s: could not seek to position %d\n", handle->id,
-            //     handle->params.path, handle->params.seekoffset);
-        }
+        mpReader->seek(position);
     }
-    mSerial++;
-    mSerialStartTime = position;
-    Log::get_instance().log_error("[Disco]MediaInputStream::seek end\n");
-
 }
 
 int MediaInputStream::get_serial()
 {
-    return mSerial;
+    return mpReader->serial();
 }
 
 int64_t MediaInputStream::get_serial_start_time()
 {
-    return mSerialStartTime;
+    return mpReader->serial_start_time();
 }

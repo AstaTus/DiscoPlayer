@@ -5,13 +5,16 @@
 #include "SDL.h"
 
 #include "../../render/audio/AudioDevice.h"
-
+#include <atomic>
+#include "../../common/thread/Semaphore.h"
 class SDLAudioDevice : public AudioDevice
 {
 private:
     SDL_AudioSpec mAudioSpec;
-
-    
+    std::atomic<bool> mIsFlushing;
+    Semaphore mFlushSemaphore;
+    bool start_seek() override;
+    bool end_seek() override;
 public:
     SDLAudioDevice();
     virtual ~SDLAudioDevice();

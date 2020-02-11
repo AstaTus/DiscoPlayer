@@ -30,6 +30,7 @@ private:
     std::atomic<bool> mIsExit;
     std::atomic<bool> mIsRelease;
     Semaphore mRenderSemaphore;
+    Semaphore mRenderAudioSemaphore;
 
     void on_inner_state_enter();
     void video_render_loop_task();

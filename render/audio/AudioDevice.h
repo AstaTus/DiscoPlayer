@@ -17,6 +17,9 @@ public:
     virtual bool pause() = 0;
     virtual bool resume() = 0;
 
+    virtual bool start_seek() = 0;
+    virtual bool end_seek() = 0;
+
     void set_audio_data_request_listener(AudioDataRequestListener * audio_data_request_listener);
 };
 #endif

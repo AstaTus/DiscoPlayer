@@ -31,7 +31,7 @@ using namespace std;
 class MediaDecoder
 {
 private:
-    static const int PACKET_QUEUE_CACHE_SIZE = 150;
+    static const int PACKET_QUEUE_CACHE_SIZE = 300;
     static const int FRAME_QUEUE_CACHE_SIZE = 2;
 
     IStreamIterator * pInputStreamIterator;
@@ -49,7 +49,8 @@ private:
 
     //解packet
     Reader * pPacketReader;
-    ConcurrentCachePool<PacketWrapper> mPacketWrapperConcurrentCachePool;
+    ConcurrentCachePool<PacketWrapper> mVideoPacketWrapperConcurrentCachePool;
+    ConcurrentCachePool<PacketWrapper> mAudioPacketWrapperConcurrentCachePool;
     ConcurrentQueue<PacketWrapper> mVideoWrapperPacketQueue;
     ConcurrentQueue<PacketWrapper> mAudioWrapperPacketQueue;
 

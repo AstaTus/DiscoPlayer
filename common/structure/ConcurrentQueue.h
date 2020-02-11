@@ -47,8 +47,11 @@ ConcurrentQueue<T>::~ConcurrentQueue()
 template <class T>
 void ConcurrentQueue<T>::push_node(T *node)
 {
-    std::lock_guard<std::mutex> queue_lock(mQueueMutex);
-    mQueue.push(node);
+    {
+        std::lock_guard<std::mutex> queue_lock(mQueueMutex);
+        mQueue.push(node);
+    }
+    
     mQueueCond.notify_all();
 }
 

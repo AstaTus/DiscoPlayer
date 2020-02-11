@@ -58,9 +58,13 @@ AudioTransformNode *AudioFrameTransformer::block_pop_transformed_node()
 
 void AudioFrameTransformer::recycle(AudioTransformNode * transform_node)
 {
-    mpFrameReader->recycle_frame(transform_node->frame_wrapper);
-    mClipCachePool.recycle_node(transform_node->clip);
-    mTransformNodeCachePool.recycle_node(transform_node);
+    if (transform_node != nullptr)
+    {
+        Log::get_instance().log_debug("Disco AudioFrameTransformer::recycle node\n");
+        mpFrameReader->recycle_frame(transform_node->frame_wrapper);
+        mClipCachePool.recycle_node(transform_node->clip);
+        mTransformNodeCachePool.recycle_node(transform_node);
+    }
 }
 
 void AudioFrameTransformer::start()
@@ -75,17 +79,24 @@ void AudioFrameTransformer::audio_frame_transform_loop_task()
     while (!mIsTransformTaskStop)
     {
         
-        if (mIsClearBufferAndPause)
-        {
-            clear_buffer();
-            mClearBufferSemaphore.signal();
-            mTransformSemaphore.wait();
-            mIsClearBufferAndPause = true;
-        }
+        // if (mIsClearBufferAndPause)
+        // {
+        //     clear_buffer();
+        //     mClearBufferSemaphore.signal();
+        //     mTransformSemaphore.wait();
+        //     mIsClearBufferAndPause = true;
+        // }
 
         FrameWrapper *audio_frame_wrapper = mpFrameReader->pop_frame();
-        push_frame_to_transform(audio_frame_wrapper);
-        Log::get_instance().log_debug("[Disco][CorePlayer] audio_frame_transform_loop_task add frame to transform\n");
+        if (audio_frame_wrapper->serial != mpFrameReader->serial() ||
+            audio_frame_wrapper->frame->pts * 1000 * av_q2d(audio_frame_wrapper->time_base) < mpFrameReader->serial_start_time())
+        {
+            mpFrameReader->recycle_frame(audio_frame_wrapper);
+        } else 
+        {
+            push_frame_to_transform(audio_frame_wrapper);
+            Log::get_instance().log_debug("[Disco][CorePlayer] audio_frame_transform_loop_task add frame to transform\n");
+        }
     }
 
     Log::get_instance().log_debug("[Disco][CorePlayer] audio_frame_transform_loop_task thread over\n");

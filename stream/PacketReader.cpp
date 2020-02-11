@@ -1,14 +1,15 @@
 #include "PacketReader.h"
 extern "C"
 {
-	#include "libavformat/avformat.h"
+#include "libavformat/avformat.h"
 }
 #include "PacketWrapper.h"
-PacketReader::PacketReader(AVFormatContext * const * format_context,
-                         const int * serial, const int64_t * serial_start_time)
-:mppFormatContext(format_context),
-mpSerial(serial),
-mpSerialStartTime(serial_start_time)
+#include "../common/log/Log.h"
+
+PacketReader::PacketReader(AVFormatContext *const *format_context)
+    : mppFormatContext(format_context),
+      mSerial(0),
+      mSerialStartTime(0)
 {
 }
 
@@ -16,19 +17,40 @@ PacketReader::~PacketReader()
 {
 }
 
-int PacketReader::read(PacketWrapper * packet_wrapper) const
+int PacketReader::read(PacketWrapper *packet_wrapper)
 {
-    packet_wrapper->serial = (*mpSerial);
-    packet_wrapper->serial_start_time = (*mpSerialStartTime);
+    std::lock_guard<std::mutex> seek_lock(mSeekMutex);
+    packet_wrapper->serial = mSerial;
+    packet_wrapper->serial_start_time = mSerialStartTime;
     return av_read_frame(*mppFormatContext, packet_wrapper->packet);
 }
 
 int PacketReader::serial()
 {
-    return (*mpSerial);
+    return mSerial;
 }
 
 int64_t PacketReader::serial_start_time()
 {
-    return (*mpSerialStartTime);
+    return mSerialStartTime;
+}
+
+void PacketReader::seek(int64_t position)
+{
+    std::lock_guard<std::mutex> seek_lock(mSeekMutex);
+    Log::get_instance().log_error("[Disco]PacketReader::seek start\n");
+
+    int64_t start_timestamp = (*mppFormatContext)->start_time == AV_NOPTS_VALUE ? 0 : (*mppFormatContext)->start_time;
+    
+    // pFormatContext->streams[i]->timesc
+    int64_t timestamp = start_timestamp + av_rescale(position, AV_TIME_BASE, 1000);
+    int ret = av_seek_frame((*mppFormatContext), -1, timestamp, AVSEEK_FLAG_BACKWARD);
+    if (ret < 0)
+    {
+        Log::get_instance().log_error("[Disco]PacketReader::seek error ret = %d\n", ret);
+    }
+
+    mSerial++;
+    mSerialStartTime = position;
+    Log::get_instance().log_error("[Disco]PacketReader::seek end\n");
 }

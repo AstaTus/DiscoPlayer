@@ -1,11 +1,14 @@
 #include "SDLAudioDevice.h"
+#include "../../common/log/Log.h"
 
 void sdl_audio_callback(void *udata, Uint8 *stream, int len) {
 	static_cast<SDLAudioDevice * >(udata)->fill_audio_buffer(stream, len);
 }
 
 SDLAudioDevice::SDLAudioDevice()
-    :AudioDevice()
+    :AudioDevice(),
+	mIsFlushing(false),
+	mFlushSemaphore()
 {
 }
 
@@ -49,33 +52,40 @@ bool SDLAudioDevice::start()
 
 
 void SDLAudioDevice::fill_audio_buffer(Uint8 *stream, int len)
-{
+{	
+	int current_len = len;
     pAudioDataRequestListener->on_audio_data_request_begin();
 	SDL_memset(stream, 0, len);//初始化缓存区
 	int current_pos = 0;
-	while (len > 0)
+	while (current_len > 0)
 	{
-		AudioClip * const audio_clip = pAudioDataRequestListener->on_audio_data_request(len);
+		AudioClip * const audio_clip = pAudioDataRequestListener->on_audio_data_request(current_len);
 		if (audio_clip == nullptr)
 		{
 			continue;
 		}
-		
 		//TODO 混音
 		//SDL_MixAudio(stream,audio_pos,len,SDL_MIX_MAXVOLUME);
 		int read_size = audio_clip->size();
-		if (len < audio_clip->size())
+		if (current_len < audio_clip->size())
 		{
-			read_size = len;
+			read_size = current_len;
 		}
 
 		memcpy(stream + current_pos, audio_clip->data(), read_size);
-		len -= read_size;
+		current_len -= read_size;
 		current_pos += read_size;
 		audio_clip->add_read_size(read_size);
 	}
 
 	pAudioDataRequestListener->on_audio_data_request_end();
+	// if (mIsFlushing)
+	// {
+	// 	SDL_memset(stream, 0, len);
+	// 	Log::get_instance().log_debug("[Disco][SDLAudioDevice] fill_audio_buffer reset buffer\n");
+	// 	mFlushSemaphore.wait();
+	// 	mIsFlushing = false;
+	// }
 }
 
 bool SDLAudioDevice::pause()
@@ -90,8 +100,21 @@ bool SDLAudioDevice::resume()
 	return true;
 }
 
+bool SDLAudioDevice::start_seek()
+{
+	mIsFlushing = true;
+	return true;
+
+}
+bool SDLAudioDevice::end_seek()
+{
+	mFlushSemaphore.signal();
+	return true;
+}
+
 bool SDLAudioDevice::stop()
 {
+	end_seek();
     SDL_CloseAudio();
 	return true;
 }

@@ -8,5 +8,6 @@ public:
     ~ThreadUtils();
 
     static void set_thread_name(const char * name);
+    static void set_thread_prority();
 };
 #endif

@@ -7,10 +7,12 @@ class Reader
 {
 public:
     virtual ~Reader();
-    virtual int read(PacketWrapper *) const = 0;
+    virtual int read(PacketWrapper *) = 0;
 
     virtual int serial() = 0;
 
     virtual int64_t serial_start_time() = 0;
+
+    virtual void seek(int64_t position) = 0;
 };
 #endif

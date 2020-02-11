@@ -14,6 +14,8 @@ class AudioFrameTransformer;
 class ActivateNodeManager;
 class RenderSynchronizer;
 class StateManager;
+
+class SyncClockManager;
 class SeekingState : public BaseState, public RenderSynchronizerFinishListener
 {
 private:
@@ -27,6 +29,8 @@ private:
 
     RenderSynchronizer * mpRenderSynchronizer;
 
+    SyncClockManager * const mpSyncClockManager;
+
     std::future<void> mSeekingFuture;
 
     void inner_seek(int64_t position);
@@ -39,7 +43,8 @@ public:
                 MediaDecoder * media_decoder,
                 VideoFrameTransformer * video_frame_transformer,
                 AudioFrameTransformer * audio_frame_transformer,
-                ActivateNodeManager * activate_node_manager);
+                ActivateNodeManager * activate_node_manager,
+                SyncClockManager *  sync_clock_manager);
     ~SeekingState();
 
     virtual void on_state_enter(...) override;
