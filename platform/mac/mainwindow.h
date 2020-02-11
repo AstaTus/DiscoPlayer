@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <QTimer>
 #include <QLabel>
+#include "debugwidget.h"
+
 class OpenGLRenderWidget;
 class CorePlayer;
 class AudioDevice;
@@ -36,6 +38,7 @@ private:
     QTimer *mpTimer;
     Ui::MainWindow *ui;
     OpenGLRenderWidget* mpOpenGLRenderWidget;
+    DebugWidget * mpDebugWidget;
     QLabel * mpProgressLabel;
     CorePlayer* mpCorePlayer;
     AudioDevice* mpAudioDevice;

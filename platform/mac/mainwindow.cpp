@@ -18,6 +18,7 @@
 #include <QPushButton>
 #include <QTime>
 #include <QKeyEvent>
+#include <QStackedLayout>
 const static int SCREEN_WIDTH = 1080;
 const static int SCREEN_HEIGHT = 720;
 
@@ -71,10 +72,22 @@ void MainWindow::init()
     //定时器触发信号槽
     connect(mpTimer, SIGNAL(timeout()), this, SLOT(PlayProgressTimerTimeOut()));
 
-    mpOpenGLRenderWidget = new OpenGLRenderWidget();
+    
     QVBoxLayout * layout = findChild<QVBoxLayout*>("verticalLayout");
     mpProgressLabel = findChild<QLabel*>("label");
-    layout->insertWidget(0, mpOpenGLRenderWidget, 16);
+    
+    QStackedLayout * stacked_layout = new QStackedLayout(this);
+    mpOpenGLRenderWidget = new OpenGLRenderWidget(this);
+    mpDebugWidget = new DebugWidget(this);
+     QPalette debug_palette(mpDebugWidget->palette());
+    debug_palette.setColor(QPalette::Background, QColor(128, 128, 128, 128));
+    mpDebugWidget->setAutoFillBackground(true);
+    mpDebugWidget->setPalette(debug_palette);
+    stacked_layout->setStackingMode(QStackedLayout::StackingMode::StackAll);
+    stacked_layout->addWidget(mpOpenGLRenderWidget);
+    stacked_layout->addWidget(mpDebugWidget);
+
+    layout->insertLayout(0, stacked_layout, 16);
     // MainWindow 是程序帮我创建一个窗口类。所有继承QWidget类都是窗口类。
     mpOpenGLRenderWidget->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
     mpOpenGLRenderWidget->resize(1920, 1080);
