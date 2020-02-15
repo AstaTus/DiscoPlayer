@@ -7,26 +7,12 @@
 #include <atomic>
 #include "BaseState.h"
 #include "../../common/log/Log.h"
+#include "StateChangedListener.h"
+ 
+
 class StateManager
 {
 public:
-    //外部状态
-    enum class PlayState {
-        INIT,
-        PREPARING, //播放器开始创建各种对象，拉视频数据解码变换等
-        PREPARED, //首帧暂停模式
-        PLAYING, //播放中
-        PAUSED, //用户暂停
-        COMPLETED, //播放完成
-        SEEKING, //SEEK
-        //TODO
-        BUFFERING, //当前无帧可以播放-音频和视频帧差的较大时也走这个状态
-        STOPPED, //播放器停止？？？
-        ERROR, //播放出错
-        RELEASING, //播放器开始释放各种对象
-        END //播放器释放各种对象完成
-    };
-    //内部状态
     StateManager(/* args */);
     ~StateManager();
 
@@ -53,29 +39,35 @@ public:
     void onPauseByUser();
     void onResumeByUser();
 
-    StateManager::PlayState get_play_state();
+    PlayerStateEnum get_play_state();
 
-    void add_state(StateManager::PlayState play_state, BaseState * state);
+    void add_state(PlayerStateEnum play_state, BaseState * state);
+
+    void set_state_changed_listener(StateChangedListener * listener);
 
 private:
     /* data */
-    std::atomic<StateManager::PlayState> mCurrentPlayState;
+    std::atomic<PlayerStateEnum> mCurrentPlayState;
 
-    std::atomic<StateManager::PlayState> mLastPlayState;
+    std::atomic<PlayerStateEnum> mLastPlayState;
     //TODO 可能需要历史的播放状态改变
     // std::mutex mHistoryStatesMutex;
-    // std::queue<StateManager::PlayState> mHistoryPlayStateQueue;
+    // std::queue<PlayerStateEnum> mHistoryPlayStateQueue;
+
+    StateChangedListener * mpStateChangedListener;
 
     bool mIsPlayingByUser;
 
-    std::map<PlayState, BaseState*> mStates;
+    std::map<PlayerStateEnum, BaseState*> mStates;
+
+
 
     template <typename... Args>
-    void update_play_state(PlayState state, Args&&... args);
+    void update_play_state(PlayerStateEnum state, Args&&... args);
 };
 
 template <typename... Args>
-void StateManager::update_play_state(PlayState state, Args&&... args)
+void StateManager::update_play_state(PlayerStateEnum state, Args&&... args)
 {
     BaseState * current_state = mStates[mCurrentPlayState];
     BaseState * next_state = mStates[state];
@@ -90,6 +82,11 @@ void StateManager::update_play_state(PlayState state, Args&&... args)
     {
         Log::get_instance().log_debug("[Disco][StateManager::update_play_state state = %d enter\n", static_cast<int>(mCurrentPlayState.load()));
         next_state->on_state_enter(std::forward<Args>(args)...);
+        //TODO maybe diffrent state in out
+        if (mpStateChangedListener != nullptr)
+        {
+            mpStateChangedListener->on_state_changed(mCurrentPlayState);
+        }
     }
 }
 

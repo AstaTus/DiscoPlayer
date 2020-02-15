@@ -52,7 +52,7 @@
 #define __DEBUG_WIDGET_H__
 
 #include <QWidget>
-
+#include <QLabel>
 
 namespace Ui {
     class DebugWidget;
@@ -66,11 +66,14 @@ class DebugWidget : public QWidget
 public:
     DebugWidget(QWidget *parent = 0);
 
-private slots:
-    void refresh();
+    void refresh(double video_fts, double audio_fts, const QString && video_time, const QString && audio_time);
 
 private:
     Ui::DebugWidget *ui;
+    QLabel *mpVideoFTSLabel;
+    QLabel *mpAudioFTSLabel;
+    QLabel *mpVideoTimeLabel;
+    QLabel *mpAudioTimeLabel;
 };
 
 #endif

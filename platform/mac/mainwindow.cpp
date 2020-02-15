@@ -10,6 +10,7 @@
 #include "SDLAudioDevice.h"
 #include "../../player/CorePlayer.h"
 #include "../../player/PlayItem.h"
+#include "../../player/DebugInfo.h"
 #include "mainwindow.h"
 
 #include "QRenderWidget.h"
@@ -19,6 +20,8 @@
 #include <QTime>
 #include <QKeyEvent>
 #include <QStackedLayout>
+#include "PlayrerStateChangedEvent.h"
+
 const static int SCREEN_WIDTH = 1080;
 const static int SCREEN_HEIGHT = 720;
 
@@ -27,7 +30,10 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
     mpProgressLabel(nullptr),
     mpTimer(nullptr)
-    , ui(new Ui::MainWindow)
+    , ui(new Ui::MainWindow),
+    mpSeekBar(nullptr),
+    mLastPlayerState(PlayerStateEnum::INIT),
+    mIsSeeking(false)
 {
     ui->setupUi(this);
     this->grabKeyboard();
@@ -70,11 +76,19 @@ void MainWindow::init()
     //启动或重启定时器, 并设置定时器时间：毫秒
     mpTimer->start(1000);
     //定时器触发信号槽
-    connect(mpTimer, SIGNAL(timeout()), this, SLOT(PlayProgressTimerTimeOut()));
+    connect(mpTimer, SIGNAL(timeout()), this, SLOT(refresh_play_progress_time()));
 
-    
+    mpDebugTimer = new QTimer();
+    mpDebugTimer->setSingleShot(false);
+    mpDebugTimer->start(1);
+    connect(mpDebugTimer, SIGNAL(timeout()), this, SLOT(refresh_debug_info()));
+
+
     QVBoxLayout * layout = findChild<QVBoxLayout*>("verticalLayout");
     mpProgressLabel = findChild<QLabel*>("label");
+    mpSeekBar = findChild<QSlider*>("seekBar");
+    connect(mpSeekBar, SIGNAL(sliderReleased()), this, SLOT(seek_end()));
+    connect(mpSeekBar, SIGNAL(sliderPressed()), this, SLOT(seek_start()));
     
     QStackedLayout * stacked_layout = new QStackedLayout(this);
     mpOpenGLRenderWidget = new OpenGLRenderWidget(this);
@@ -106,6 +120,7 @@ void MainWindow::start()
     
     mpCorePlayer->set_render_surface(mpOpenGLRenderWidget);
     mpCorePlayer->set_audio_device(mpAudioDevice);
+    mpCorePlayer->set_player_state_change_listener(this);
  
     PlayItem * play_item = new PlayItem(video_path1);
     mpCorePlayer->set_play_item(play_item);
@@ -116,11 +131,11 @@ void MainWindow::start()
 
 void MainWindow::onPlayAndPauseButtonClicked()
 {
-    if (mpCorePlayer->get_current_play_state() == StateManager::PlayState::PLAYING)
+    if (mpCorePlayer->get_current_play_state() == PlayerStateEnum::PLAYING)
     {
         pause();
     }
-    else if (mpCorePlayer->get_current_play_state() == StateManager::PlayState::PAUSED)
+    else if (mpCorePlayer->get_current_play_state() == PlayerStateEnum::PAUSED)
     {
         resume();
     }
@@ -135,17 +150,75 @@ void MainWindow::resume()
     mpCorePlayer->resume();
 }
 
-void MainWindow::PlayProgressTimerTimeOut()
+void MainWindow::refresh_debug_info()
+{
+    if (mpCorePlayer != nullptr && mpDebugWidget != nullptr)
+    {
+        const DebugInfo * debugInfo = mpCorePlayer->get_debug_info();
+        //TODO 更新数据
+        mpDebugWidget->refresh(debugInfo->video_pts, 
+            debugInfo->audio_pts, 
+            formatTime(debugInfo->video_time, true), 
+            formatTime(debugInfo->audio_time, true));
+    }
+}
+
+void MainWindow::refresh_play_progress_time()
 {
     if (mpCorePlayer != nullptr && mpProgressLabel != nullptr)
     {
         QString duration_str = formatTime(mpCorePlayer->get_duration());
         QString current_pos_str = formatTime(mpCorePlayer->get_current_position());
         mpProgressLabel->setText(current_pos_str + " / " + duration_str);
+
+        if (!mIsSeeking)
+        {
+            mpSeekBar->setValue(mpCorePlayer->get_current_position() / 1000);
+        }
     }
 }
 
-QString MainWindow::formatTime(int ms)
+void MainWindow::on_state_changed(PlayerStateEnum state)
+{
+    QApplication::postEvent(this, new PlayrerStateChangedEvent(state));
+}
+
+void MainWindow::on_handle_player_state_prepared()
+{
+    mpSeekBar->setOrientation(Qt::Horizontal);  // 水平方向
+    mpSeekBar->setMinimum(0);  // 最小值
+    mpSeekBar->setMaximum(mpCorePlayer->get_duration() / 1000);  // 最大值
+    mpSeekBar->setSingleStep(1);  // 步长
+}
+
+void MainWindow::seek_start()
+{
+    mIsSeeking = true;
+}
+
+void MainWindow::seek_end()
+{
+    mIsSeeking = false;
+    mpCorePlayer->seek(mpSeekBar->value() * 1000);
+}
+
+void MainWindow::customEvent(QEvent * event)
+{
+    if (event->type() == PlayrerStateChangedEvent::sType) 
+    {  // It must be a ColorChangeEvent
+        PlayrerStateChangedEvent* ce = dynamic_cast<PlayrerStateChangedEvent*>(event);
+        PlayerStateEnum state = ce->get_state();
+
+        if (mLastPlayerState == PlayerStateEnum::PREPARING && state == PlayerStateEnum::PLAYING)
+        {
+            on_handle_player_state_prepared();
+        }
+        mLastPlayerState = state;
+    }
+}
+
+
+QString MainWindow::formatTime(int64_t ms, bool has_msec)
 {
     int ss = 1000;
     int mi = ss * 60;
@@ -164,7 +237,10 @@ QString MainWindow::formatTime(int ms)
     QString msec = QString::number(milliSecond,10);
  
     //qDebug() << "minute:" << min << "second" << sec << "ms" << msec <<endl;
- 
-    return hou + ":" + min + ":" + sec ;
+    if (has_msec)
+    {
+        return hou + ":" + min + ":" + sec + "." + msec;
+    } else {
+        return hou + ":" + min + ":" + sec ;
+    }
 }
-

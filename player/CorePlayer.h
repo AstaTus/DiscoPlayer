@@ -19,6 +19,10 @@
 
 #include "ActivateNodeManager.h"
 #include <future>
+
+class StateChangedListener;
+class DebugInfo;
+
 class CorePlayer
 {
 private:
@@ -45,6 +49,8 @@ private:
 
     ActivateNodeManager * mpActivateNodeManager;
 
+    DebugInfo * mpDebugInfo;
+
     void init_task();
 public:
     CorePlayer();
@@ -59,7 +65,9 @@ public:
 
     void replace_play_item(const PlayItem * const play_item);
 
-    StateManager::PlayState get_current_play_state();
+    PlayerStateEnum get_current_play_state();
+
+    void set_player_state_change_listener(StateChangedListener * listener);
 
     void start();
 
@@ -68,7 +76,6 @@ public:
     void resume();
 
     void stop();
-
     /**
      * @param position 单位毫秒
     */
@@ -85,5 +92,10 @@ public:
      * @return 返回目前视频播放的进度，单位毫秒
     */
     int64_t get_current_position();
+
+    /**
+     * @return 返回debug信息
+    */
+    const DebugInfo * get_debug_info();
 };
 #endif

@@ -15,6 +15,8 @@ extern "C"
 #include "./state/PlayingState.h"
 #include "./state/SeekingState.h"
 #include "./state/InitState.h"
+#include "./state/StateChangedListener.h"
+#include "DebugInfo.h"
 
 class AudioDevice;
 CorePlayer::CorePlayer()
@@ -24,7 +26,8 @@ CorePlayer::CorePlayer()
       pInputStream(nullptr),
       pCurrentPlayItem(nullptr),
       mSyncClockManager(SyncClockManager::SYNC_STRATEGY_AUDIO),
-      mStateManager()
+      mStateManager(),
+      mpDebugInfo(nullptr)
 {
 }
 
@@ -123,17 +126,17 @@ void CorePlayer::init_states()
 {
     PlayingState * playing_state = new PlayingState(pVideoRender, pAudioDevice,
         mpActivateNodeManager, &mSyncClockManager, pInputStream, &mStateManager);
-    mStateManager.add_state(StateManager::PlayState::PLAYING, playing_state);
+    mStateManager.add_state(PlayerStateEnum::PLAYING, playing_state);
     SeekingState * seeking_state = new SeekingState(&mStateManager, pAudioDevice, pInputStream, 
         pMediaDecoder, mpVideoFrameTransformer, mpAudioFrameTransformer, 
         mpActivateNodeManager, &mSyncClockManager);
-    mStateManager.add_state(StateManager::PlayState::SEEKING, seeking_state);
+    mStateManager.add_state(PlayerStateEnum::SEEKING, seeking_state);
     InitState * init_state = new InitState(pInputStream, pMediaDecoder, mpVideoFrameTransformer, 
         mpAudioFrameTransformer, pAudioDevice, &mStateManager);
-    mStateManager.add_state(StateManager::PlayState::PREPARING, init_state);
+    mStateManager.add_state(PlayerStateEnum::PREPARING, init_state);
 }
 
-StateManager::PlayState CorePlayer::get_current_play_state()
+PlayerStateEnum CorePlayer::get_current_play_state()
 {
     return mStateManager.get_play_state();
 }
@@ -156,4 +159,22 @@ int64_t CorePlayer::get_current_position()
 void CorePlayer::seek(int64_t position)
 {
     mStateManager.onSeekStart(position);
+}
+
+void CorePlayer::set_player_state_change_listener(StateChangedListener * listener)
+{
+    mStateManager.set_state_changed_listener(listener);
+}
+
+const DebugInfo * CorePlayer::get_debug_info() {
+    if (mpDebugInfo == nullptr)
+    {
+        mpDebugInfo = new DebugInfo();
+    }
+
+    mpDebugInfo->video_pts = mSyncClockManager.get_video_pts();
+    mpDebugInfo->audio_pts = mSyncClockManager.get_video_pts();
+    mpDebugInfo->video_time = mSyncClockManager.get_video_position();
+    mpDebugInfo->audio_time = mSyncClockManager.get_audio_position();
+    return mpDebugInfo;
 }

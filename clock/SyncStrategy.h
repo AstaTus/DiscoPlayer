@@ -34,5 +34,13 @@ public:
     virtual void pause() = 0;
 
     virtual int64_t get_current_position() = 0;
+
+    virtual double get_video_pts() = 0;
+
+    virtual double get_audio_pts() = 0;
+
+    virtual int64_t get_video_position() = 0;
+
+    virtual int64_t get_audio_position() = 0;
 };
 #endif

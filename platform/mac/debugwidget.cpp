@@ -55,9 +55,17 @@ DebugWidget::DebugWidget(QWidget *parent)
       ui(new Ui::DebugWidget)
 {
     ui->setupUi(this);
+
+    mpVideoFTSLabel = findChild<QLabel*>("videoFTSLabel");
+    mpAudioFTSLabel = findChild<QLabel*>("audioFTSLabel");
+    mpVideoTimeLabel = findChild<QLabel*>("videoTimeLabel");
+    mpAudioTimeLabel = findChild<QLabel*>("audioTimeLabel");
 }
 
-void DebugWidget::refresh()
+void DebugWidget::refresh(double video_fts, double audio_fts, const QString && video_time, const QString && audio_time)
 {
-
+    mpVideoFTSLabel->setText(QString::number(video_fts, 'f', 2));
+    mpAudioFTSLabel->setText(QString::number(audio_fts, 'f', 2));
+    mpVideoTimeLabel->setText(video_time);
+    mpAudioTimeLabel->setText(audio_time);
 }

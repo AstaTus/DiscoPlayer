@@ -50,3 +50,23 @@ int64_t SyncClockManager::get_current_position()
 {
     return pSyncStrategy->get_current_position();
 }
+
+double SyncClockManager::get_video_pts()
+{
+    return pSyncStrategy->get_video_pts();
+}
+
+double SyncClockManager::get_audio_pts()
+{
+    return pSyncStrategy->get_video_pts();
+}
+
+int64_t SyncClockManager::get_video_position()
+{
+    return pSyncStrategy->get_video_position();
+}
+
+int64_t SyncClockManager::get_audio_position()
+{
+    return pSyncStrategy->get_audio_position();
+}

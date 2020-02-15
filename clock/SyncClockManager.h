@@ -38,5 +38,13 @@ public:
     void resume();
 
     int64_t get_current_position();
+
+    double get_video_pts();
+
+    double get_audio_pts();
+
+    int64_t get_video_position();
+
+    int64_t get_audio_position();
 };
 #endif

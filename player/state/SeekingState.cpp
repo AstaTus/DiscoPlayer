@@ -51,6 +51,7 @@ void SeekingState::inner_seek(int64_t position)
 {
     //TODO 此处有多线程时序问题
     Log::get_instance().log_debug("[Disco][SeekingState::inner_seek seek start]\n");
+    mpAudioDevice->stop();
     //暂停音频播放
     //TODO 清除音频设备缓存
     
@@ -86,4 +87,5 @@ void SeekingState::on_state_exit()
     //TODO  非内部切换state 可能导致 mpRenderSynchronizer 泄漏
     // 主要看外部哪些状态能从seeking 状态 切换到其他状态
     Log::get_instance().log_debug("[Disco][CorePlayer::seek end]");
+    mpAudioDevice->start();
 }

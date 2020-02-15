@@ -71,3 +71,23 @@ void VideoMasterSyncStrategy::seek(uint64_t postion)
     mVideoClock.seek(current_time, postion);
 }
 
+double VideoMasterSyncStrategy::get_video_pts()
+{
+    return mVideoClock.getLastPts();
+}
+
+double VideoMasterSyncStrategy::get_audio_pts()
+{
+    return mAudioClock.getLastPts();
+}
+
+int64_t VideoMasterSyncStrategy::get_video_position()
+{
+    return mVideoClock.getTransformedLastPts();
+}
+
+int64_t VideoMasterSyncStrategy::get_audio_position()
+{
+    return mAudioClock.getTransformedLastPts();
+}
+

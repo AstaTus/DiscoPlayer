@@ -2,15 +2,20 @@
 
 
 StateManager::StateManager(/* args */)
-:mCurrentPlayState(StateManager::PlayState::INIT),
+:mCurrentPlayState(PlayerStateEnum::INIT),
 mIsPlayingByUser(false),
 mStates(),
-mLastPlayState(StateManager::PlayState::INIT)
+mLastPlayState(PlayerStateEnum::INIT)
 {
 }
 
 StateManager::~StateManager()
 {
+    if (mpStateChangedListener != nullptr)
+    {
+        mpStateChangedListener = nullptr;
+    }
+    
 }
 
 void StateManager::onStreamOpen()
@@ -31,11 +36,11 @@ void StateManager::onRenderStart()
 bool StateManager::onSeekStart(int64_t position)
 {
     //TODO 播放完成状态（COMPLETED）是否可以seek 
-    if (mCurrentPlayState == StateManager::PlayState::PLAYING ||
-        mCurrentPlayState == StateManager::PlayState::PAUSED ||
-        mCurrentPlayState == StateManager::PlayState::BUFFERING)
+    if (mCurrentPlayState == PlayerStateEnum::PLAYING ||
+        mCurrentPlayState == PlayerStateEnum::PAUSED ||
+        mCurrentPlayState == PlayerStateEnum::BUFFERING)
     {
-        update_play_state(StateManager::PlayState::SEEKING, position);
+        update_play_state(PlayerStateEnum::SEEKING, position);
         return true;
     }
 
@@ -44,7 +49,7 @@ bool StateManager::onSeekStart(int64_t position)
 
 bool StateManager::onSeekEnd()
 {
-    if (mCurrentPlayState == StateManager::PlayState::SEEKING)
+    if (mCurrentPlayState == PlayerStateEnum::SEEKING)
     {
         update_play_state(mLastPlayState);
     }
@@ -53,51 +58,56 @@ bool StateManager::onSeekEnd()
 void StateManager::onPauseByUser()
 {
     mIsPlayingByUser = false;
-    if (mCurrentPlayState == StateManager::PlayState::PLAYING)
+    if (mCurrentPlayState == PlayerStateEnum::PLAYING)
     {
-        update_play_state(StateManager::PlayState::PAUSED);
+        update_play_state(PlayerStateEnum::PAUSED);
     }
 }
 
 void StateManager::onResumeByUser()
 {
     mIsPlayingByUser = true;
-    if (mCurrentPlayState == StateManager::PlayState::PAUSED)
+    if (mCurrentPlayState == PlayerStateEnum::PAUSED)
     {
-        update_play_state(StateManager::PlayState::PLAYING);
+        update_play_state(PlayerStateEnum::PLAYING);
     }
 }
 
 void StateManager::on_prepare(bool is_start_pause, int64_t seek_position, const std::string& data_source)
 {
-    if (mCurrentPlayState == StateManager::PlayState::INIT)
+    if (mCurrentPlayState == PlayerStateEnum::INIT)
     {
-        update_play_state(StateManager::PlayState::PREPARING, is_start_pause, seek_position, data_source.c_str());
+        update_play_state(PlayerStateEnum::PREPARING, is_start_pause, seek_position, data_source.c_str());
     }
 }
 
 bool StateManager::onFirstFramePrepared(bool is_pause)
 {
-    if (mCurrentPlayState == StateManager::PlayState::PREPARING)
+    if (mCurrentPlayState == PlayerStateEnum::PREPARING)
     {
         if (!is_pause)
         {
-            update_play_state(StateManager::PlayState::PLAYING);
+            update_play_state(PlayerStateEnum::PLAYING);
         } else {
-            update_play_state(StateManager::PlayState::PREPARED);
+            update_play_state(PlayerStateEnum::PREPARED);
         }
     }
     return true;
 }
 
-StateManager::PlayState StateManager::get_play_state()
+PlayerStateEnum StateManager::get_play_state()
 {
     return mCurrentPlayState;
 }
 
 
 
-void StateManager::add_state(StateManager::PlayState play_state, BaseState * state)
+void StateManager::add_state(PlayerStateEnum play_state, BaseState * state)
 {
     mStates[play_state] = state;
+}
+
+void StateManager::set_state_changed_listener(StateChangedListener * listener)
+{
+    mpStateChangedListener = listener;
 }

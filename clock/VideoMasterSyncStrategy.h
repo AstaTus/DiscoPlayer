@@ -23,6 +23,14 @@ public:
     void pause() override;
 
     int64_t get_current_position() override;
+
+    double get_video_pts() override;
+
+    double get_audio_pts() override;
+
+    int64_t get_video_position() override;
+
+    int64_t get_audio_position() override;
 };
 
 #endif
