@@ -65,6 +65,12 @@ public:
     bool clear_buffer_and_pause();
 
     void resume();
+
+    int get_output_sample_rate();
+
+    AVSampleFormat get_output_sample_format();
+
+    int get_output_channel_num();
 };
 #endif
 

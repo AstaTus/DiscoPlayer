@@ -1,7 +1,7 @@
 #ifndef __ACTIVATE_MANAGER_H__
 #define __ACTIVATE_MANAGER_H__
 
-class VideoTransformNode;
+struct VideoTransformNode;
 struct AudioTransformNode;
 class MediaDecoder;
 class VideoFrameTransformer;

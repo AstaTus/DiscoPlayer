@@ -32,11 +32,13 @@ private:
     Semaphore mRenderSemaphore;
     Semaphore mRenderAudioSemaphore;
 
+    double mStartAudioDataRequestBeginTime;
+
     void on_inner_state_enter();
     void video_render_loop_task();
     void on_audio_data_request_begin() override;
     void on_audio_data_request_end() override;
-    AudioClip * const on_audio_data_request(int len) override;
+    bool on_audio_data_request(int len,  AudioClip ** audio_clip) override;
 
 public:
     PlayingState(VideoRender *video_render,

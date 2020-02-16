@@ -21,7 +21,7 @@
 #include <future>
 
 class StateChangedListener;
-class DebugInfo;
+struct DebugInfo;
 
 class CorePlayer
 {

@@ -16,28 +16,25 @@ public:
     StateManager(/* args */);
     ~StateManager();
 
-    //stream 相关
-    void onStreamOpen();
-    //codec 相关
-    void onDecodeStart();
-    //render 相关
-    void onRenderStart();
     //player 相关
     void on_prepare(bool is_start_pause, int64_t seek_position, const std::string& data_source);
+
+    void on_play();
     /**
      * 播放器起播时，如果用户是已暂停状态起播，那么拿到首帧后，播放器暂停在首帧的位置
      * @return 是否首帧已经展示过
     */
-    bool onFirstFramePrepared(bool is_pause);
+    bool on_prepared(bool is_pause);
     /**
      * 
     */
-    bool onSeekStart(int64_t position);
+    bool on_seek_start(int64_t position);
 
-    bool onSeekEnd();
+    bool on_seek_end();
 
-    void onPauseByUser();
-    void onResumeByUser();
+    void on_pause_by_user();
+    void on_resume_by_user();
+    void on_play_by_user();
 
     PlayerStateEnum get_play_state();
 

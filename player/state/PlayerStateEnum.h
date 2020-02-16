@@ -4,7 +4,7 @@
 enum class PlayerStateEnum {
     INIT,
     PREPARING, //播放器开始创建各种对象，拉视频数据解码变换等
-    PREPARED, //首帧暂停模式
+    PREPARED, //frame decode finished
     PLAYING, //播放中
     PAUSED, //用户暂停
     COMPLETED, //播放完成

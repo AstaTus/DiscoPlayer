@@ -16,10 +16,9 @@ VideoMasterSyncStrategy::~VideoMasterSyncStrategy()
 }
 
 
-SyncClockManager::SyncState VideoMasterSyncStrategy::get_current_video_sync_state(double next_pts, AVRational & time_base, int serial, double * remaining_time)
+SyncClockManager::SyncState VideoMasterSyncStrategy::get_current_video_sync_state(double next_pts, AVRational & time_base, int serial, double * remaining_time, double current_time)
 {
     SyncClockManager::SyncState state;
-    double current_time = av_gettime_relative() / 1000000.0;
     //该帧还需继续显示
     double change_video_time = mVideoClock.getLastUpdateTime() + av_q2d(time_base) * mVideoClock.getLastDuration() / mSpeed;
     if (current_time < change_video_time)
@@ -43,7 +42,7 @@ SyncClockManager::SyncState VideoMasterSyncStrategy::get_current_video_sync_stat
     
 }
 
-SyncClockManager::SyncState VideoMasterSyncStrategy::get_current_audio_sync_state(double next_pts, AVRational & time_base, int serial, double * remaining_time)
+SyncClockManager::SyncState VideoMasterSyncStrategy::get_current_audio_sync_state(double next_pts, AVRational & time_base, int serial, double * remaining_time, double current_time)
 {
     return SyncClockManager::SyncState::SYNC_STATE_NEXT;
 }

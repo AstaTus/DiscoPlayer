@@ -13,8 +13,8 @@ private:
     SDL_AudioSpec mAudioSpec;
     std::atomic<bool> mIsFlushing;
     Semaphore mFlushSemaphore;
-    bool start_seek() override;
-    bool end_seek() override;
+    int mBytesPerSecond;
+    double mLatencySeconds;
 public:
     SDLAudioDevice();
     virtual ~SDLAudioDevice();
@@ -26,5 +26,8 @@ public:
     bool resume() override;
 
     bool stop() override;
+
+    int get_bytes_per_second() override;
+    double get_latency_seconds() override;
 };
 #endif

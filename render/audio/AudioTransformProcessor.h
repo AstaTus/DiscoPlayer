@@ -15,13 +15,11 @@ class AudioTransformProcessor
 private:
     static const uint64_t OUT_CHANNEL_LAYOUT;
     static const AVSampleFormat OUT_SAMPLE_FORMAT;
-    static const int OUT_SAMPLE_RATE;
 
     SwrContext *pSwrContext;
-
     uint64_t mCurrentChannelLayout;
     int mCurrentSampleRate;
-    int mCurrentSampleFormat;
+    AVSampleFormat mCurrentSampleFormat;
 
     void fit_swr_context(uint64_t channel_layout, AVSampleFormat sample_format, int sample_rate);
 
@@ -30,6 +28,12 @@ public:
     ~AudioTransformProcessor();
 
     void transform_by_ffmpeg(AVFrame *frame, AudioClip *const clip);
+
+    int get_output_sample_rate();
+
+    AVSampleFormat get_output_sample_format();
+
+    int get_output_channel_num();
 };
 
 #endif

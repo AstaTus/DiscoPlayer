@@ -15,25 +15,9 @@ StateManager::~StateManager()
     {
         mpStateChangedListener = nullptr;
     }
-    
 }
 
-void StateManager::onStreamOpen()
-{
-
-}
-
-void StateManager::onDecodeStart()
-{
-
-}
-
-void StateManager::onRenderStart()
-{
-
-}
-
-bool StateManager::onSeekStart(int64_t position)
+bool StateManager::on_seek_start(int64_t position)
 {
     //TODO 播放完成状态（COMPLETED）是否可以seek 
     if (mCurrentPlayState == PlayerStateEnum::PLAYING ||
@@ -47,7 +31,7 @@ bool StateManager::onSeekStart(int64_t position)
     return false;
 }
 
-bool StateManager::onSeekEnd()
+bool StateManager::on_seek_end()
 {
     if (mCurrentPlayState == PlayerStateEnum::SEEKING)
     {
@@ -55,7 +39,15 @@ bool StateManager::onSeekEnd()
     }
 }
 
-void StateManager::onPauseByUser()
+void StateManager::on_play()
+{
+    if (mCurrentPlayState == PlayerStateEnum::PREPARED)
+    {
+        update_play_state(PlayerStateEnum::PLAYING);
+    }
+}
+
+void StateManager::on_pause_by_user()
 {
     mIsPlayingByUser = false;
     if (mCurrentPlayState == PlayerStateEnum::PLAYING)
@@ -64,10 +56,18 @@ void StateManager::onPauseByUser()
     }
 }
 
-void StateManager::onResumeByUser()
+void StateManager::on_resume_by_user()
 {
     mIsPlayingByUser = true;
     if (mCurrentPlayState == PlayerStateEnum::PAUSED)
+    {
+        update_play_state(PlayerStateEnum::PLAYING);
+    }
+}
+
+void StateManager::on_play_by_user()
+{
+    if (mCurrentPlayState == PlayerStateEnum::PREPARED)
     {
         update_play_state(PlayerStateEnum::PLAYING);
     }
@@ -81,16 +81,11 @@ void StateManager::on_prepare(bool is_start_pause, int64_t seek_position, const 
     }
 }
 
-bool StateManager::onFirstFramePrepared(bool is_pause)
+bool StateManager::on_prepared(bool is_pause)
 {
     if (mCurrentPlayState == PlayerStateEnum::PREPARING)
     {
-        if (!is_pause)
-        {
-            update_play_state(PlayerStateEnum::PLAYING);
-        } else {
-            update_play_state(PlayerStateEnum::PREPARED);
-        }
+        update_play_state(PlayerStateEnum::PREPARED, is_pause);
     }
     return true;
 }

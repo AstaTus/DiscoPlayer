@@ -32,20 +32,21 @@ AudioMasterSyncStrategy::~AudioMasterSyncStrategy()
     
 }
 
-SyncClockManager::SyncState AudioMasterSyncStrategy::get_current_audio_sync_state(double next_pts, AVRational & time_base, int serial, double * remaining_time)
+SyncClockManager::SyncState AudioMasterSyncStrategy::get_current_audio_sync_state(double next_pts, 
+            AVRational & time_base, int serial, double * remaining_time, double current_time)
 {
     SyncClockManager::SyncState state;
-    double current_time = av_gettime_relative() / 1000000.0;
+    
     //更新时钟
     mAudioClock.update(current_time, next_pts, time_base, serial);
     Log::get_instance().log_debug("[DISCO]AudioMasterSyncStrategy::get_current_audio_sync_state time = %f serial = %d\n", av_q2d(time_base) * next_pts, serial);
     return SyncClockManager::SyncState::SYNC_STATE_NEXT;
 }
 
-SyncClockManager::SyncState AudioMasterSyncStrategy::get_current_video_sync_state(double next_pts, AVRational & time_base, int serial, double * remaining_time)
+SyncClockManager::SyncState AudioMasterSyncStrategy::get_current_video_sync_state(double next_pts, 
+            AVRational & time_base, int serial, double * remaining_time, double current_time)
 {
     SyncClockManager::SyncState state;
-    double current_time = av_gettime_relative() / 1000000.0;
     //该帧还需继续显示
     double change_video_time = mVideoClock.getLastUpdateTime() + compute_real_video_last_duration() * 1000 / mSpeed;
     if (current_time < change_video_time)

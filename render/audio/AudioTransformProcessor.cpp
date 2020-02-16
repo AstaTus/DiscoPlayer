@@ -11,13 +11,12 @@ extern "C"
 
 const uint64_t AudioTransformProcessor::OUT_CHANNEL_LAYOUT = AV_CH_LAYOUT_STEREO;
 const AVSampleFormat AudioTransformProcessor::OUT_SAMPLE_FORMAT = AV_SAMPLE_FMT_S16;
-const int AudioTransformProcessor::OUT_SAMPLE_RATE = 48000;
 
 AudioTransformProcessor::AudioTransformProcessor(/* args */)
     : pSwrContext(nullptr),
       mCurrentChannelLayout(AV_CH_LAYOUT_STEREO),
       mCurrentSampleRate(0),
-      mCurrentSampleFormat(0)
+      mCurrentSampleFormat(AV_SAMPLE_FMT_NONE)
 
 {
 }
@@ -65,7 +64,7 @@ void AudioTransformProcessor::fit_swr_context(uint64_t channel_layout,
             pSwrContext,
             OUT_CHANNEL_LAYOUT, //输出
             OUT_SAMPLE_FORMAT,  //编码前你希望的格式
-            OUT_SAMPLE_RATE,    //输出
+            sample_rate,    //输出
             channel_layout,     //输入
             sample_format,      //PCM源文件的采样格式
             sample_rate,        //输入
@@ -76,4 +75,19 @@ void AudioTransformProcessor::fit_swr_context(uint64_t channel_layout,
         mCurrentSampleRate = sample_rate;
         mCurrentSampleFormat = sample_format;
     }
+}
+
+int AudioTransformProcessor::get_output_sample_rate()
+{
+    return mCurrentSampleRate;
+}
+
+AVSampleFormat AudioTransformProcessor::get_output_sample_format()
+{
+    return OUT_SAMPLE_FORMAT;
+}
+
+int AudioTransformProcessor::get_output_channel_num()
+{
+    return av_get_channel_layout_nb_channels(OUT_CHANNEL_LAYOUT);
 }

@@ -141,3 +141,18 @@ void AudioFrameTransformer::clear_buffer()
         node = mTransformNodeQueue.non_block_pop_node();
     }
 }
+
+int AudioFrameTransformer::get_output_sample_rate()
+{
+    return mTransformProcessor.get_output_sample_rate();
+}
+
+AVSampleFormat AudioFrameTransformer::get_output_sample_format()
+{
+    return mTransformProcessor.get_output_sample_format();
+}
+
+int AudioFrameTransformer::get_output_channel_num()
+{
+    return mTransformProcessor.get_output_channel_num();
+}

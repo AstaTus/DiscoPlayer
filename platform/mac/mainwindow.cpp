@@ -209,7 +209,7 @@ void MainWindow::customEvent(QEvent * event)
         PlayrerStateChangedEvent* ce = dynamic_cast<PlayrerStateChangedEvent*>(event);
         PlayerStateEnum state = ce->get_state();
 
-        if (mLastPlayerState == PlayerStateEnum::PREPARING && state == PlayerStateEnum::PLAYING)
+        if (state == PlayerStateEnum::PREPARED)
         {
             on_handle_player_state_prepared();
         }

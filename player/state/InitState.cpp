@@ -48,8 +48,7 @@ void InitState::inner_init_task(int64_t seek_position, const char * data_source)
     mpMediaDecoder->start();
     mpVideoFrameTransformer->start();
     mpAudioFrameTransformer->start();
-    mpAudioDevice->start();
-
+    // on_synchronizer_finish();
     mpRenderSynchronizer->start(mpMediaInputStream->get_serial());
 }
 
@@ -61,5 +60,5 @@ void InitState::on_synchronizer_finish()
 {
     //如果是准备好就起播，则进入playing 状态
     //如果是准备好就首帧展示，则进入prepared 模式
-    mpStateManager->onFirstFramePrepared(mIsStartPaused);
+    mpStateManager->on_prepared(mIsStartPaused);
 }

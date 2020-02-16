@@ -51,7 +51,7 @@ void SeekingState::inner_seek(int64_t position)
 {
     //TODO 此处有多线程时序问题
     Log::get_instance().log_debug("[Disco][SeekingState::inner_seek seek start]\n");
-    mpAudioDevice->stop();
+     mpAudioDevice->stop();
     //暂停音频播放
     //TODO 清除音频设备缓存
     
@@ -74,12 +74,13 @@ void SeekingState::inner_seek(int64_t position)
     // mpVideoFrameTransformer->resume();
     // mpAudioFrameTransformer->resume();
 
-    mpRenderSynchronizer->start(mpInputStream->get_serial());
+    // mpRenderSynchronizer->start(mpInputStream->get_serial());
+    mpStateManager->on_seek_end();
 }
 
 void SeekingState::on_synchronizer_finish()
 {
-    mpStateManager->onSeekEnd();
+    mpStateManager->on_seek_end();
 }
 
 void SeekingState::on_state_exit()

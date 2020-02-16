@@ -12,6 +12,6 @@ public:
 
     virtual void on_audio_data_request_begin() = 0;
     virtual void on_audio_data_request_end() = 0;
-    virtual AudioClip * const on_audio_data_request(int len) = 0;
+    virtual bool on_audio_data_request(int len,  AudioClip ** audio_clip) = 0;
 };
 #endif

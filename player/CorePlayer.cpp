@@ -15,6 +15,7 @@ extern "C"
 #include "./state/PlayingState.h"
 #include "./state/SeekingState.h"
 #include "./state/InitState.h"
+#include "./state/PreparedState.h"
 #include "./state/StateChangedListener.h"
 #include "DebugInfo.h"
 
@@ -109,17 +110,17 @@ void CorePlayer::start()
 
 void CorePlayer::pause()
 {
-    mStateManager.onPauseByUser();
+    mStateManager.on_pause_by_user();
 }
 
 void CorePlayer::resume()
 {
-    mStateManager.onResumeByUser();
+    mStateManager.on_resume_by_user();
 }
 
 void CorePlayer::stop()
 {
-    mStateManager.onPauseByUser();
+    mStateManager.on_pause_by_user();
 }
 
 void CorePlayer::init_states()
@@ -134,6 +135,8 @@ void CorePlayer::init_states()
     InitState * init_state = new InitState(pInputStream, pMediaDecoder, mpVideoFrameTransformer, 
         mpAudioFrameTransformer, pAudioDevice, &mStateManager);
     mStateManager.add_state(PlayerStateEnum::PREPARING, init_state);
+    PreparedState * prepared_state = new PreparedState(pAudioDevice, &mStateManager, mpAudioFrameTransformer);
+    mStateManager.add_state(PlayerStateEnum::PREPARED, prepared_state);
 }
 
 PlayerStateEnum CorePlayer::get_current_play_state()
@@ -158,7 +161,7 @@ int64_t CorePlayer::get_current_position()
 
 void CorePlayer::seek(int64_t position)
 {
-    mStateManager.onSeekStart(position);
+    mStateManager.on_seek_start(position);
 }
 
 void CorePlayer::set_player_state_change_listener(StateChangedListener * listener)

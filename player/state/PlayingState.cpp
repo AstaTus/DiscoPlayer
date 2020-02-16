@@ -48,7 +48,8 @@ PlayingState::PlayingState(VideoRender *video_render,
       mIsExit(true),
       mIsRelease(false),
       mRenderSemaphore(),
-      mRenderAudioSemaphore()
+      mRenderAudioSemaphore(),
+      mStartAudioDataRequestBeginTime(0.0)
 {
     mpAudioDevice->set_audio_data_request_listener(this);
     mVideoRenderFuture = std::async(std::launch::async, &PlayingState::video_render_loop_task, this);
@@ -64,6 +65,7 @@ void PlayingState::on_state_enter(...)
 
 void PlayingState::on_inner_state_enter()
 {
+    mpAudioDevice->start();
     mpAudioDevice->resume();
     mRenderSemaphore.signal();
 }
@@ -137,6 +139,7 @@ void PlayingState::video_render_loop_task()
 
 void PlayingState::on_audio_data_request_begin()
 {
+    mStartAudioDataRequestBeginTime = av_gettime_relative() / 1000000.0;
 }
 
 void PlayingState::on_audio_data_request_end()
@@ -145,10 +148,13 @@ void PlayingState::on_audio_data_request_end()
     if (mpActivateNodeManager->get_current_audio_node() != nullptr)
     {
         mpSyncClockManager->get_current_audio_sync_state(
-                mpActivateNodeManager->get_current_audio_node()->frame_wrapper->frame->pts,
+                mpActivateNodeManager->get_current_audio_node()->frame_wrapper->frame->pts - 
+                    mpActivateNodeManager->get_current_audio_node()->clip->size() * 1000 / mpAudioDevice->get_bytes_per_second() -
+                    mpAudioDevice->get_latency_seconds() * 1000,
                 mpActivateNodeManager->get_current_audio_node()->frame_wrapper->time_base,
                 mpActivateNodeManager->get_current_audio_node()->frame_wrapper->serial,
-                &remaining_time);
+                &remaining_time, mStartAudioDataRequestBeginTime);
+
         if (mpActivateNodeManager->get_current_audio_node()->clip->isFinish())
         {
             mpActivateNodeManager->recyle_current_audio_node();
@@ -156,7 +162,7 @@ void PlayingState::on_audio_data_request_end()
     }
 }
 
-AudioClip *const PlayingState::on_audio_data_request(int len)
+bool PlayingState::on_audio_data_request(int len, AudioClip ** audio_clip)
 {
     double remaining_time = 0.0;
     //audio
@@ -166,28 +172,28 @@ AudioClip *const PlayingState::on_audio_data_request(int len)
     }
 
     AudioTransformNode *node = mpActivateNodeManager->get_current_audio_node();
-    if (node != nullptr)
+    if (node == nullptr)
     {
-        //播放完或者非当前serial的帧 回收
-        if (node->clip->isFinish() ||
-            (node->frame_wrapper->serial != mpInputStream->get_serial() ||
-             node->frame_wrapper->frame->pts * av_q2d(node->frame_wrapper->time_base) * 1000 < mpInputStream->get_serial_start_time()))
-        {
-            mpActivateNodeManager->recyle_current_audio_node();
-            return nullptr;
-        }
-        else
-        {
-            if (node != nullptr)
-            {
-                Log::get_instance().log_debug("[Disco][PlayinState] on_audio_data_request add audio clip serial = %d\n", node->frame_wrapper->serial);
-            }
-            
-            return node->clip;
-        }
+        (*audio_clip) = nullptr;
+        return true;
     }
-
-    return nullptr;
+    
+    
+    //播放完或者非当前serial的帧 回收
+    if (node->clip->isFinish() ||
+        (node->frame_wrapper->serial != mpInputStream->get_serial() ||
+            node->frame_wrapper->frame->pts * av_q2d(node->frame_wrapper->time_base) * 1000 < mpInputStream->get_serial_start_time()))
+    {
+        mpActivateNodeManager->recyle_current_audio_node();
+        (*audio_clip) = nullptr;
+        return false;
+    }
+    else
+    {
+        Log::get_instance().log_debug("[Disco][PlayinState] on_audio_data_request add audio clip serial = %d\n", node->frame_wrapper->serial);
+        (*audio_clip) = node->clip;
+        return true;
+    }
     //同步音频
     // audio_transform_node->clip
     //     pAudioRender->refresh();

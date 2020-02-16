@@ -37,7 +37,7 @@ VideoTransformNode *ActivateNodeManager::get_current_video_node()
 AudioTransformNode *ActivateNodeManager::obtain_current_audio_node()
 {
     recyle_audio_node(mpCurrentAudioNode);
-    mpCurrentAudioNode = mpAudioFrameTransformer->non_block_pop_transformed_node();
+    mpCurrentAudioNode = mpAudioFrameTransformer-> block_peek_transformed_node();
     return mpCurrentAudioNode;
 }
 
