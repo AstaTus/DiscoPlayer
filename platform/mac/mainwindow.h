@@ -8,6 +8,7 @@
 #include "debugwidget.h"
 #include "../../player/state/StateChangedListener.h"
 #include <qevent.h>
+#include <QPushButton>
 class OpenGLRenderWidget;
 class CorePlayer;
 class AudioDevice;
@@ -41,6 +42,10 @@ private:
 
     void on_handle_player_state_prepared();
 
+    void on_handle_player_state_playing();
+
+    void on_handle_player_state_pause();
+
     QString formatTime(int64_t ms, bool has_msec = false);
 
     QTimer *mpTimer;
@@ -49,6 +54,8 @@ private:
     OpenGLRenderWidget* mpOpenGLRenderWidget;
     DebugWidget * mpDebugWidget;
     QLabel * mpProgressLabel;
+    QPushButton * mpPlayAndPauseBtn;
+
     CorePlayer* mpCorePlayer;
     AudioDevice* mpAudioDevice;
 

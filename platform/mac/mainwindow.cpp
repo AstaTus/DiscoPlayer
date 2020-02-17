@@ -16,7 +16,7 @@
 #include "QRenderWidget.h"
 #include "OpenGLRenderWidget.h"
 #include <QVBoxLayout>
-#include <QPushButton>
+
 #include <QTime>
 #include <QKeyEvent>
 #include <QStackedLayout>
@@ -106,8 +106,10 @@ void MainWindow::init()
     mpOpenGLRenderWidget->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
     mpOpenGLRenderWidget->resize(1920, 1080);
 
-    QPushButton * button = findChild<QPushButton *>("pushButton");
-    connect(button, &QPushButton::clicked, this, &MainWindow::onPlayAndPauseButtonClicked);
+    mpPlayAndPauseBtn = findChild<QPushButton *>("pushButton");
+    mpPlayAndPauseBtn->setToolTip(tr("Pause"));
+    mpPlayAndPauseBtn->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
+    connect(mpPlayAndPauseBtn, &QPushButton::clicked, this, &MainWindow::onPlayAndPauseButtonClicked);
 }
 
 void MainWindow::start()
@@ -191,6 +193,18 @@ void MainWindow::on_handle_player_state_prepared()
     mpSeekBar->setSingleStep(1);  // 步长
 }
 
+void MainWindow::on_handle_player_state_playing()
+{
+    mpPlayAndPauseBtn->setToolTip(tr("Pause"));
+    mpPlayAndPauseBtn->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
+}
+
+void MainWindow::on_handle_player_state_pause()
+{
+    mpPlayAndPauseBtn->setToolTip(tr("Play"));
+    mpPlayAndPauseBtn->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
+}
+
 void MainWindow::seek_start()
 {
     mIsSeeking = true;
@@ -212,7 +226,16 @@ void MainWindow::customEvent(QEvent * event)
         if (state == PlayerStateEnum::PREPARED)
         {
             on_handle_player_state_prepared();
+        } 
+        else if (state == PlayerStateEnum::PLAYING)
+        {
+            on_handle_player_state_playing();
         }
+        else if (state == PlayerStateEnum::PAUSED)
+        {
+            on_handle_player_state_pause();
+        }
+
         mLastPlayerState = state;
     }
 }

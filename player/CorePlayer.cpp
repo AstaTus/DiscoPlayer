@@ -16,6 +16,8 @@ extern "C"
 #include "./state/SeekingState.h"
 #include "./state/InitState.h"
 #include "./state/PreparedState.h"
+#include "./state/PauseState.h"
+
 #include "./state/StateChangedListener.h"
 #include "DebugInfo.h"
 
@@ -137,6 +139,8 @@ void CorePlayer::init_states()
     mStateManager.add_state(PlayerStateEnum::PREPARING, init_state);
     PreparedState * prepared_state = new PreparedState(pAudioDevice, &mStateManager, mpAudioFrameTransformer);
     mStateManager.add_state(PlayerStateEnum::PREPARED, prepared_state);
+    PauseState * pause_state = new PauseState(pAudioDevice);
+    mStateManager.add_state(PlayerStateEnum::PAUSED, pause_state);
 }
 
 PlayerStateEnum CorePlayer::get_current_play_state()
