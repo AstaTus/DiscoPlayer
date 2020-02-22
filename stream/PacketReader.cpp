@@ -22,7 +22,11 @@ int PacketReader::read(PacketWrapper *packet_wrapper)
     std::lock_guard<std::mutex> seek_lock(mSeekMutex);
     packet_wrapper->serial = mSerial;
     packet_wrapper->serial_start_time = mSerialStartTime;
-    return av_read_frame(*mppFormatContext, packet_wrapper->packet);
+    if(*mppFormatContext != nullptr) {
+        return av_read_frame(*mppFormatContext, packet_wrapper->packet);
+    } else {
+        return AVERROR_EOF;
+    }
 }
 
 int PacketReader::serial()

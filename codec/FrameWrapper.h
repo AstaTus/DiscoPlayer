@@ -13,19 +13,21 @@ struct FrameWrapper
     AVRational time_base;
     int64_t start_pts;
     int serial;
+    bool is_end;
 
     FrameWrapper()
         : frame(nullptr),
           time_base(),
           start_pts(0),
-          serial(0)
+          serial(0),
+          is_end(false)
     {
-        frame = new AVFrame();
+        frame = av_frame_alloc();
     }
 
     ~FrameWrapper()
     {
-        delete frame;
+        av_frame_free(&frame);
     }
 };
 #endif

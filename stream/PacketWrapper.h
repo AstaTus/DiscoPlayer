@@ -13,11 +13,15 @@ struct PacketWrapper
     int serial;
     //转换过的时间点
     int64_t serial_start_time;
+    bool is_end;
+    bool is_key_frame;
 
     PacketWrapper()
         : packet(nullptr),
           serial(0),
-          serial_start_time(0)
+          serial_start_time(0),
+          is_end(false),
+          is_key_frame(false)
     {
         packet = new AVPacket();
     }
@@ -25,6 +29,11 @@ struct PacketWrapper
     ~PacketWrapper()
     {
         delete packet;
+    }
+
+    void recycle() 
+    {
+        av_packet_unref(packet);
     }
 };
 #endif

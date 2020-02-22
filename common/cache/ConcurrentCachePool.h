@@ -38,17 +38,26 @@ ConcurrentCachePool<T>::ConcurrentCachePool(int size)
       mCacheMutex(),
       mCacheCond()
 {
+    
 }
 
 template <class T>
 ConcurrentCachePool<T>::~ConcurrentCachePool()
 {
+    std::unique_lock<std::mutex> cache_lock(mCacheMutex);
+    T *node = nullptr;
+    while (mCacheQueue.size() > 0)
+    {
+        node = mCacheQueue.front();
+        mCacheQueue.pop();
+        destroy_node(node);
+    }
 }
 
 template <class T>
 T * ConcurrentCachePool<T>::get_empty_node()
 {
-    T *node = NULL;
+    T *node = nullptr;
     std::unique_lock<std::mutex> cache_lock(mCacheMutex);
     
     if (mCacheQueue.size() > 0)
@@ -77,12 +86,15 @@ T * ConcurrentCachePool<T>::get_empty_node()
 template <class T>
 void ConcurrentCachePool<T>::recycle_node(T *node)
 {
+    if(node != nullptr)
     {
-        std::lock_guard<std::mutex> cache_lock(mCacheMutex);
-        mCacheQueue.push(node);
-    }
+        {
+            std::lock_guard<std::mutex> cache_lock(mCacheMutex);
+            mCacheQueue.push(node);
+        }
     
-    mCacheCond.notify_all();
+        mCacheCond.notify_all();
+    }
 }
 
 template <class T>

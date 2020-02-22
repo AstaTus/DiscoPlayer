@@ -84,7 +84,9 @@
         "qpushbutton": "cpp",
         "qtime": "cpp",
         "qlabel": "cpp",
-        "debug": "cpp"
+        "debug": "cpp",
+        "qfiledialog": "cpp",
+        "qstring": "cpp"
     },
     "C_Cpp.errorSquiggles": "Disabled",
     "cmake.buildDirectory": "${workspaceFolder}/build/x86_64_debug",

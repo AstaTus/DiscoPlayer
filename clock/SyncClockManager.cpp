@@ -19,6 +19,8 @@ SyncClockManager::SyncClockManager(SyncStrategy strategy)
 
 SyncClockManager::~SyncClockManager()
 {
+    delete pSyncStrategy;
+    pSyncStrategy = nullptr;
 }
 
 SyncClockManager::SyncState SyncClockManager::get_current_video_sync_state(

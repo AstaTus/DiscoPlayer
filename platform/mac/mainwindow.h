@@ -6,9 +6,10 @@
 #include <QLabel>
 #include <QSlider>
 #include "debugwidget.h"
-#include "../../player/state/StateChangedListener.h"
+#include "../../player/CorePlayerStateChangedListener.h"
 #include <qevent.h>
 #include <QPushButton>
+#include <QAction>
 class OpenGLRenderWidget;
 class CorePlayer;
 class AudioDevice;
@@ -18,7 +19,7 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
-class MainWindow : public QMainWindow, public StateChangedListener
+class MainWindow : public QMainWindow, public CorePlayerStateChangedListener
 {
     Q_OBJECT
 
@@ -32,13 +33,13 @@ protected:
 
 private:
     void init();
-    void start();
+    void start(const std::string & path);
     void pause();
     void resume();
 
     void customEvent(QEvent * event) override;
 
-    void on_state_changed(PlayerStateEnum state) override;
+    void on_state_changed(PlayerStateEnum state, CorePlayer * player) override;
 
     void on_handle_player_state_prepared();
 
@@ -56,6 +57,8 @@ private:
     QLabel * mpProgressLabel;
     QPushButton * mpPlayAndPauseBtn;
 
+    QAction *mpOpenFileAction;
+
     CorePlayer* mpCorePlayer;
     AudioDevice* mpAudioDevice;
 
@@ -68,5 +71,6 @@ private slots:
     void refresh_debug_info();
     void seek_start();
     void seek_end();
+    void open_video();
 };
 #endif // MAINWINDOW_H

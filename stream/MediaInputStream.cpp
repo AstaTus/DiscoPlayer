@@ -12,19 +12,28 @@ extern "C"
 
 MediaInputStream::MediaInputStream(/* args */)
 :pFormatContext(nullptr),
-mpReader(nullptr)
+mpReader(nullptr),
+mpInputStreamIterator(nullptr)
 {
 }
 
 MediaInputStream::~MediaInputStream()
 {
     close();
+    delete mpReader;
+    delete mpInputStreamIterator;
+    mpInputStreamIterator = nullptr;
+    mpReader = nullptr;
 }
 
-IStreamIterator* MediaInputStream::get_stream_iterator() const
+IStreamIterator* MediaInputStream::get_stream_iterator()
 {
-    InputStreamIterator * stream_iterator = new InputStreamIterator(&pFormatContext);
-    return stream_iterator;
+    if (mpInputStreamIterator == nullptr)
+    {
+       mpInputStreamIterator = new InputStreamIterator(&pFormatContext);
+    }
+
+    return mpInputStreamIterator;
 }
 
 Reader* MediaInputStream::get_packet_reader()
@@ -58,6 +67,12 @@ bool MediaInputStream::open(const string& url)
 
 bool MediaInputStream::close()
 {
+    if (pFormatContext != nullptr)
+    {
+        avformat_close_input(&pFormatContext);
+        pFormatContext = nullptr;
+    }
+    
     return true;
 }
 bool MediaInputStream::pause()

@@ -15,6 +15,14 @@ ActivateNodeManager::ActivateNodeManager(VideoFrameTransformer *video_frame_tran
 
 ActivateNodeManager::~ActivateNodeManager()
 {
+    recyle_video_node(mpCurrentVideoNode);
+    recyle_audio_node(mpCurrentAudioNode);
+
+    mpCurrentVideoNode = nullptr;
+    mpCurrentAudioNode = nullptr;
+
+    // mpVideoFrameTransformer = nullptr;
+    // mpAudioFrameTransformer = nullptr;
 }
 
 VideoTransformNode *ActivateNodeManager::obtain_current_video_node()
@@ -37,7 +45,7 @@ VideoTransformNode *ActivateNodeManager::get_current_video_node()
 AudioTransformNode *ActivateNodeManager::obtain_current_audio_node()
 {
     recyle_audio_node(mpCurrentAudioNode);
-    mpCurrentAudioNode = mpAudioFrameTransformer-> block_peek_transformed_node();
+    mpCurrentAudioNode = mpAudioFrameTransformer->block_pop_transformed_node();
     return mpCurrentAudioNode;
 }
 

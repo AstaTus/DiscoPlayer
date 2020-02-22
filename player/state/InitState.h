@@ -11,6 +11,7 @@ class AudioFrameTransformer;
 class AudioDevice;
 class RenderSynchronizer;
 class StateManager;
+
 class InitState : public BaseState, public RenderSynchronizerFinishListener
 {
 private:
@@ -29,9 +30,6 @@ private:
     virtual void on_synchronizer_finish() override;
 
     void inner_init_task(int64_t seek_position, const char * data_source);
-
-    
-
 public:
     InitState(MediaInputStream *input_stream,
                      MediaDecoder *media_decoder,

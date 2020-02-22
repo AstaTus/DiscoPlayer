@@ -19,11 +19,11 @@
 
 #include "ActivateNodeManager.h"
 #include <future>
+#include "./state/StateChangedListener.h"
 
-class StateChangedListener;
 struct DebugInfo;
-
-class CorePlayer
+class CorePlayerStateChangedListener;
+class CorePlayer : public StateChangedListener
 {
 private:
     MediaDecoder * pMediaDecoder;
@@ -38,12 +38,11 @@ private:
     PlayItem * pCurrentPlayItem;
 
     std::future<void> mInitFuture;
-    std::future<void> mVideoRenderFuture;
 
     VideoFrameTransformer * mpVideoFrameTransformer;
     AudioFrameTransformer * mpAudioFrameTransformer;
 
-    SyncClockManager mSyncClockManager;
+    SyncClockManager * mpSyncClockManager;
 
     StateManager mStateManager;
 
@@ -51,7 +50,13 @@ private:
 
     DebugInfo * mpDebugInfo;
 
+    CorePlayerStateChangedListener * mpCorePlayerStateChangedListener;
+
+    PlayerStateEnum mCurrentState;
+
     void init_task();
+
+    virtual void on_state_changed(PlayerStateEnum state) override;
 public:
     CorePlayer();
     virtual ~CorePlayer();
@@ -67,7 +72,7 @@ public:
 
     PlayerStateEnum get_current_play_state();
 
-    void set_player_state_change_listener(StateChangedListener * listener);
+    void set_player_state_change_listener(CorePlayerStateChangedListener * listener);
 
     void start();
 

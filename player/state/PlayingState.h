@@ -29,8 +29,11 @@ private:
     std::future<void> mVideoRenderFuture;
     std::atomic<bool> mIsExit;
     std::atomic<bool> mIsRelease;
+
+    std::atomic<bool> mIsVideoStreamEnd;
+    std::atomic<bool> mIsAudioStreamEnd;
+
     Semaphore mRenderSemaphore;
-    Semaphore mRenderAudioSemaphore;
 
     double mStartAudioDataRequestBeginTime;
 
@@ -39,6 +42,8 @@ private:
     void on_audio_data_request_begin() override;
     void on_audio_data_request_end() override;
     bool on_audio_data_request(int len,  AudioClip ** audio_clip) override;
+
+    void check_stream_end();
 
 public:
     PlayingState(VideoRender *video_render,

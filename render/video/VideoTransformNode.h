@@ -8,5 +8,6 @@ struct VideoTransformNode
 {
     Image *image;
     FrameWrapper *frame_wrapper;
+    bool is_end = false;
 };
 #endif

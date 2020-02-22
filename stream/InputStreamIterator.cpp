@@ -15,6 +15,7 @@ mIndex(0)
 }
 InputStreamIterator::~InputStreamIterator()
 {
+    mppFormatContext = nullptr;
 }
 
 bool InputStreamIterator::has_next() const

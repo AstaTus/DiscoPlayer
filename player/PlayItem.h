@@ -9,7 +9,7 @@ private:
     string mDataSource;
 public:
 
-    PlayItem(string& data_source);
+    PlayItem(const string& data_source);
     const string& get_data_source() const;
 };
 

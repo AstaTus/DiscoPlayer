@@ -25,6 +25,15 @@ VideoFrameTransformer::VideoFrameTransformer(FrameReader *frame_reader)
 
 VideoFrameTransformer::~VideoFrameTransformer()
 {
+    mVideoTransformFuture.wait();
+
+    VideoTransformNode * video_transform_node = mTransformNodeQueue.non_block_pop_node();
+    while (video_transform_node != nullptr)
+    {
+        recycle(video_transform_node);
+        video_transform_node = mTransformNodeQueue.non_block_pop_node();
+    }
+    // mpFrameReader = nullptr;
 }
 
 void VideoFrameTransformer::push_frame_to_transform(FrameWrapper *frame_wrapper, int width, int height)
@@ -81,16 +90,19 @@ void VideoFrameTransformer::video_frame_transform_loop_task()
     //只要播放器不销毁，就一直循环
     while (!mIsTransformTaskStop)
     {
-        // if (mIsClearBufferAndPause)
-        // {
-        //     clear_buffer();
-        //     mClearBufferSemaphore.signal();
-        //     mTransformSemaphore.wait();
-        //     mIsClearBufferAndPause = true;
-        // }
-
         //video
         FrameWrapper *video_frame_wrapper = mpFrameReader->pop_frame();
+        if (video_frame_wrapper->is_end)
+        {
+            Image *image = mImageCachePool.get_empty_node();
+            VideoTransformNode *node = mTransformNodeCachePool.get_empty_node();
+            node->is_end = true;
+            node->image = image;
+            node->frame_wrapper = video_frame_wrapper;
+            mTransformNodeQueue.push_node(node);
+            break;
+        }
+
         if (video_frame_wrapper->serial != mpFrameReader->serial() ||
             video_frame_wrapper->frame->pts * 1000 * av_q2d(video_frame_wrapper->time_base) < mpFrameReader->serial_start_time())
         {

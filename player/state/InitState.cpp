@@ -28,6 +28,9 @@ InitState::InitState(MediaInputStream *input_stream,
 
 InitState::~InitState()
 {
+    mInitFuture.wait();
+    mpRenderSynchronizer->wait();
+    delete mpRenderSynchronizer;
 }
 
 void InitState::on_state_enter(...)
@@ -42,6 +45,10 @@ void InitState::on_state_enter(...)
     mInitFuture = std::async(std::launch::async, &InitState::inner_init_task, this, start_seek_postion, data_source);
 }
 
+void InitState::on_state_exit()
+{
+}
+
 void InitState::inner_init_task(int64_t seek_position, const char * data_source)
 {
     mpMediaInputStream->open(data_source);
@@ -49,11 +56,7 @@ void InitState::inner_init_task(int64_t seek_position, const char * data_source)
     mpVideoFrameTransformer->start();
     mpAudioFrameTransformer->start();
     // on_synchronizer_finish();
-    mpRenderSynchronizer->start(mpMediaInputStream->get_serial());
-}
-
-void InitState::on_state_exit()
-{
+    mpRenderSynchronizer->start_by_serial(mpMediaInputStream->get_serial());
 }
 
 void InitState::on_synchronizer_finish()

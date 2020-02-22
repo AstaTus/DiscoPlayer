@@ -12,6 +12,8 @@ private:
 
 protected:
     void destroy_node(T * node);
+
+    int size();
 public:
     ConcurrentQueue();
     virtual ~ConcurrentQueue();
@@ -37,11 +39,21 @@ template <class T>
 ConcurrentQueue<T>::~ConcurrentQueue()
 {
     std::lock_guard<std::mutex> queue_lock(mQueueMutex);
+    T *node = nullptr;
     while (mQueue.size() > 0)
     {
-        destroy_node(mQueue.front());
+        node = mQueue.front();
         mQueue.pop();
+        destroy_node(node);
     }
+}
+
+template <class T>
+int ConcurrentQueue<T>::size()
+{
+    int size = mQueue.size();
+    return size;
+
 }
 
 template <class T>

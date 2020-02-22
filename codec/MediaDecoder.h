@@ -36,48 +36,32 @@ private:
 
     IStreamIterator * pInputStreamIterator;
     
-    vector<AVCodecContext*> mDecodes;
     AVCodecContext * mpVideoCodecContext;
     AVCodecContext * mpAudioCodecContext;
 
-    vector<AVStream*> mStreams;
     AVStream * mpVideoStream;
     AVStream * mpAudioStream;
 
-    map<AVMediaType, int> mMediaTypeIndexMap;
     map<int, AVMediaType> mMediaIndexTypeMap;
 
     //解packet
     Reader * pPacketReader;
     ConcurrentCachePool<PacketWrapper> mVideoPacketWrapperConcurrentCachePool;
-    ConcurrentCachePool<PacketWrapper> mAudioPacketWrapperConcurrentCachePool;
     ConcurrentQueue<PacketWrapper> mVideoWrapperPacketQueue;
     ConcurrentQueue<PacketWrapper> mAudioWrapperPacketQueue;
-
-    //解frame
-    vector<FrameQueue*> mFrameQueues;
-    vector<FrameConcurrentCachePool*> mFrameCachePools;
 
     FrameQueue * mpVideoQueue;
     FrameQueue * mpAudioQueue;
 
+    FrameReader * mpVideoFrameReader;
+    FrameReader * mpAudioFrameReader;
+
     FrameConcurrentCachePool * mpVideoFrameCachePool;
     FrameConcurrentCachePool * mpAudioFrameCachePool;
-
 
     std::future<void> mDecodePacketFuture;
     std::future<void> mDecodeVideoFrameFuture;
     std::future<void> mDecodeAudioFrameFuture;
-
-    std::atomic<bool> mIsClearVideoBufferAndPause;
-    std::atomic<bool> mIsClearAudioBufferAndPause;
-    std::atomic<bool> mIsClearPacketBufferAndPause;
-
-    Semaphore mVideoDecodeSemaphore;
-    Semaphore mAudioDecodeSemaphore;
-    Semaphore mPacketUnpackSemaphore;
-    Semaphore mClearBufferSemaphore;
-    Semaphore mClearBufferSyncSemaphore;
 
     std::atomic<bool> mIsStop;
     
@@ -97,16 +81,15 @@ private:
         FrameQueue * frame_queue,
         AVCodecContext * codec_context,
         FrameConcurrentCachePool * frame_cache_pool,
-        AVStream * stream,
-        std::atomic<bool>& is_clear_buffer,
-        Semaphore& semaphore);
+        AVStream * stream);
+
+    void recycle_packet_wrapper(PacketWrapper * packet_wrapper);
 public:
     MediaDecoder(IStreamIterator * input_stream_iterator, Reader * packet_reader);
     ~MediaDecoder();
 
     bool start();
     bool stop();
-    bool clear_buffer_and_pause();
     bool resume();
 
     FrameReader * get_video_frame_reader();

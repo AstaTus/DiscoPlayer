@@ -18,6 +18,16 @@ mIsTransformTaskStop(false)
 
 AudioFrameTransformer::~AudioFrameTransformer()
 {
+    mAudioTransformFuture.wait();
+
+    AudioTransformNode * audio_transform_node = mTransformNodeQueue.non_block_pop_node();
+    while (audio_transform_node != nullptr)
+    {
+        recycle(audio_transform_node);
+        audio_transform_node = mTransformNodeQueue.non_block_pop_node();
+    }
+
+    // mpFrameReader = nullptr;
 }
 
 void AudioFrameTransformer::push_frame_to_transform(FrameWrapper * frame_wrapper)
@@ -78,16 +88,20 @@ void AudioFrameTransformer::audio_frame_transform_loop_task()
     ThreadUtils::set_thread_name("Disco Audio Frame Transformer");
     while (!mIsTransformTaskStop)
     {
-        
-        // if (mIsClearBufferAndPause)
-        // {
-        //     clear_buffer();
-        //     mClearBufferSemaphore.signal();
-        //     mTransformSemaphore.wait();
-        //     mIsClearBufferAndPause = true;
-        // }
-
         FrameWrapper *audio_frame_wrapper = mpFrameReader->pop_frame();
+
+        //stream is end
+        if (audio_frame_wrapper->is_end)
+        {
+            AudioClip * clip = mClipCachePool.get_empty_node();
+            AudioTransformNode * node = mTransformNodeCachePool.get_empty_node();
+            node->is_end = true;
+            node->clip = clip;
+            node->frame_wrapper = audio_frame_wrapper;
+            mTransformNodeQueue.push_node(node);
+            break;
+        }
+
         if (audio_frame_wrapper->serial != mpFrameReader->serial() ||
             audio_frame_wrapper->frame->pts * 1000 * av_q2d(audio_frame_wrapper->time_base) < mpFrameReader->serial_start_time())
         {
@@ -129,8 +143,6 @@ void AudioFrameTransformer::retransform_cache_audio_clips()
 {
 
 }
-
-
 
 void AudioFrameTransformer::clear_buffer()
 {

@@ -8,6 +8,7 @@ struct AudioTransformNode
 {
     AudioClip *clip;
     FrameWrapper *frame_wrapper;
+    bool is_end = false;
 };
 
 #endif

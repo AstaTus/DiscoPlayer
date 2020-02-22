@@ -1,6 +1,6 @@
 #include "PlayItem.h"
 
-PlayItem::PlayItem(string &data_source)
+PlayItem::PlayItem(const string &data_source)
     : mDataSource(data_source)
 {
 }

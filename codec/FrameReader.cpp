@@ -12,6 +12,9 @@ FrameReader::FrameReader(FrameQueue * const * frame_queue,
 
 FrameReader::~FrameReader()
 {
+    mppFrameCachePool = nullptr;
+    mppFrameQueue = nullptr;
+    mppPacketReader = nullptr;
 }
 
 FrameWrapper *FrameReader::pop_frame()

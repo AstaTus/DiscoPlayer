@@ -15,8 +15,9 @@ private:
     RenderSynchronizerFinishListener * mpFinishListener;
 
     std::future<void> mSynchronizerFutrue;
+    void wait_for_synchronizer_by_end();
 
-    void wait_for_synchronizer();
+    void wait_for_synchronizer_by_serial();
 public:
     RenderSynchronizer(VideoFrameTransformer * video_frame_transformer, 
         AudioFrameTransformer * audio_frame_transformer,
@@ -24,7 +25,11 @@ public:
 
     ~RenderSynchronizer();
 
-    void start(int serial);
+    void start_by_serial(int serial);
+
+    void start_by_end();
+
+    void wait();
 };
 
 

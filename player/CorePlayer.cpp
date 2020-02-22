@@ -17,8 +17,13 @@ extern "C"
 #include "./state/InitState.h"
 #include "./state/PreparedState.h"
 #include "./state/PauseState.h"
-
+#include "./state/StopState.h"
+#include "./state/ReleaseState.h"
+#include "./state/EndState.h"
 #include "./state/StateChangedListener.h"
+
+#include "./CorePlayerStateChangedListener.h"
+
 #include "DebugInfo.h"
 
 class AudioDevice;
@@ -28,26 +33,22 @@ CorePlayer::CorePlayer()
       pRenderView(nullptr),
       pInputStream(nullptr),
       pCurrentPlayItem(nullptr),
-      mSyncClockManager(SyncClockManager::SYNC_STRATEGY_AUDIO),
+      mpSyncClockManager(nullptr),
       mStateManager(),
-      mpDebugInfo(nullptr)
+      mpDebugInfo(nullptr),
+      mpCorePlayerStateChangedListener(nullptr)
 {
+    mStateManager.set_state_changed_listener(this);
 }
 
 CorePlayer::~CorePlayer()
 {
-    mVideoRenderFuture.wait();
-    mpVideoFrameTransformer->stop();
-    mpAudioFrameTransformer->stop();
-
-    delete mpVideoFrameTransformer;
-    delete mpAudioFrameTransformer;
-    delete mpActivateNodeManager;
+    mInitFuture.wait();
 
     pRenderView = nullptr;
     pAudioDevice = nullptr;
-    delete pVideoRender;
-    delete pAudioRender;
+    pVideoRender = nullptr;
+    pAudioRender = nullptr;
 }
 
 void CorePlayer::set_play_item(PlayItem *play_item)
@@ -63,6 +64,7 @@ void CorePlayer::set_play_item(PlayItem *play_item)
 
 void CorePlayer::replace_play_item(const PlayItem *const play_item)
 {
+
 }
 
 void CorePlayer::set_render_surface(RenderView *render_view)
@@ -79,6 +81,7 @@ void CorePlayer::set_audio_device(AudioDevice *audio_device)
 
 void CorePlayer::init_task()
 {
+    mpSyncClockManager = new SyncClockManager(SyncClockManager::SYNC_STRATEGY_AUDIO),
     pInputStream = new MediaInputStream();
     pMediaDecoder = new MediaDecoder(pInputStream->get_stream_iterator(),
                                      pInputStream->get_packet_reader());
@@ -93,10 +96,6 @@ void CorePlayer::init_task()
     mStateManager.on_prepare(false, 0, pCurrentPlayItem->get_data_source());
 
 }
-
-
-
-
 
 void CorePlayer::start()
 {
@@ -122,17 +121,17 @@ void CorePlayer::resume()
 
 void CorePlayer::stop()
 {
-    mStateManager.on_pause_by_user();
+    mStateManager.on_stop_by_user();
 }
 
 void CorePlayer::init_states()
 {
     PlayingState * playing_state = new PlayingState(pVideoRender, pAudioDevice,
-        mpActivateNodeManager, &mSyncClockManager, pInputStream, &mStateManager);
+        mpActivateNodeManager, mpSyncClockManager, pInputStream, &mStateManager);
     mStateManager.add_state(PlayerStateEnum::PLAYING, playing_state);
     SeekingState * seeking_state = new SeekingState(&mStateManager, pAudioDevice, pInputStream, 
         pMediaDecoder, mpVideoFrameTransformer, mpAudioFrameTransformer, 
-        mpActivateNodeManager, &mSyncClockManager);
+        mpActivateNodeManager, mpSyncClockManager);
     mStateManager.add_state(PlayerStateEnum::SEEKING, seeking_state);
     InitState * init_state = new InitState(pInputStream, pMediaDecoder, mpVideoFrameTransformer, 
         mpAudioFrameTransformer, pAudioDevice, &mStateManager);
@@ -141,6 +140,14 @@ void CorePlayer::init_states()
     mStateManager.add_state(PlayerStateEnum::PREPARED, prepared_state);
     PauseState * pause_state = new PauseState(pAudioDevice);
     mStateManager.add_state(PlayerStateEnum::PAUSED, pause_state);
+    StopState * stop_state = new StopState(pInputStream, pMediaDecoder, mpVideoFrameTransformer, 
+        mpAudioFrameTransformer, pAudioDevice, &mStateManager);
+    mStateManager.add_state(PlayerStateEnum::STOPPED, stop_state);
+    ReleaseState * release_state = new ReleaseState(pInputStream, pMediaDecoder, mpVideoFrameTransformer, 
+        mpAudioFrameTransformer, mpActivateNodeManager, pAudioDevice, &mStateManager, mpSyncClockManager);
+    mStateManager.add_state(PlayerStateEnum::RELEASING, release_state);
+    EndState * end_state = new EndState();
+    mStateManager.add_state(PlayerStateEnum::END, end_state);
 }
 
 PlayerStateEnum CorePlayer::get_current_play_state()
@@ -150,17 +157,24 @@ PlayerStateEnum CorePlayer::get_current_play_state()
 
 int64_t CorePlayer::get_duration()
 {
-    if (pInputStream != nullptr)
+    if (mCurrentState == PlayerStateEnum::PLAYING || mCurrentState == PlayerStateEnum::PAUSED)
     {
-        return pInputStream->get_duration();
+        if (pInputStream != nullptr)
+        {
+            return pInputStream->get_duration();
+        }
     }
-
-    return 0;
+    return 0L;
 }
 
 int64_t CorePlayer::get_current_position()
 {
-    return mSyncClockManager.get_current_position();
+    if (mCurrentState == PlayerStateEnum::PLAYING || mCurrentState == PlayerStateEnum::PAUSED)
+    {
+        return mpSyncClockManager->get_current_position();
+    } else {
+        return 0L;
+    }
 } 
 
 void CorePlayer::seek(int64_t position)
@@ -168,9 +182,18 @@ void CorePlayer::seek(int64_t position)
     mStateManager.on_seek_start(position);
 }
 
-void CorePlayer::set_player_state_change_listener(StateChangedListener * listener)
+void CorePlayer::set_player_state_change_listener(CorePlayerStateChangedListener * listener)
 {
-    mStateManager.set_state_changed_listener(listener);
+    mpCorePlayerStateChangedListener = listener;
+}
+
+void CorePlayer::on_state_changed(PlayerStateEnum state)
+{
+    mCurrentState = state;
+    if (mpCorePlayerStateChangedListener != nullptr)
+    {
+        mpCorePlayerStateChangedListener->on_state_changed(state, this);
+    }
 }
 
 const DebugInfo * CorePlayer::get_debug_info() {
@@ -179,9 +202,13 @@ const DebugInfo * CorePlayer::get_debug_info() {
         mpDebugInfo = new DebugInfo();
     }
 
-    mpDebugInfo->video_pts = mSyncClockManager.get_video_pts();
-    mpDebugInfo->audio_pts = mSyncClockManager.get_video_pts();
-    mpDebugInfo->video_time = mSyncClockManager.get_video_position();
-    mpDebugInfo->audio_time = mSyncClockManager.get_audio_position();
+    if (mCurrentState == PlayerStateEnum::PLAYING)
+    {
+        mpDebugInfo->video_pts = mpSyncClockManager->get_video_pts();
+        mpDebugInfo->audio_pts = mpSyncClockManager->get_video_pts();
+        mpDebugInfo->video_time = mpSyncClockManager->get_video_position();
+        mpDebugInfo->audio_time = mpSyncClockManager->get_audio_position();
+    }
+    
     return mpDebugInfo;
 }
