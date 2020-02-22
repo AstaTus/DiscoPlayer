@@ -2,11 +2,14 @@
 #define __IRENDER_VIEW_H__
 #include <iostream>
 class Image;
+class VideoFrameTransformer;
 class RenderView
 {
 protected:
     int mWidth;
     int mHeight;
+    VideoFrameTransformer *mpVideoFrameTransformer;
+
 public:
     RenderView(int width, int height);
     virtual ~RenderView() = default;
@@ -20,6 +23,7 @@ public:
 
     int get_width();
     int get_height();
+    void set_video_frame_transformer(VideoFrameTransformer *video_frame_transformer);
 };
 
 #endif

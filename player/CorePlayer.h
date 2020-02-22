@@ -74,6 +74,12 @@ public:
 
     void set_player_state_change_listener(CorePlayerStateChangedListener * listener);
 
+    void set_volume(int volume);
+
+    int get_volume();
+
+    int get_max_volume();
+
     void start();
 
     void pause();

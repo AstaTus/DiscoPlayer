@@ -1,16 +1,33 @@
 #include "AudioDevice.h"
 
+
+const int AudioDevice::DEFULT_AUDIO_VOLUME = 64;
+const int AudioDevice::MAX_AUDIO_VOLUME = 100;
+
 AudioDevice::AudioDevice()
 : pAudioDataRequestListener(nullptr),
-mAudioVolume(64),
+mAudioVolume(DEFULT_AUDIO_VOLUME),
 mSampleRate(0),
 mSampleFormat(AVSampleFormat::AV_SAMPLE_FMT_NONE),
 mChannelNum(0)
 {
 }
 
-AudioDevice::~AudioDevice() {
+AudioDevice::~AudioDevice() 
+{
     
+}
+
+void AudioDevice::set_volume(int volume) 
+{
+    if (volume >= 0 && volume <= MAX_AUDIO_VOLUME)
+    {
+        mAudioVolume = volume;
+    }
+}
+
+int AudioDevice::get_volume() {
+    return mAudioVolume;
 }
 
 void AudioDevice::set_audio_data_request_listener(AudioDataRequestListener * audio_data_request_listener)

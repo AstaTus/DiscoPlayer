@@ -33,6 +33,7 @@ MainWindow::MainWindow(QWidget *parent)
       mpProgressLabel(nullptr),
       mpTimer(nullptr), ui(new Ui::MainWindow),
       mpSeekBar(nullptr),
+      mpVolumeBar(nullptr),
       mLastPlayerState(PlayerStateEnum::INIT),
       mIsSeeking(false)
 {
@@ -91,6 +92,9 @@ void MainWindow::init()
     mpSeekBar = findChild<QSlider *>("seekBar");
     connect(mpSeekBar, SIGNAL(sliderReleased()), this, SLOT(seek_end()));
     connect(mpSeekBar, SIGNAL(sliderPressed()), this, SLOT(seek_start()));
+
+    mpVolumeBar = findChild<QSlider *>("volumeBar");
+    connect(mpVolumeBar, SIGNAL(valueChanged(int)), this, SLOT(on_volume_changed(int)));
 
     QStackedLayout *stacked_layout = new QStackedLayout(this);
     mpOpenGLRenderWidget = new OpenGLRenderWidget(this);
@@ -194,6 +198,11 @@ void MainWindow::on_handle_player_state_prepared()
     mpSeekBar->setMinimum(0);                                   // 最小值
     mpSeekBar->setMaximum(mpCorePlayer->get_duration() / 1000); // 最大值
     mpSeekBar->setSingleStep(1);                                // 步长
+
+    mpVolumeBar->setMinimum(0);
+    mpVolumeBar->setMaximum(mpCorePlayer->get_max_volume());
+    mpVolumeBar->setSingleStep(1);
+    mpVolumeBar->setValue(mpCorePlayer->get_volume());
 }
 
 void MainWindow::on_handle_player_state_playing()
@@ -217,6 +226,11 @@ void MainWindow::seek_end()
 {
     mIsSeeking = false;
     mpCorePlayer->seek(mpSeekBar->value() * 1000);
+}
+
+void MainWindow::on_volume_changed(int value)
+{
+    mpCorePlayer->set_volume(value);
 }
 
 void MainWindow::open_video()

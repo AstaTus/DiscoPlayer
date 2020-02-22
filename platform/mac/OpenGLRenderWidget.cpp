@@ -161,6 +161,7 @@ void OpenGLRenderWidget::paintGL()
 
 void OpenGLRenderWidget::resizeGL(int w, int h)
 {
+    RenderView::resize(w, h);
     glViewport(0, 0, w, h);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();

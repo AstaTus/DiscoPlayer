@@ -63,6 +63,7 @@ private:
     AudioDevice* mpAudioDevice;
 
     QSlider *mpSeekBar;
+    QSlider *mpVolumeBar;
     PlayerStateEnum mLastPlayerState;
 
     bool mIsSeeking;
@@ -71,6 +72,7 @@ private slots:
     void refresh_debug_info();
     void seek_start();
     void seek_end();
+    void on_volume_changed(int value);
     void open_video();
 };
 #endif // MAINWINDOW_H

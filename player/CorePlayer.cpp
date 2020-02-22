@@ -88,8 +88,8 @@ void CorePlayer::init_task()
     mpVideoFrameTransformer = new VideoFrameTransformer(pMediaDecoder->get_video_frame_reader());
     mpAudioFrameTransformer = new AudioFrameTransformer(pMediaDecoder->get_audio_frame_reader());
     mpActivateNodeManager = new ActivateNodeManager(mpVideoFrameTransformer, mpAudioFrameTransformer);
-    mpVideoFrameTransformer->on_resize_render_view(
-        pRenderView->get_width(), pRenderView->get_height());
+    pRenderView->set_video_frame_transformer(mpVideoFrameTransformer);
+    
     
     init_states();
     //传递初始化
@@ -153,6 +153,28 @@ void CorePlayer::init_states()
     mStateManager.add_state(PlayerStateEnum::RELEASING, release_state);
     EndState * end_state = new EndState();
     mStateManager.add_state(PlayerStateEnum::END, end_state);
+}
+
+void CorePlayer::set_volume(int volume)
+{
+    if (pAudioDevice != nullptr)
+    {
+        pAudioDevice->set_volume(volume);
+    }
+}
+
+int CorePlayer::get_volume()
+{
+    if (pAudioDevice != nullptr)
+    {
+        return pAudioDevice->get_volume();
+    }
+    return 0;
+}
+
+int CorePlayer::get_max_volume()
+{
+    return AudioDevice::MAX_AUDIO_VOLUME;
 }
 
 PlayerStateEnum CorePlayer::get_current_play_state()
