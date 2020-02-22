@@ -121,6 +121,11 @@ void CorePlayer::resume()
 
 void CorePlayer::stop()
 {
+    if (pAudioDevice != nullptr)
+    {
+        pAudioDevice->stop();
+    }
+    
     mStateManager.on_stop_by_user();
 }
 
@@ -157,7 +162,7 @@ PlayerStateEnum CorePlayer::get_current_play_state()
 
 int64_t CorePlayer::get_duration()
 {
-    if (mCurrentState == PlayerStateEnum::PLAYING || mCurrentState == PlayerStateEnum::PAUSED)
+    if (mCurrentState == PlayerStateEnum::PLAYING || mCurrentState == PlayerStateEnum::PAUSED || mCurrentState == PlayerStateEnum::PREPARED)
     {
         if (pInputStream != nullptr)
         {

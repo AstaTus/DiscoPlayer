@@ -183,12 +183,11 @@ bool PlayingState::on_audio_data_request(int len, AudioClip ** audio_clip)
         if (node->is_end)
         {
             mIsAudioStreamEnd = true;   
-            mpAudioDevice->pause();
             check_stream_end();
             return false;
         }
         mpActivateNodeManager->obtain_current_audio_node();
-        
+
     } else {
         node = mpActivateNodeManager->get_current_audio_node();
     }

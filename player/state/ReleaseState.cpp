@@ -45,8 +45,7 @@ void ReleaseState::inner_release_task()
   mpMediaDecoder->stop();
   mpVideoFrameTransformer->stop();
   mpAudioFrameTransformer->stop();
-  mpAudioDevice->stop();
-
+  
   delete mpMediaInputStream;
   delete mpActivateNodeManager;
   delete mpVideoFrameTransformer;
