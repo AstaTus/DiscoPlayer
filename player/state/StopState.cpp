@@ -7,19 +7,19 @@
 #include "../RenderSynchronizer.h"
 #include "StateManager.h"
 #include "../RenderSynchronizer.h"
-#include "../../render/audio/AudioDevice.h"
+#include "../../render/audio/AudioRender.h"
 
 StopState::StopState(MediaInputStream *input_stream,
               MediaDecoder *media_decoder,
               VideoFrameTransformer *video_frame_transformer,
               AudioFrameTransformer *audio_frame_transformer,
-              AudioDevice *audio_device,
+              AudioRender *audio_render,
               StateManager *state_manager)
     : mpMediaInputStream(input_stream),
       mpMediaDecoder(media_decoder),
       mpVideoFrameTransformer(video_frame_transformer),
       mpAudioFrameTransformer(audio_frame_transformer),
-      mpAudioDevice(audio_device),
+      mpAudioRender(audio_render),
       mpStateManager(state_manager)
 {
     mpRenderSynchronizer = new RenderSynchronizer(

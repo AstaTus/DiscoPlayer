@@ -3,14 +3,14 @@
 
 #include "../../render/audio/AudioFrameTransformer.h"
 #include "StateManager.h"
-#include "../../render/audio/AudioDevice.h"
+#include "../../render/audio/AudioRender.h"
 
 #define PREPARED_STATE_ARG_SIZE 1
 
-PreparedState::PreparedState(AudioDevice *audio_device,
+PreparedState::PreparedState(AudioRender *audio_render,
                      StateManager *state_manager,
                      AudioFrameTransformer *audio_frame_transformer)
-    : mpAudioDevice(audio_device),
+    : mpAudioRender(audio_render),
       mpStateManager(state_manager),
       mpAudioFrameTransformer(audio_frame_transformer),
       mpPreparedThread(nullptr),
@@ -24,7 +24,7 @@ PreparedState::~PreparedState()
 
 void PreparedState::inner_prepared_task()
 {
-    mpAudioDevice->set_audio_play_param(
+    mpAudioRender->set_audio_play_param(
         mpAudioFrameTransformer->get_output_sample_rate(),
         mpAudioFrameTransformer->get_output_sample_format(),
         mpAudioFrameTransformer->get_output_channel_num());

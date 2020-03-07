@@ -2,13 +2,13 @@
 
 #include "BaseState.h"
 
-class AudioDevice;
+class AudioRender;
 class PauseState: public BaseState
 {
 private:
-    AudioDevice * const mpAudioDevice;
+    AudioRender * const mpAudioRender;
 public:
-    PauseState(AudioDevice *audio_device);
+    PauseState(AudioRender *audio_render);
     ~PauseState();
 
     virtual void on_state_enter(...) override;

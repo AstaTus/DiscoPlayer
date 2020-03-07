@@ -78,54 +78,6 @@ double SDLAudioDevice::get_latency_seconds()
 	return mLatencySeconds;
 }
 
-void SDLAudioDevice::fill_audio_buffer(Uint8 *stream, int len)
-{	
-	AudioClip * audio_clip = nullptr;
-	bool same_serial = false;
-	int current_len = len;
-    pAudioDataRequestListener->on_audio_data_request_begin();
-	SDL_memset(stream, 0, len);//初始化缓存区
-	while (current_len > 0)
-	{
-		same_serial = pAudioDataRequestListener->on_audio_data_request(current_len, &audio_clip);
-		if (!same_serial)
-		{
-			if (audio_clip != nullptr)
-			{
-				audio_clip->add_read_size(audio_clip->size());
-			}
-			
-			SDL_memset(stream, 0, len);
-			break;
-		} 
-		else if (audio_clip == nullptr)
-		{
-			continue;
-		}
-		
-		//TODO 混音
-		//SDL_MixAudio(stream,audio_pos,len,SDL_MIX_MAXVOLUME);
-		int read_size = audio_clip->size();
-		if (current_len < read_size)
-		{
-			read_size = current_len;
-		}
-
-		SDL_MixAudio(stream, audio_clip->data(), read_size, mAudioVolume);
-		current_len -= read_size;
-		audio_clip->add_read_size(read_size);
-	}
-
-	pAudioDataRequestListener->on_audio_data_request_end();
-	// if (mIsFlushing)
-	// {
-	// 	SDL_memset(stream, 0, len);
-	// 	Log::get_instance().log_debug("[Disco][SDLAudioDevice] fill_audio_buffer reset buffer\n");
-	// 	mFlushSemaphore.wait();
-	// 	mIsFlushing = false;
-	// }
-}
-
 bool SDLAudioDevice::pause()
 {
 	SDL_PauseAudio(1);

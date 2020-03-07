@@ -7,7 +7,7 @@ class MediaInputStream;
 class MediaDecoder;
 class VideoFrameTransformer;
 class AudioFrameTransformer;
-class AudioDevice;
+class AudioRender;
 class RenderSynchronizer;
 class StateManager;
 class RenderSynchronizer;
@@ -19,7 +19,7 @@ private:
     MediaDecoder *const mpMediaDecoder;
     VideoFrameTransformer *const mpVideoFrameTransformer;
     AudioFrameTransformer *const mpAudioFrameTransformer;
-    AudioDevice *const mpAudioDevice;
+    AudioRender *const mpAudioRender;
 
     std::thread *mpStopThread;
     StateManager *mpStateManager;
@@ -34,7 +34,7 @@ public:
               MediaDecoder *media_decoder,
               VideoFrameTransformer *video_frame_transformer,
               AudioFrameTransformer *audio_frame_transformer,
-              AudioDevice *audio_device,
+              AudioRender *audio_render,
               StateManager *state_manager);
     ~StopState();
 

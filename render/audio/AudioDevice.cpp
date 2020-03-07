@@ -1,15 +1,11 @@
 #include "AudioDevice.h"
-
-
-const int AudioDevice::DEFULT_AUDIO_VOLUME = 64;
-const int AudioDevice::MAX_AUDIO_VOLUME = 100;
+#include "AudioFillBufferListener.h"
 
 AudioDevice::AudioDevice()
-: pAudioDataRequestListener(nullptr),
-mAudioVolume(DEFULT_AUDIO_VOLUME),
-mSampleRate(0),
+: mSampleRate(0),
 mSampleFormat(AVSampleFormat::AV_SAMPLE_FMT_NONE),
-mChannelNum(0)
+mChannelNum(0),
+mpAudioFillBufferListener(nullptr)
 {
 }
 
@@ -18,21 +14,17 @@ AudioDevice::~AudioDevice()
     
 }
 
-void AudioDevice::set_volume(int volume) 
+void AudioDevice::set_audio_fill_buffer_listener(AudioFillBufferListener * listener)
 {
-    if (volume >= 0 && volume <= MAX_AUDIO_VOLUME)
-    {
-        mAudioVolume = volume;
-    }
+    mpAudioFillBufferListener = listener;
 }
 
-int AudioDevice::get_volume() {
-    return mAudioVolume;
-}
-
-void AudioDevice::set_audio_data_request_listener(AudioDataRequestListener * audio_data_request_listener)
-{
-    pAudioDataRequestListener = audio_data_request_listener;
+void AudioDevice::fill_audio_buffer(u_int8_t *stream, int len)
+{	
+	if (mpAudioFillBufferListener != nullptr)
+	{
+		mpAudioFillBufferListener->on_fill_audio_buffer(stream, len);
+	}
 }
 
 void AudioDevice::set_audio_play_param(int sample_rate, AVSampleFormat sample_format, int channel_num)

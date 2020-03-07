@@ -18,7 +18,7 @@ protected:
     double mSystemTime;
 
     /*倍速*/
-    double mSpeed;
+    float mSpeed;
 public:
     SyncStrategy(/* args */);
     virtual ~SyncStrategy();
@@ -44,5 +44,9 @@ public:
     virtual int64_t get_video_position() = 0;
 
     virtual int64_t get_audio_position() = 0;
+
+    float get_speed();
+
+    void set_speed(float speed);
 };
 #endif

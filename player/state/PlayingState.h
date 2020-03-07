@@ -16,10 +16,13 @@ class SyncClockManager;
 class StateManager;
 class AudioClip;
 class VideoRender;
+class AudioRender;
+struct AudioTransformNode;
 class PlayingState: public BaseState, public AudioDataRequestListener
 {
 private:
     VideoRender * mpVideoRender;
+    AudioRender * mpAudioRender;
     AudioDevice * mpAudioDevice;
     ActivateNodeManager * mpActivateNodeManager;
     SyncClockManager * mpSyncClockManager;
@@ -41,12 +44,13 @@ private:
     void video_render_loop_task();
     void on_audio_data_request_begin() override;
     void on_audio_data_request_end() override;
-    bool on_audio_data_request(int len,  AudioClip ** audio_clip) override;
+    bool on_audio_data_request(AudioTransformNode ** node) override;
 
     void check_stream_end();
 
 public:
     PlayingState(VideoRender *video_render,
+                    AudioRender *audio_render,
                            AudioDevice *audio_device,
                            ActivateNodeManager *activate_node_manager,
                            SyncClockManager *sync_clock_manager,

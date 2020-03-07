@@ -52,6 +52,10 @@ set(CMAKE_AUTORCC ON)
 
 set(YUV_INCLUDE_DIR ${MAC_DISCO_PLAYER_ROOT_DIR}/dependency/libyuv/include)
 set(YUV_LIBRARY ${MAC_DISCO_PLAYER_ROOT_DIR}/dependency/libyuv/debug/libyuv.dylib)
+
+set(SOUND_TOUCH_INCLUDE_DIR ${MAC_DISCO_PLAYER_ROOT_DIR}/dependency/sound-touch/2.1.2/include)
+set(SOUND_TOUCH_LIBRARY ${MAC_DISCO_PLAYER_ROOT_DIR}/dependency/sound-touch/2.1.2/lib/libSoundTouch.dylib)
+
 # 添加其他模块
 set( DISCO_CLOCK_DIR ${MAC_DISCO_PLAYER_ROOT_DIR}/clock)
 set( DISCO_CODEC_DIR ${MAC_DISCO_PLAYER_ROOT_DIR}/codec)
@@ -84,7 +88,9 @@ target_include_directories(MacDiscoPlayer PRIVATE
             ${Qt5Widgets_INCLUDE_DIRS}
             ${Qt5Core_INCLUDE_DIRS}
             ${Qt5Gui_INCLUDE_DIRS}
-            ${OPENGL_EGL_INCLUDE_DIRS})
+            ${OPENGL_EGL_INCLUDE_DIRS}
+            ${YUV_INCLUDE_DIR}
+            ${SOUND_TOUCH_INCLUDE_DIR})
             
 # message(${DiscoClock})
 # message(${DiscoPlayer})
@@ -96,6 +102,7 @@ target_link_libraries(MacDiscoPlayer
         ${AVUTIL_LIBRARIES}
         ${SWRESAMPLE_LIBRARIES}
         ${YUV_LIBRARY}
+        ${SOUND_TOUCH_LIBRARY}
         ${Qt5Widgets_LIBRARIES}
         ${Qt5Core_LIBRARIES}
         ${Qt5Gui_LIBRARIES}

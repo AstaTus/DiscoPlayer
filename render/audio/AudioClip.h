@@ -15,8 +15,6 @@ private:
     AVSampleFormat mSampleFormat;
 
     int mSize;
-    //当前有效buffer的起始位置,用于一次callback可能只读取一个clip中部分的数据，参考
-    int mBufferPos;
 public:
     AudioClip(/* args */);
     ~AudioClip();
@@ -32,12 +30,6 @@ public:
 
     uint8_t ** data_ptr();
     int size() const;
-
-    //
-    void add_read_size(int size);
-
-    //是否读取完成
-    bool isFinish();
 };
 
 #endif

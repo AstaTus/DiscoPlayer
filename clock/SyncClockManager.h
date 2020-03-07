@@ -53,5 +53,9 @@ public:
     int64_t get_video_position();
 
     int64_t get_audio_position();
+
+    float get_speed();
+
+    void set_speed(float speed);
 };
 #endif

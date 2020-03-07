@@ -25,8 +25,10 @@
 #include <QStringList>
 #include "PlayrerStateChangedEvent.h"
 
-const static int SCREEN_WIDTH = 1080;
-const static int SCREEN_HEIGHT = 720;
+#include "SDLMixAudioDeviceBufferProcessor.h"
+
+const static int SCREEN_WIDTH = 1920;
+const static int SCREEN_HEIGHT = 1080;
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
@@ -98,6 +100,7 @@ void MainWindow::init()
 
     QStackedLayout *stacked_layout = new QStackedLayout(this);
     mpOpenGLRenderWidget = new OpenGLRenderWidget(this);
+    
     mpDebugWidget = new DebugWidget(this);
     QPalette debug_palette(mpDebugWidget->palette());
     debug_palette.setColor(QPalette::Background, QColor(128, 128, 128, 128));
@@ -113,7 +116,7 @@ void MainWindow::init()
     layout->insertLayout(0, stacked_layout, 16);
     // MainWindow 是程序帮我创建一个窗口类。所有继承QWidget类都是窗口类。
     mpOpenGLRenderWidget->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
-    mpOpenGLRenderWidget->resize(1920, 1080);
+    mpOpenGLRenderWidget->resize(SCREEN_WIDTH, SCREEN_HEIGHT);
 
     mpPlayAndPauseBtn = findChild<QPushButton *>("pushButton");
     mpPlayAndPauseBtn->setToolTip(tr("Pause"));
@@ -129,12 +132,11 @@ void MainWindow::start(const std::string &path)
     mpAudioDevice = new SDLAudioDevice();
 
     mpCorePlayer->set_render_surface(mpOpenGLRenderWidget);
-    mpCorePlayer->set_audio_device(mpAudioDevice);
+    mpCorePlayer->set_audio_device(mpAudioDevice, new SDLMixAudioDeviceBufferProcessor());
     mpCorePlayer->set_player_state_change_listener(this);
 
     PlayItem *play_item = new PlayItem(path);
     mpCorePlayer->set_play_item(play_item);
-
     mpCorePlayer->start();
 }
 
@@ -203,6 +205,8 @@ void MainWindow::on_handle_player_state_prepared()
     mpVolumeBar->setMaximum(mpCorePlayer->get_max_volume());
     mpVolumeBar->setSingleStep(1);
     mpVolumeBar->setValue(mpCorePlayer->get_volume());
+
+    // mpCorePlayer->set_speed(2);
 }
 
 void MainWindow::on_handle_player_state_playing()

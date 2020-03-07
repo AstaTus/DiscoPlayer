@@ -3,14 +3,15 @@
 #include "BaseState.h"
 #include <future>
 #include <thread> 
-class AudioDevice;
+class AudioRender;
 class StateManager;
 class AudioFrameTransformer;
 
 class PreparedState : public BaseState
 {
 private:
-    AudioDevice * const mpAudioDevice;
+    AudioRender * const mpAudioRender;
+
     StateManager * mpStateManager;
     AudioFrameTransformer * const mpAudioFrameTransformer;
     std::thread * mpPreparedThread;
@@ -19,7 +20,7 @@ private:
     
     void inner_prepared_task();
 public:
-    PreparedState(AudioDevice *audio_device,
+    PreparedState(AudioRender *audio_render,
                      StateManager *state_manager,
                      AudioFrameTransformer *audio_frame_transformer);
     ~PreparedState();

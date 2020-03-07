@@ -19,8 +19,7 @@ public:
     SDLAudioDevice();
     virtual ~SDLAudioDevice();
 
-    void fill_audio_buffer(Uint8 *stream, int len);
-
+    //TODO just access for audio render
     bool start() override;
     bool pause() override;
     bool resume() override;

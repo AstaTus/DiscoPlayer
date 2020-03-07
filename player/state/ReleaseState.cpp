@@ -6,7 +6,7 @@
 #include "../../render/video/VideoFrameTransformer.h"
 #include "../../render/audio/AudioFrameTransformer.h"
 #include "StateManager.h"
-#include "../../render/audio/AudioDevice.h"
+#include "../../render/audio/AudioRender.h"
 #include "../ActivateNodeManager.h"
 
 ReleaseState::ReleaseState(MediaInputStream *input_stream,
@@ -14,7 +14,7 @@ ReleaseState::ReleaseState(MediaInputStream *input_stream,
                            VideoFrameTransformer *video_frame_transformer,
                            AudioFrameTransformer *audio_frame_transformer,
                            ActivateNodeManager *activate_node_manager,
-                           AudioDevice *audio_device,
+                           AudioRender *audio_render,
                            StateManager *state_manager,
                            SyncClockManager *sync_clock_manager)
     : mpMediaInputStream(input_stream),
@@ -22,7 +22,7 @@ ReleaseState::ReleaseState(MediaInputStream *input_stream,
       mpVideoFrameTransformer(video_frame_transformer),
       mpAudioFrameTransformer(audio_frame_transformer),
       mpActivateNodeManager(activate_node_manager),
-      mpAudioDevice(audio_device),
+      mpAudioRender(audio_render),
       mpStateManager(state_manager),
       mpSyncClockManager(sync_clock_manager)
 {

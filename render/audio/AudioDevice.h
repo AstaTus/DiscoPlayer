@@ -2,27 +2,23 @@
 #define __DISCO_AUDIO_DEVICE_H__
 
 #include "AudioClip.h"
-#include "AudioDataRequestListener.h"
+
 
 extern "C"
 {
 #include "libavformat/avformat.h"
 };
 
-
+class AudioFillBufferListener;
 class AudioDevice 
 {
 protected:
-    static const int DEFULT_AUDIO_VOLUME;
-
-    AudioDataRequestListener * pAudioDataRequestListener;
-    int mAudioVolume;
     int mSampleRate;
     AVSampleFormat mSampleFormat;
     int mChannelNum;
-public:
-    static const int MAX_AUDIO_VOLUME;
 
+    AudioFillBufferListener * mpAudioFillBufferListener;
+public:
     //TODO  增加提供format 接口 channel数 给子类调用
     AudioDevice();
     virtual ~AudioDevice();
@@ -35,12 +31,10 @@ public:
     virtual int get_bytes_per_second() = 0;
     virtual double get_latency_seconds() = 0;
 
-    void set_volume(int volume);
-
-    int get_volume();
-
     void set_audio_play_param(int sample_rate, AVSampleFormat sample_format, int channel_num);
 
-    void set_audio_data_request_listener(AudioDataRequestListener * audio_data_request_listener);
+    void set_audio_fill_buffer_listener(AudioFillBufferListener * listener);
+
+    void fill_audio_buffer(u_int8_t *stream, int len);    
 };
 #endif

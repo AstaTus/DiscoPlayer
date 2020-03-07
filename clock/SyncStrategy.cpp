@@ -14,3 +14,12 @@ SyncStrategy::~SyncStrategy()
 
 }
 
+float SyncStrategy::get_speed()
+{
+    return mSpeed;
+}
+
+void SyncStrategy::set_speed(float speed)
+{
+    mSpeed = speed;
+}

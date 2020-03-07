@@ -7,7 +7,7 @@ class MediaInputStream;
 class MediaDecoder;
 class VideoFrameTransformer;
 class AudioFrameTransformer;
-class AudioDevice;
+class AudioRender;
 class RenderSynchronizer;
 class StateManager;
 class SyncClockManager;
@@ -20,7 +20,7 @@ private:
     MediaDecoder *const mpMediaDecoder;
     VideoFrameTransformer *const mpVideoFrameTransformer;
     AudioFrameTransformer *const mpAudioFrameTransformer;
-    AudioDevice *const mpAudioDevice;
+    AudioRender *const mpAudioRender;
     StateManager *mpStateManager;
     SyncClockManager *mpSyncClockManager;
     ActivateNodeManager * mpActivateNodeManager;
@@ -35,7 +35,7 @@ public:
                  VideoFrameTransformer *video_frame_transformer,
                  AudioFrameTransformer *audio_frame_transformer,
                  ActivateNodeManager *activate_node_manager,
-                 AudioDevice *audio_device,
+                 AudioRender *audio_render,
                  StateManager *state_manager,
                  SyncClockManager *sync_clock_manager);
     ~ReleaseState();

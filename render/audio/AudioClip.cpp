@@ -12,7 +12,6 @@ AudioClip::AudioClip(/* args */)
       mSampleFormat(AV_SAMPLE_FMT_NONE),
       mNbSamples(0),
       mSize(0),
-      mBufferPos(0),
       mChannelLayout(AV_CH_LAYOUT_STEREO)
 {
 }
@@ -44,13 +43,11 @@ void AudioClip::reformat(uint64_t channel_layout, int nb_samples, AVSampleFormat
         mChannelLayout = channel_layout;
         mSampleFormat = sample_format;
     }
-
-    mBufferPos = 0;
 }
 
 uint8_t *const AudioClip::data() const
 {
-    return pBuffer + mBufferPos;
+    return pBuffer;
 }
 
 uint8_t ** AudioClip::data_ptr()
@@ -60,15 +57,5 @@ uint8_t ** AudioClip::data_ptr()
 
 int AudioClip::size() const
 {
-    return (mSize - mBufferPos);
-}
-
-bool AudioClip::isFinish()
-{
-    return mSize == mBufferPos;
-}
-
-void AudioClip::add_read_size(int size)
-{
-    mBufferPos += size;
+    return mSize;
 }

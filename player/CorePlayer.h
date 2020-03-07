@@ -23,6 +23,7 @@
 
 struct DebugInfo;
 class CorePlayerStateChangedListener;
+class AudioDeviceLastBufferProcessor;
 class CorePlayer : public StateChangedListener
 {
 private:
@@ -63,7 +64,7 @@ public:
 
     void set_render_surface(RenderView * render_view);
 
-    void set_audio_device(AudioDevice * audio_device);
+    void set_audio_device(AudioDevice * audio_device, AudioDeviceLastBufferProcessor * audio_last_buffer_processor);
 
     //set 与 replace 系列函数的不同之处是会影响播放状态
     void set_play_item(PlayItem * play_item);
@@ -87,6 +88,9 @@ public:
     void resume();
 
     void stop();
+
+    void set_speed(float speed);
+    float get_speed();
     /**
      * @param position 单位毫秒
     */

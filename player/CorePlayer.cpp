@@ -73,10 +73,11 @@ void CorePlayer::set_render_surface(RenderView *render_view)
     pVideoRender = new VideoRender(pRenderView);
 }
 
-void CorePlayer::set_audio_device(AudioDevice *audio_device)
+void CorePlayer::set_audio_device(AudioDevice *audio_device, AudioDeviceLastBufferProcessor * audio_last_buffer_processor)
 {
     pAudioDevice = audio_device;
     pAudioRender = new AudioRender(pAudioDevice);
+    pAudioRender->set_last_buffer_processor(audio_last_buffer_processor);
 }
 
 void CorePlayer::init_task()
@@ -131,7 +132,7 @@ void CorePlayer::stop()
 
 void CorePlayer::init_states()
 {
-    PlayingState * playing_state = new PlayingState(pVideoRender, pAudioDevice,
+    PlayingState * playing_state = new PlayingState(pVideoRender, pAudioRender, pAudioDevice,
         mpActivateNodeManager, mpSyncClockManager, pInputStream, &mStateManager);
     mStateManager.add_state(PlayerStateEnum::PLAYING, playing_state);
     SeekingState * seeking_state = new SeekingState(&mStateManager, pAudioDevice, pInputStream, 
@@ -141,15 +142,15 @@ void CorePlayer::init_states()
     InitState * init_state = new InitState(pInputStream, pMediaDecoder, mpVideoFrameTransformer, 
         mpAudioFrameTransformer, pAudioDevice, &mStateManager);
     mStateManager.add_state(PlayerStateEnum::PREPARING, init_state);
-    PreparedState * prepared_state = new PreparedState(pAudioDevice, &mStateManager, mpAudioFrameTransformer);
+    PreparedState * prepared_state = new PreparedState(pAudioRender, &mStateManager, mpAudioFrameTransformer);
     mStateManager.add_state(PlayerStateEnum::PREPARED, prepared_state);
-    PauseState * pause_state = new PauseState(pAudioDevice);
+    PauseState * pause_state = new PauseState(pAudioRender);
     mStateManager.add_state(PlayerStateEnum::PAUSED, pause_state);
     StopState * stop_state = new StopState(pInputStream, pMediaDecoder, mpVideoFrameTransformer, 
-        mpAudioFrameTransformer, pAudioDevice, &mStateManager);
+        mpAudioFrameTransformer, pAudioRender, &mStateManager);
     mStateManager.add_state(PlayerStateEnum::STOPPED, stop_state);
     ReleaseState * release_state = new ReleaseState(pInputStream, pMediaDecoder, mpVideoFrameTransformer, 
-        mpAudioFrameTransformer, mpActivateNodeManager, pAudioDevice, &mStateManager, mpSyncClockManager);
+        mpAudioFrameTransformer, mpActivateNodeManager, pAudioRender, &mStateManager, mpSyncClockManager);
     mStateManager.add_state(PlayerStateEnum::RELEASING, release_state);
     EndState * end_state = new EndState();
     mStateManager.add_state(PlayerStateEnum::END, end_state);
@@ -157,29 +158,52 @@ void CorePlayer::init_states()
 
 void CorePlayer::set_volume(int volume)
 {
-    if (pAudioDevice != nullptr)
+    if (pAudioRender != nullptr)
     {
-        pAudioDevice->set_volume(volume);
+        pAudioRender->set_volume(volume);
     }
 }
 
 int CorePlayer::get_volume()
 {
-    if (pAudioDevice != nullptr)
+    if (pAudioRender != nullptr)
     {
-        return pAudioDevice->get_volume();
+        return pAudioRender->get_volume();
     }
     return 0;
 }
 
 int CorePlayer::get_max_volume()
 {
-    return AudioDevice::MAX_AUDIO_VOLUME;
+    return AudioRender::MAX_AUDIO_VOLUME;
 }
 
 PlayerStateEnum CorePlayer::get_current_play_state()
 {
     return mStateManager.get_play_state();
+}
+
+void CorePlayer::set_speed(float speed)
+{
+    if (pAudioRender != nullptr)
+    {
+        pAudioRender->set_speed(speed);
+    }
+
+    if (mpSyncClockManager != nullptr)
+    {
+        mpSyncClockManager->set_speed(speed);
+    }
+}
+
+float CorePlayer::get_speed()
+{
+    if (mpSyncClockManager != nullptr)
+    {
+        return mpSyncClockManager->get_speed();
+    }
+
+    return 1.0f;
 }
 
 int64_t CorePlayer::get_duration()

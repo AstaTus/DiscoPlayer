@@ -74,3 +74,13 @@ int64_t SyncClockManager::get_audio_position()
 {
     return pSyncStrategy->get_audio_position();
 }
+
+float SyncClockManager::get_speed()
+{
+    return pSyncStrategy->get_speed();
+}
+
+void SyncClockManager::set_speed(float speed)
+{
+    pSyncStrategy->set_speed(speed);
+}
