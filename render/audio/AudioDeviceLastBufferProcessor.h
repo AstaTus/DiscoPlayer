@@ -24,6 +24,10 @@ protected:
 
     uint8_t * get_cache_buffer();
 
+    virtual bool is_need_process(uint8_t * buffer, long buffer_size, 
+        int sample_rate, int sample_size, int channel_size, float speed, 
+        int bytes_per_sample, enum AVSampleFormat out_format, int volume) override;
+
 public:
     AudioDeviceLastBufferProcessor(/* args */);
     ~AudioDeviceLastBufferProcessor() = default;

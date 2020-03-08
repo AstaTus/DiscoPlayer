@@ -3,7 +3,7 @@
 #include "AudioDevice.h"
 #include "AudioDataRequestListener.h"
 #include "AudioDeviceBuffer.h"
-
+#include "SoundTouchDeviceBufferProcessor.h"
 const int AudioRender::DEFULT_AUDIO_VOLUME = 64;
 const int AudioRender::MAX_AUDIO_VOLUME = 100;
 const float AudioRender::DEFULT_AUDIO_SPEED = 1.0f;
@@ -14,6 +14,7 @@ AudioRender::AudioRender(AudioDevice *const audio_device)
 	mSpeed(DEFULT_AUDIO_SPEED)
 {
 	mpAudioDevice->set_audio_fill_buffer_listener(this);
+    mAudioDeviceBuffer.push_back_porcessor(new SoundTouchDeviceBufferProcessor());
 }
 
 AudioRender::~AudioRender()

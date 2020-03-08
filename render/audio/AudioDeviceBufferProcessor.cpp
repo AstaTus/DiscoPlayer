@@ -31,15 +31,21 @@ long AudioDeviceBufferProcessor::delivery_process_buffer(uint8_t * buffer, long 
         int sample_rate, int sample_size, int channel_size, float speed, 
         int bytes_per_sample, enum AVSampleFormat out_format, int volume)
 {
-    long valid_len = process_buffer(buffer, buffer_size, sample_rate, sample_size, channel_size, 
-        speed, bytes_per_sample, out_format, volume);
-        
+    uint32_t size = buffer_size;
+    uint8_t * out_buffer = buffer;
+    if (is_need_process(buffer, buffer_size, sample_rate, sample_size, channel_size, 
+        speed, bytes_per_sample, out_format, volume))
+    {
+        size = process_buffer(buffer, buffer_size, sample_rate, sample_size, channel_size, 
+            speed, bytes_per_sample, out_format, volume, &out_buffer);
+    }
+    
     if (mpChildProcessor != nullptr)
     {
-        return mpChildProcessor->delivery_process_buffer(buffer, buffer_size, 
+        return mpChildProcessor->delivery_process_buffer(out_buffer, size, 
             sample_rate, sample_size, channel_size, speed, bytes_per_sample, out_format, volume);
     }
-    return buffer_size;
+    return size;
 }
 
 uint32_t AudioDeviceBufferProcessor::get_delivery_cache_buffer_size()

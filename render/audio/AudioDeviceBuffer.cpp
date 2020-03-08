@@ -78,7 +78,7 @@ long AudioDeviceBuffer::process_audio_node(AudioTransformNode * node, float spee
 {
     AudioClip * clip = node->clip;
     AVFrame * frame = node->frame_wrapper->frame;
-    int bytes_per_sample = av_get_bytes_per_sample(static_cast<AVSampleFormat>(frame->format));
+    int bytes_per_sample = av_get_bytes_per_sample(static_cast<AVSampleFormat>(out_format));
 
     mpRootAudioDeviceBufferProcessor->delivery_process_buffer(
         clip->data(), clip->size(), frame->sample_rate, frame->nb_samples, 

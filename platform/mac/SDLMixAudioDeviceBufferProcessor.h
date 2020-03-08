@@ -6,7 +6,7 @@ class SDLMixAudioDeviceBufferProcessor : public AudioDeviceLastBufferProcessor
 private:
     virtual uint32_t process_buffer(uint8_t * buffer, long buffer_size, 
         int sample_rate, int sample_size, int channel_size, float speed, 
-        int bytes_per_sample, enum AVSampleFormat out_format, int volume) override;
+        int bytes_per_sample, enum AVSampleFormat out_format, int volume, uint8_t ** out_buffer) override;
 public:
     SDLMixAudioDeviceBufferProcessor(/* args */);
     ~SDLMixAudioDeviceBufferProcessor();

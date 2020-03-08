@@ -81,3 +81,10 @@ bool AudioDeviceLastBufferProcessor::is_target_buffer_full()
 {
     return mTargetBufferSize == mTargetBufferValidSize;
 }
+
+bool AudioDeviceLastBufferProcessor::is_need_process(uint8_t * buffer, long buffer_size, 
+    int sample_rate, int sample_size, int channel_size, float speed, 
+    int bytes_per_sample, enum AVSampleFormat out_format, int volume)
+{
+    return true;
+}

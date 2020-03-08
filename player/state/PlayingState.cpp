@@ -172,26 +172,21 @@ bool PlayingState::on_audio_data_request(AudioTransformNode ** audio_node)
     double remaining_time = 0.0;
     //audio
     AudioTransformNode *node;
-    if (mpActivateNodeManager->get_current_audio_node() == nullptr)
+
+    node = mpActivateNodeManager->obtain_current_audio_node();
+
+    if (node == nullptr)
     {
-        node = mpActivateNodeManager->obtain_current_audio_node();
+        mpActivateNodeManager->recyle_current_audio_node();
+        (*audio_node) = nullptr;
+        return true;
+    }
 
-        if (node == nullptr)
-        {
-            mpActivateNodeManager->recyle_current_audio_node();
-            (*audio_node) = nullptr;
-            return true;
-        }
-
-        if (node->is_end)
-        {
-            mIsAudioStreamEnd = true;   
-            check_stream_end();
-            return false;
-        }
-
-    } else {
-        node = mpActivateNodeManager->get_current_audio_node();
+    if (node->is_end)
+    {
+        mIsAudioStreamEnd = true;   
+        check_stream_end();
+        return false;
     }
 
     //非当前serial的帧 回收
@@ -222,8 +217,6 @@ void PlayingState::on_audio_data_request_end()
                 mpActivateNodeManager->get_current_audio_node()->frame_wrapper->time_base,
                 mpActivateNodeManager->get_current_audio_node()->frame_wrapper->serial,
                 &remaining_time, mStartAudioDataRequestBeginTime);
-
-         mpActivateNodeManager->recyle_current_audio_node();
     }
 }
 

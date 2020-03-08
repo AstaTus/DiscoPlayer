@@ -43,6 +43,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->grabKeyboard();
     init();
     string video_path1 = "/Users/laoganbu/happy/movie/阳光电影www.ygdy8.com.地久天长.HD.720p.国语中字.mkv";
+    // string video_path1 = "/Users/laoganbu/learn/ffmpeg/改名字才让分享啊课程视频/改名字才让分享啊课件资料/代码/(5) 参考答案-FFmpeg+SDL视频播放器/屌丝男士.mov";
     start(video_path1);
 }
 
@@ -126,8 +127,6 @@ void MainWindow::init()
 
 void MainWindow::start(const std::string &path)
 {
-    // string video_path1 = "/Users/laoganbu/learn/ffmpeg/改名字才让分享啊课程视频/改名字才让分享啊课件资料/代码/(5) 参考答案-FFmpeg+SDL视频播放器/屌丝男士.mov";
-
     mpCorePlayer = new CorePlayer();
     mpAudioDevice = new SDLAudioDevice();
 
@@ -206,7 +205,7 @@ void MainWindow::on_handle_player_state_prepared()
     mpVolumeBar->setSingleStep(1);
     mpVolumeBar->setValue(mpCorePlayer->get_volume());
 
-    // mpCorePlayer->set_speed(2);
+    mpCorePlayer->set_speed(2);
 }
 
 void MainWindow::on_handle_player_state_playing()

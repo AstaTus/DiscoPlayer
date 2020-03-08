@@ -54,7 +54,8 @@ set(YUV_INCLUDE_DIR ${MAC_DISCO_PLAYER_ROOT_DIR}/dependency/libyuv/include)
 set(YUV_LIBRARY ${MAC_DISCO_PLAYER_ROOT_DIR}/dependency/libyuv/debug/libyuv.dylib)
 
 set(SOUND_TOUCH_INCLUDE_DIR ${MAC_DISCO_PLAYER_ROOT_DIR}/dependency/sound-touch/2.1.2/include)
-set(SOUND_TOUCH_LIBRARY ${MAC_DISCO_PLAYER_ROOT_DIR}/dependency/sound-touch/2.1.2/lib/libSoundTouch.dylib)
+set(SOUND_TOUCH_LIBRARY ${MAC_DISCO_PLAYER_ROOT_DIR}/dependency/sound-touch/2.1.2/lib/libSoundTouch.1.dylib)
+message("SOUND_TOUCH_LIBRARY"${SOUND_TOUCH_LIBRARY})
 
 # 添加其他模块
 set( DISCO_CLOCK_DIR ${MAC_DISCO_PLAYER_ROOT_DIR}/clock)
