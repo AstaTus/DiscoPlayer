@@ -251,13 +251,10 @@ uint32_t SoundTouchDeviceBufferProcessor::process_buffer(uint8_t * buffer, long 
     //     // mpWavFile = new WavOutFile("./test.wav", mpInWavFile->getSampleRate(), mpInWavFile->getNumBits(), mpInWavFile->getNumChannels());
     //     mpWavFile = new WavOutFile("./source_buff_test.wav", sample_rate, bytes_per_sample * 8, channel_size);
     // }
-
     mSoundTouchPipeCacheSize += buffer_size;
-    mpSoundTouch->setTempo(2.0f);
+    mpSoundTouch->setTempo(speed);
     mpSoundTouch->setSampleRate(sample_rate);
     mpSoundTouch->setChannels(channel_size);
-
-    static int count = 0;
 
     mpSoundTouch->putSamples((soundtouch::SAMPLETYPE*)mpSoundBuffer, sample_size);
     uint32_t nb = 0;

@@ -9,6 +9,7 @@
 #include "../../player/CorePlayerStateChangedListener.h"
 #include <qevent.h>
 #include <QPushButton>
+#include <QComboBox>
 #include <QAction>
 class OpenGLRenderWidget;
 class CorePlayer;
@@ -64,6 +65,7 @@ private:
 
     QSlider *mpSeekBar;
     QSlider *mpVolumeBar;
+    QComboBox *mpSpeedComboBox;
     PlayerStateEnum mLastPlayerState;
 
     bool mIsSeeking;
@@ -74,5 +76,6 @@ private slots:
     void seek_end();
     void on_volume_changed(int value);
     void open_video();
+    void on_speed_index_changed(int index);
 };
 #endif // MAINWINDOW_H

@@ -23,12 +23,23 @@
 #include <QFileDialog>
 #include <QString>
 #include <QStringList>
+#include <QLabel>
 #include "PlayrerStateChangedEvent.h"
 
 #include "SDLMixAudioDeviceBufferProcessor.h"
 
 const static int SCREEN_WIDTH = 1920;
 const static int SCREEN_HEIGHT = 1080;
+
+enum class SpeedType : int
+{
+    ST_050,
+    ST_075,
+    ST_100,
+    ST_125,
+    ST_150,
+    ST_200
+};
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
@@ -101,7 +112,7 @@ void MainWindow::init()
 
     QStackedLayout *stacked_layout = new QStackedLayout(this);
     mpOpenGLRenderWidget = new OpenGLRenderWidget(this);
-    
+
     mpDebugWidget = new DebugWidget(this);
     QPalette debug_palette(mpDebugWidget->palette());
     debug_palette.setColor(QPalette::Background, QColor(128, 128, 128, 128));
@@ -123,6 +134,21 @@ void MainWindow::init()
     mpPlayAndPauseBtn->setToolTip(tr("Pause"));
     mpPlayAndPauseBtn->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
     connect(mpPlayAndPauseBtn, &QPushButton::clicked, this, &MainWindow::onPlayAndPauseButtonClicked);
+
+    QLabel *volume_label = findChild<QLabel *>("volumeLable");
+    volume_label->setPixmap(style()->standardPixmap(QStyle::SP_MediaVolume));
+
+    mpSpeedComboBox = findChild<QComboBox *>("speedComboBox");
+    QStringList list;
+    list << "0.5X"
+         << "0.75X"
+         << "1.0X"
+         << "1.25X"
+         << "1.5X"
+         << "2.0X";
+    mpSpeedComboBox->addItems(list);
+    mpSpeedComboBox->setCurrentIndex(static_cast<int>(SpeedType::ST_100));
+    connect(mpSpeedComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(on_speed_index_changed(int)));
 }
 
 void MainWindow::start(const std::string &path)
@@ -204,8 +230,6 @@ void MainWindow::on_handle_player_state_prepared()
     mpVolumeBar->setMaximum(mpCorePlayer->get_max_volume());
     mpVolumeBar->setSingleStep(1);
     mpVolumeBar->setValue(mpCorePlayer->get_volume());
-
-    mpCorePlayer->set_speed(2);
 }
 
 void MainWindow::on_handle_player_state_playing()
@@ -229,6 +253,42 @@ void MainWindow::seek_end()
 {
     mIsSeeking = false;
     mpCorePlayer->seek(mpSeekBar->value() * 1000);
+}
+
+void MainWindow::on_speed_index_changed(int index)
+{
+    if (mpCorePlayer != nullptr) {
+        PlayerStateEnum state = mpCorePlayer->get_current_play_state();
+        if (state == PlayerStateEnum::SEEKING ||
+            state == PlayerStateEnum::PLAYING ||
+            state == PlayerStateEnum::PAUSED || 
+            state == PlayerStateEnum::BUFFERING ||
+            state == PlayerStateEnum::PREPARED)
+        {
+            SpeedType st = static_cast<SpeedType>(index);
+            switch (st)
+            {
+            case SpeedType::ST_050:
+                mpCorePlayer->set_speed(0.5f);
+                break;
+            case SpeedType::ST_075:
+                mpCorePlayer->set_speed(0.75f);
+                break;
+            case SpeedType::ST_100:
+                mpCorePlayer->set_speed(1.0f);
+                break;
+            case SpeedType::ST_125:
+                mpCorePlayer->set_speed(1.25f);
+                break;
+            case SpeedType::ST_150:
+                mpCorePlayer->set_speed(1.5f);
+                break;
+            case SpeedType::ST_200:
+                mpCorePlayer->set_speed(2.0f);
+                break;
+            }
+        }   
+    }
 }
 
 void MainWindow::on_volume_changed(int value)
