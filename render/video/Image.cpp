@@ -53,6 +53,32 @@ void Image::reformat(AVPixelFormat pix_fmt, int width, int height)
     }
 }
 
+void Image::fill_data(AVFrame * frame) {
+    for (int i = 0; i < AV_NUM_DATA_POINTERS; ++i) 
+    {
+        mpSrcBuffer[i] = frame->data[i];
+        mpPitches[i] = frame->linesize[i];
+    }
+
+    mSrcWidth = frame->width;
+    mSrcHeight = frame->height;
+}
+
+int Image::get_src_width() const
+{
+    return mSrcWidth;
+}
+
+int Image::get_src_height() const
+{
+    return mSrcHeight;
+}
+
+uint8_t * Image::get_src_data(int index) const
+{
+    return mpSrcBuffer[index];
+}
+
 int Image::pitch() const
 {
     return mWidth;

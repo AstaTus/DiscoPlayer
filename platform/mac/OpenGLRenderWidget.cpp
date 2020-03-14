@@ -137,21 +137,21 @@ void OpenGLRenderWidget::paintGL()
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_idy);
     //修改纹理内容(复制内存内容)
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, mpImage->width(), mpImage->height(), 0, GL_RED, GL_UNSIGNED_BYTE, mpImage->data());
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, mpImage->get_src_width(), mpImage->get_src_height(), 0, GL_RED, GL_UNSIGNED_BYTE, mpImage->get_src_data(0));
     //与shader 关联
     glUniform1i(m_textureUniformY, 0);
 
     glActiveTexture(GL_TEXTURE0 + 1);
     glBindTexture(GL_TEXTURE_2D, m_idu);
     //修改纹理内容(复制内存内容)
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, mpImage->width() / 2, mpImage->height() / 2, 0, GL_RED, GL_UNSIGNED_BYTE, mpImage->data() + mpImage->width() * mpImage->height());
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, mpImage->get_src_width() / 2, mpImage->get_src_height() / 2, 0, GL_RED, GL_UNSIGNED_BYTE, mpImage->get_src_data(1));
     //与shader 关联
     glUniform1i(m_textureUniformU, 1);
 
     glActiveTexture(GL_TEXTURE0 + 2);
     glBindTexture(GL_TEXTURE_2D, m_idv);
     //修改纹理内容(复制内存内容)
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, mpImage->width() / 2, mpImage->height() / 2, 0, GL_RED, GL_UNSIGNED_BYTE, mpImage->data() + mpImage->width() * mpImage->height() * 5 / 4);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, mpImage->get_src_width() / 2, mpImage->get_src_height() / 2, 0, GL_RED, GL_UNSIGNED_BYTE, mpImage->get_src_data(2));
     //与shader 关联
     glUniform1i(m_textureUniformV, 2);
 

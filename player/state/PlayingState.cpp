@@ -19,10 +19,13 @@
 #include "../../render/audio/AudioClip.h"
 #include "../../clock/SyncClockManager.h"
 
+#include "../../common/thread/ThreadUtils.h"
+
 #include "StateManager.h"
 
 #include "../ActivateNodeManager.h"
 
+#include <thread>
 extern "C"
 {
 #include "libavcodec/avcodec.h"
@@ -31,7 +34,7 @@ extern "C"
 #include "libavutil/time.h"
 }
 
-#define REFRESH_RATE 0.01
+#define REFRESH_RATE 10
 
 PlayingState::PlayingState(VideoRender *video_render,
                            AudioRender * audio_render,
@@ -83,6 +86,7 @@ void PlayingState::on_inner_state_enter()
     mpAudioDevice->start();
     mpAudioDevice->resume();
     mRenderSemaphore.signal();
+    Log::get_instance().log_debug("[Disco][PlayingState] on_inner_state_enter\n");
 }
 
 void PlayingState::on_state_exit()
@@ -92,24 +96,27 @@ void PlayingState::on_state_exit()
 
 void PlayingState::video_render_loop_task()
 {
+    ThreadUtils::set_thread_prority(99);
     SyncClockManager::SyncState sync_state;
-    double remaining_time = 0.0;
+    long long remaining_time = REFRESH_RATE;;
     while (!mIsRelease)
     {
         if (mIsExit)
         {
             mRenderSemaphore.wait();
             mIsExit = false;
+            remaining_time = 0;
+            Log::get_instance().log_debug("[Disco][PlayingState] video_render_loop_task resume\n");
             continue;
         }
-
-        remaining_time = REFRESH_RATE;
-        //TODO sleep
+        Log::get_instance().log_debug("[Disco][PlayingState] video_render_loop_task sleep milliseconds = %lld\n", remaining_time);
+        std::this_thread::sleep_for(std::chrono::milliseconds(remaining_time));//毫秒
         do
         {
             VideoTransformNode *node = mpActivateNodeManager->peek_video_queue_node();
             if (node == nullptr)
             {
+                Log::get_instance().log_debug("[Disco][PlayingState] peek_video_queue_node node is nullptr\n");
                 break;
             }
 
@@ -139,6 +146,7 @@ void PlayingState::video_render_loop_task()
                 //显示当前帧
                 if (mpActivateNodeManager->get_current_video_node() != nullptr)
                 {
+                    Log::get_instance().log_debug("[Disco][PlayingState] video_render_loop_task refresh keep frame\n");
                     mpVideoRender->refresh(mpActivateNodeManager->get_current_video_node()->image);
                 }
             }
@@ -151,6 +159,7 @@ void PlayingState::video_render_loop_task()
                     //显示下一帧
                     if (mpActivateNodeManager->get_current_video_node())
                     {
+                        Log::get_instance().log_debug("[Disco][PlayingState] video_render_loop_task refresh next frame\n");
                         mpVideoRender->refresh(mpActivateNodeManager->get_current_video_node()->image);
                     }
                 }
@@ -207,7 +216,7 @@ bool PlayingState::on_audio_data_request(AudioTransformNode ** audio_node)
 
 void PlayingState::on_audio_data_request_end()
 {
-    double remaining_time = 0.0;
+    long long remaining_time = 0;
     if (mpActivateNodeManager->get_current_audio_node() != nullptr)
     {
         mpSyncClockManager->get_current_audio_sync_state(
