@@ -16,7 +16,8 @@ VideoMasterSyncStrategy::~VideoMasterSyncStrategy()
 }
 
 
-SyncClockManager::SyncState VideoMasterSyncStrategy::get_current_video_sync_state(double next_pts, AVRational & time_base, int serial, double * remaining_time, double current_time)
+SyncClockManager::SyncState VideoMasterSyncStrategy::get_current_video_sync_state(
+    double next_pts, AVRational & time_base, int serial, long long * remaining_time, double current_time)
 {
     SyncClockManager::SyncState state;
     //该帧还需继续显示
@@ -42,7 +43,8 @@ SyncClockManager::SyncState VideoMasterSyncStrategy::get_current_video_sync_stat
     
 }
 
-SyncClockManager::SyncState VideoMasterSyncStrategy::get_current_audio_sync_state(double next_pts, AVRational & time_base, int serial, double * remaining_time, double current_time)
+SyncClockManager::SyncState VideoMasterSyncStrategy::get_current_audio_sync_state(
+    double next_pts, AVRational & time_base, int serial, long long * remaining_time, double current_time)
 {
     return SyncClockManager::SyncState::SYNC_STATE_NEXT;
 }

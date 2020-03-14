@@ -24,13 +24,13 @@ SyncClockManager::~SyncClockManager()
 }
 
 SyncClockManager::SyncState SyncClockManager::get_current_video_sync_state(
-    double next_pts, AVRational & time_base, int serial, double * remaining_time, double current_time)
+    double next_pts, AVRational & time_base, int serial, long long * remaining_time, double current_time)
 {
     return pSyncStrategy->get_current_video_sync_state(next_pts, time_base, serial, remaining_time, current_time);
 }
 
 SyncClockManager::SyncState SyncClockManager::get_current_audio_sync_state(
-    double next_pts, AVRational & time_base, int serial, double * remaining_time, double current_time)
+    double next_pts, AVRational & time_base, int serial, long long * remaining_time, double current_time)
 {
     return pSyncStrategy->get_current_audio_sync_state(next_pts, time_base, serial, remaining_time, current_time);
 }

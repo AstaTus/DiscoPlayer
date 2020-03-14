@@ -33,7 +33,7 @@ AudioMasterSyncStrategy::~AudioMasterSyncStrategy()
 }
 
 SyncClockManager::SyncState AudioMasterSyncStrategy::get_current_audio_sync_state(double next_pts, 
-            AVRational & time_base, int serial, double * remaining_time, double current_time)
+            AVRational & time_base, int serial, long long * remaining_time, double current_time)
 {
     SyncClockManager::SyncState state;
     
@@ -44,7 +44,7 @@ SyncClockManager::SyncState AudioMasterSyncStrategy::get_current_audio_sync_stat
 }
 
 SyncClockManager::SyncState AudioMasterSyncStrategy::get_current_video_sync_state(double next_pts, 
-            AVRational & time_base, int serial, double * remaining_time, double current_time)
+            AVRational & time_base, int serial, long long * remaining_time, double current_time)
 {
     SyncClockManager::SyncState state;
     //该帧还需继续显示

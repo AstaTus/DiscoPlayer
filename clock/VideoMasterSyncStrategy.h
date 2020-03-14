@@ -13,10 +13,10 @@ public:
 
 
     SyncClockManager::SyncState get_current_video_sync_state(
-        double next_pts, AVRational & time_base, int serial, double * remaining_time, double current_time) override;
+        double next_pts, AVRational & time_base, int serial, long long * remaining_time, double current_time) override;
 
     SyncClockManager::SyncState get_current_audio_sync_state(
-        double next_pts, AVRational & time_base, int serial, double * remaining_time, double current_time) override;
+        double next_pts, AVRational & time_base, int serial, long long * remaining_time, double current_time) override;
 
     void seek(uint64_t postion) override;
     
