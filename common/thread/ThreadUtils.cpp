@@ -1,5 +1,15 @@
 #include "ThreadUtils.h"
 #include <pthread.h>
+
+ThreadUtils::ThreadUtils(/* args */)
+{
+}
+
+ThreadUtils::~ThreadUtils()
+{
+}
+
+
 void ThreadUtils::set_thread_name(const char * name)
 {
 #ifdef _WIN32
@@ -33,10 +43,15 @@ void ThreadUtils::set_thread_name(const char * name)
 #   error "Unknown compiler"
 #endif
 }
-ThreadUtils::ThreadUtils(/* args */)
-{
-}
 
-ThreadUtils::~ThreadUtils()
+bool ThreadUtils::set_thread_prority(int prority)
 {
+    struct sched_param param;
+    param.sched_priority = 99;         
+    int policy = SCHED_FIFO;
+    int ret = pthread_setschedparam(pthread_self(), policy, &param);
+    if (ret != 0) {
+        return false;
+    }
+    return true;
 }
