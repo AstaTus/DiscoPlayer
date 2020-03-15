@@ -34,7 +34,7 @@ VideoTransformNode *ActivateNodeManager::obtain_current_video_node()
 
 VideoTransformNode *ActivateNodeManager::peek_video_queue_node()
 {
-    return mpVideoFrameTransformer->non_block_peek_transformed_node();
+    return mpVideoFrameTransformer->block_peek_transformed_node();
 }
 
 VideoTransformNode *ActivateNodeManager::get_current_video_node()

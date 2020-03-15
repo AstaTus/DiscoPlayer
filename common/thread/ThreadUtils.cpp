@@ -47,7 +47,7 @@ void ThreadUtils::set_thread_name(const char * name)
 bool ThreadUtils::set_thread_prority(int prority)
 {
     struct sched_param param;
-    param.sched_priority = 99;         
+    param.sched_priority = prority;         
     int policy = SCHED_FIFO;
     int ret = pthread_setschedparam(pthread_self(), policy, &param);
     if (ret != 0) {

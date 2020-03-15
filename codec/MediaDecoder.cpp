@@ -185,15 +185,21 @@ void MediaDecoder::unpack_packet_loop()
         int ret = pPacketReader->read(packet_wrapper);
         if (ret == 0)
         {
+            if (packet_wrapper->serial != pPacketReader->serial())
+            {
+                recycle_packet_wrapper(packet_wrapper);
+                Log::get_instance().log_debug("[Disco]MediaDecoder::unpack_packet_loop discard packet\n");
+            }
+
             AVMediaType type = mMediaIndexTypeMap[packet_wrapper->packet->stream_index];
             if (type == AVMEDIA_TYPE_VIDEO)
             {
-                Log::get_instance().log_debug("[Disco]MediaDecoder::unpack_packet_loop unpack video packet\n");
                 mVideoWrapperPacketQueue.push_node(packet_wrapper);
+                Log::get_instance().log_debug("[Disco]MediaDecoder::unpack_packet_loop unpack video packet is key packet = %d\n", packet_wrapper->is_key_packet());
             }
             else if (type == AVMEDIA_TYPE_AUDIO)
             {
-                Log::get_instance().log_debug("[Disco]MediaDecoder::unpack_packet_loop unpack audio packet\n");
+                Log::get_instance().log_debug("[Disco]MediaDecoder::unpack_packet_loop unpack audio packet is key packet = %d\n", packet_wrapper->is_key_packet());
                 mAudioWrapperPacketQueue.push_node(packet_wrapper);
             }
         }
@@ -222,7 +228,8 @@ void MediaDecoder::unpack_frame_loop(
     FrameQueue *frame_queue,
     AVCodecContext *codec_context,
     FrameConcurrentCachePool *frame_cache_pool,
-    AVStream *stream)
+    AVStream *stream,
+    AVMediaType type)
 {
     int receive_frame_ret = 0;
     int send_packet_ret = 0;
@@ -230,7 +237,14 @@ void MediaDecoder::unpack_frame_loop(
     int last_packet_serial = 0;
 
     FrameWrapper *frame_wrapper = nullptr;
-
+    std::string type_str;
+    if (type == AVMEDIA_TYPE_VIDEO)
+    {
+        type_str = "video";
+    } else if (type == AVMEDIA_TYPE_AUDIO){
+        type_str = "audio";
+    }
+    
     while (is_continue && !mIsStop)
     {
         PacketWrapper *packet_wrapper = packet_queue->block_pop_node();
@@ -258,7 +272,7 @@ void MediaDecoder::unpack_frame_loop(
         last_packet_serial = packet_wrapper->serial;
         if (0 == send_packet_ret)
         {
-            Log::get_instance().log_debug("[Disco]MediaDecoder::unpack_frame_loop avcodec_send_packet send a valid packet\n");
+            Log::get_instance().log_debug("[Disco]MediaDecoder::unpack_frame_loop avcodec_send_packet send a valid packet %s\n", type_str.c_str());
             frame_wrapper = frame_cache_pool->get_empty_node();
             receive_frame_ret = avcodec_receive_frame(codec_context, frame_wrapper->frame);
             if (0 == receive_frame_ret)
@@ -268,10 +282,14 @@ void MediaDecoder::unpack_frame_loop(
                     frame_wrapper->get_transformed_pts() < pPacketReader->serial_start_time())
                 {
                     frame_cache_pool->recycle_node(frame_wrapper);
+                    Log::get_instance().log_debug(
+                        "[Disco]MediaDecoder::unpack_frame_loop unpack discard frame %s\n", type_str.c_str());
                 }
                 else
                 {
-                    Log::get_instance().log_debug("[Disco]MediaDecoder::unpack_frame_loop unpack frame stream_index = %d\n", packet_wrapper->packet->stream_index);
+                    Log::get_instance().log_debug(
+                        "[Disco]MediaDecoder::unpack_frame_loop unpack frame stream_index = %d, %s\n",
+                        packet_wrapper->packet->stream_index, type_str.c_str());
                     frame_wrapper->time_base = stream->time_base;
                     frame_queue->push_node(frame_wrapper);
                 }
@@ -279,68 +297,68 @@ void MediaDecoder::unpack_frame_loop(
             else if (AVERROR(EAGAIN) == receive_frame_ret)
             {
                 frame_cache_pool->recycle_node(frame_wrapper);
-                Log::get_instance().log_error("[Disco]MediaDecoder::unpack_frame_loop avcodec_receive_frame return error code = AVERROR(EAGAIN)\n");
+                Log::get_instance().log_error("[Disco]MediaDecoder::unpack_frame_loop avcodec_receive_frame return error code = AVERROR(EAGAIN) type = %s\n", type_str.c_str());
             }
             else if (AVERROR_EOF == receive_frame_ret)
             {
                 is_continue = false;
-                Log::get_instance().log_error("[Disco]MediaDecoder::unpack_frame_loop avcodec_receive_frame return error code = AVERROR_EOF\n");
+                Log::get_instance().log_error("[Disco]MediaDecoder::unpack_frame_loop avcodec_receive_frame return error code = AVERROR_EOF type = %s\n", type_str.c_str());
             }
             else if (AVERROR(EINVAL) == receive_frame_ret)
             {
                 is_continue = false;
-                Log::get_instance().log_error("[Disco]MediaDecoder::unpack_frame_loop avcodec_receive_frame return error code = AVERROR(EINVAL)\n");
+                Log::get_instance().log_error("[Disco]MediaDecoder::unpack_frame_loop avcodec_receive_frame return error code = AVERROR(EINVAL) type = %s\n", type_str.c_str());
             }
             else
             {
                 is_continue = false;
-                Log::get_instance().log_error("[Disco]MediaDecoder::unpack_frame_loop avcodec_receive_frame return other error code = %d\n", receive_frame_ret);
+                Log::get_instance().log_error("[Disco]MediaDecoder::unpack_frame_loop avcodec_receive_frame return other error code = %d, type = %s\n", type_str.c_str());
             }
         }
         else if (AVERROR(EAGAIN) == send_packet_ret)
         {
             is_continue = false;
-            Log::get_instance().log_debug("[Disco]MediaDecoder::unpack_frame_loop avcodec_send_packet return error code = AVERROR(EAGAIN)\n");
+            Log::get_instance().log_debug("[Disco]MediaDecoder::unpack_frame_loop avcodec_send_packet return error code = AVERROR(EAGAIN) type = %s\n", type_str.c_str());
         }
         else if (AVERROR_EOF == send_packet_ret)
         {
             is_continue = false;
-            Log::get_instance().log_debug("[Disco]MediaDecoder::unpack_frame_loop avcodec_send_packet return error code = AVERROR_EOF\n");
+            Log::get_instance().log_debug("[Disco]MediaDecoder::unpack_frame_loop avcodec_send_packet return error code = AVERROR_EOF type = %s\n", type_str.c_str());
         }
         else if (AVERROR(EINVAL) == send_packet_ret)
         {
             is_continue = false;
-            Log::get_instance().log_debug("[Disco]MediaDecoder::unpack_frame_loop avcodec_send_packet return error code = AVERROR(EINVAL)\n");
+            Log::get_instance().log_debug("[Disco]MediaDecoder::unpack_frame_loop avcodec_send_packet return error code = AVERROR(EINVAL) type = %s\n", type_str.c_str());
         }
         else if (AVERROR(ENOMEM) == send_packet_ret)
         {
             is_continue = false;
-            Log::get_instance().log_debug("[Disco]MediaDecoder::unpack_frame_loop avcodec_send_packet return error code = AVERROR(ENOMEM)\n");
+            Log::get_instance().log_debug("[Disco]MediaDecoder::unpack_frame_loop avcodec_send_packet return error code = AVERROR(ENOMEM) type = %s\n", type_str.c_str());
         }
         else
         {
             is_continue = false;
-            Log::get_instance().log_debug("[Disco]MediaDecoder::unpack_frame_loop avcodec_send_packet return other error code = %d\n", send_packet_ret);
+            Log::get_instance().log_debug("[Disco]MediaDecoder::unpack_frame_loop avcodec_send_packet return other error code = %d type = %s\n", send_packet_ret, type_str.c_str());
         }
 
         recycle_packet_wrapper(packet_wrapper);
     }
 
-    Log::get_instance().log_debug("[Disco]MediaDecoder::unpack_audio_frame_loop unpack_frame_loop thread over\n");
+    Log::get_instance().log_debug("[Disco]MediaDecoder::unpack_audio_frame_loop unpack_frame_loop thread over type = %s\n", type_str.c_str());
 }
 
 void MediaDecoder::unpack_audio_frame_loop()
 {
     ThreadUtils::set_thread_name("Disco Unpack Audio Frame");
     unpack_frame_loop(&mAudioWrapperPacketQueue, mpAudioQueue, mpAudioCodecContext,
-                      mpAudioFrameCachePool, mpAudioStream);
+                      mpAudioFrameCachePool, mpAudioStream, AVMEDIA_TYPE_AUDIO);
 }
 
 void MediaDecoder::unpack_video_frame_loop()
 {
     ThreadUtils::set_thread_name("Disco Unpack Video Frame");
     unpack_frame_loop(&mVideoWrapperPacketQueue, mpVideoQueue, mpVideoCodecContext,
-                      mpVideoFrameCachePool, mpVideoStream);
+                      mpVideoFrameCachePool, mpVideoStream, AVMEDIA_TYPE_VIDEO);
 }
 
 bool MediaDecoder::resume()

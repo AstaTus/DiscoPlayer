@@ -40,7 +40,7 @@ public:
 template <typename... Args>
 void Log::log_error(const char *format, Args &&... args)
 {
-    static char result[LOG_CHAR_SIZE];
+    char result[LOG_CHAR_SIZE];
     format_time_log(result, format, LOG_CHAR_SIZE);
     av_log(NULL, AV_LOG_ERROR, result, std::forward<Args>(args)...);
 }
@@ -48,7 +48,7 @@ void Log::log_error(const char *format, Args &&... args)
 template <typename... Args>
 void Log::log_info(const char *format, Args &&... args)
 {
-    static char result[LOG_CHAR_SIZE];
+    char result[LOG_CHAR_SIZE];
     format_time_log(result, format, LOG_CHAR_SIZE);
     av_log(NULL, AV_LOG_INFO, result, std::forward<Args>(args)...);
 }
@@ -56,7 +56,7 @@ void Log::log_info(const char *format, Args &&... args)
 template <typename... Args>
 void Log::log_warning(const char *format, Args &&... args)
 {
-    static char result[LOG_CHAR_SIZE];
+    char result[LOG_CHAR_SIZE];
     format_time_log(result, format, LOG_CHAR_SIZE);
     av_log(NULL, AV_LOG_WARNING, result, std::forward<Args>(args)...);
 }
@@ -64,7 +64,7 @@ void Log::log_warning(const char *format, Args &&... args)
 template <typename... Args>
 void Log::log_debug(const char *format, Args &&... args)
 {
-    static char result[LOG_CHAR_SIZE];
+    char result[LOG_CHAR_SIZE];
     format_time_log(result, format, LOG_CHAR_SIZE);
     av_log(NULL, AV_LOG_DEBUG, result, std::forward<Args>(args)...);
 }

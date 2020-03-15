@@ -89,7 +89,7 @@ void AudioFrameTransformer::audio_frame_transform_loop_task()
     while (!mIsTransformTaskStop)
     {
         FrameWrapper *audio_frame_wrapper = mpFrameReader->pop_frame();
-
+        Log::get_instance().log_debug("[Disco][AudioFrameTransformer] audio_frame_transform_loop_task pop frame wrapper\n");
         //stream is end
         if (audio_frame_wrapper->is_end)
         {
@@ -106,14 +106,15 @@ void AudioFrameTransformer::audio_frame_transform_loop_task()
             audio_frame_wrapper->get_transformed_pts() < mpFrameReader->serial_start_time())
         {
             mpFrameReader->recycle_frame(audio_frame_wrapper);
+            Log::get_instance().log_debug("[Disco][AudioFrameTransformer] audio_frame_transform_loop_task discard a frame wrapper\n");
         } else 
         {
             push_frame_to_transform(audio_frame_wrapper);
-            Log::get_instance().log_debug("[Disco][CorePlayer] audio_frame_transform_loop_task add frame to transform\n");
+            Log::get_instance().log_debug("[Disco][AudioFrameTransformer] audio_frame_transform_loop_task add a frame wrapper to transform\n");
         }
     }
 
-    Log::get_instance().log_debug("[Disco][CorePlayer] audio_frame_transform_loop_task thread over\n");
+    Log::get_instance().log_debug("[Disco][AudioFrameTransformer] audio_frame_transform_loop_task thread over\n");
 }
 
 void AudioFrameTransformer::stop()

@@ -81,7 +81,8 @@ private:
         FrameQueue * frame_queue,
         AVCodecContext * codec_context,
         FrameConcurrentCachePool * frame_cache_pool,
-        AVStream * stream);
+        AVStream * stream,
+        AVMediaType type);
 
     void recycle_packet_wrapper(PacketWrapper * packet_wrapper);
 public:

@@ -38,7 +38,7 @@ VideoFrameTransformer::~VideoFrameTransformer()
 
 void VideoFrameTransformer::push_frame_to_transform(FrameWrapper *frame_wrapper, int width, int height)
 {
-    // Log::get_instance().log_debug("[Dsico][VideoFrameTransformer] add transform frame");
+    Log::get_instance().log_debug("[Dsico][VideoFrameTransformer] add transform frame");
     Image *image = mImageCachePool.get_empty_node();
     mTransformPorcessor.transform_by_libyuv(frame_wrapper->frame, image, width, height);
     VideoTransformNode *node = mTransformNodeCachePool.get_empty_node();
@@ -92,6 +92,7 @@ void VideoFrameTransformer::video_frame_transform_loop_task()
     {
         //video
         FrameWrapper *video_frame_wrapper = mpFrameReader->pop_frame();
+        Log::get_instance().log_debug("[Disco][VideoFrameTransformer] video_frame_transform_loop_task pop frame wrapper\n");
         if (video_frame_wrapper->is_end)
         {
             Image *image = mImageCachePool.get_empty_node();
@@ -107,14 +108,15 @@ void VideoFrameTransformer::video_frame_transform_loop_task()
             video_frame_wrapper->get_transformed_pts() < mpFrameReader->serial_start_time())
         {
             mpFrameReader->recycle_frame(video_frame_wrapper);
+            Log::get_instance().log_debug("[Disco][VideoFrameTransformer] video_frame_transform_loop_task discard a frame wrapper\n");
         } else {
             push_frame_to_transform(video_frame_wrapper, mRenderViewWidth, mRenderViewHeight);
-            Log::get_instance().log_debug("[Disco][CorePlayer] video_frame_transform_loop_task add frame to transform\n");
+            Log::get_instance().log_debug("[Disco][VideoFrameTransformer] video_frame_transform_loop_task add frame wrapper to transform\n");
         }
         
     }
 
-    Log::get_instance().log_debug("[Disco][CorePlayer] video_frame_transform_loop_task thread over\n");
+    Log::get_instance().log_debug("[Disco][VideoFrameTransformer] video_frame_transform_loop_task thread over\n");
 }
 
 void VideoFrameTransformer::start()
