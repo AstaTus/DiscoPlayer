@@ -103,7 +103,7 @@ void AudioFrameTransformer::audio_frame_transform_loop_task()
         }
 
         if (audio_frame_wrapper->serial != mpFrameReader->serial() ||
-            audio_frame_wrapper->frame->pts * 1000 * av_q2d(audio_frame_wrapper->time_base) < mpFrameReader->serial_start_time())
+            audio_frame_wrapper->get_transformed_pts() < mpFrameReader->serial_start_time())
         {
             mpFrameReader->recycle_frame(audio_frame_wrapper);
         } else 

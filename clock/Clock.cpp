@@ -22,16 +22,16 @@ Clock::~Clock()
 {
 }
 
-double Clock::getLastUpdateTime()
+double Clock::get_last_update_time()
 {
     return mLastUpdateTime;
 }
-double Clock::getLastDuration()
+double Clock::get_last_duration()
 {
     return mLastDuration;
 }
 
-double Clock::getLastPts()
+double Clock::get_last_pts()
 {
     return mLastPts;
 }
@@ -71,23 +71,23 @@ void Clock::resume()
     }
 }
 
-int64_t Clock::getTransformedLastPts()
+double Clock::get_transformed_last_pts()
 {
     if (mRational.den == 0 && mRational.num == 0)
     {
         return mSeekPosition;
     } else {
-        return av_q2d(mRational) * getLastPts() * 1000;
+        return av_q2d(mRational) * get_last_pts() * 1000;
     } 
 }
 
-int64_t Clock::getTransformedLastDuration()
+double Clock::get_transformed_last_duration()
 {
     if (mRational.den == 0 && mRational.num == 0)
     {
         return 0;
     } else {
-        return av_q2d(mRational) * getLastDuration() * 1000;
+        return av_q2d(mRational) * get_last_duration() * 1000;
     }
 }
 

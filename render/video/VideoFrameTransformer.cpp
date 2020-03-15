@@ -104,7 +104,7 @@ void VideoFrameTransformer::video_frame_transform_loop_task()
         }
 
         if (video_frame_wrapper->serial != mpFrameReader->serial() ||
-            video_frame_wrapper->frame->pts * 1000 * av_q2d(video_frame_wrapper->time_base) < mpFrameReader->serial_start_time())
+            video_frame_wrapper->get_transformed_pts() < mpFrameReader->serial_start_time())
         {
             mpFrameReader->recycle_frame(video_frame_wrapper);
         } else {

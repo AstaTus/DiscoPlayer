@@ -39,15 +39,15 @@ public:
     ~Clock();
 
     /* 上次更新帧的系统时刻 */ 
-    double getLastUpdateTime();
+    double get_last_update_time();
     /* 上一帧需要展示的时长 */ 
-    double getLastDuration();
+    double get_last_duration();
     /* 上次更新的帧的PTS 即播放时间轴的时刻（非系统时刻） */ 
-    double getLastPts();
+    double get_last_pts();
     /* 转换过后的上次更新的帧的PTS */
-    int64_t getTransformedLastPts();
+    double get_transformed_last_pts();
     /* 转换过后的上次更新的帧的显示时长 */
-    int64_t getTransformedLastDuration();
+    double get_transformed_last_duration();
     /* 更新时钟 */ 
     void update(double time, double pts, AVRational & time_base, int serial);
 

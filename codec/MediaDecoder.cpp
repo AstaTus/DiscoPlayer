@@ -265,7 +265,7 @@ void MediaDecoder::unpack_frame_loop(
             {
                 frame_wrapper->serial = packet_wrapper->serial;
                 if (frame_wrapper->serial != pPacketReader->serial() ||
-                    frame_wrapper->frame->pts * 1000 * av_q2d(stream->time_base) < pPacketReader->serial_start_time())
+                    frame_wrapper->get_transformed_pts() < pPacketReader->serial_start_time())
                 {
                     frame_cache_pool->recycle_node(frame_wrapper);
                 }

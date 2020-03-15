@@ -11,13 +11,13 @@ extern "C"
 
 
 /* no AV sync correction is done if below the minimum AV sync threshold */
-#define AV_SYNC_THRESHOLD_MIN 0.04
+#define AV_SYNC_THRESHOLD_MIN 40.0
 /* AV sync correction is done if above the maximum AV sync threshold */
-#define AV_SYNC_THRESHOLD_MAX 0.1
+#define AV_SYNC_THRESHOLD_MAX 100.0
 /* If a frame duration is longer than this, it will not be duplicated to compensate AV sync */
-#define AV_SYNC_FRAMEDUP_THRESHOLD 0.15
+#define AV_SYNC_FRAMEDUP_THRESHOLD 150.0
 /* no AV correction is done if too big error */
-#define AV_NOSYNC_THRESHOLD 100.0
+#define AV_NOSYNC_THRESHOLD 100000.0
 
 
 
@@ -48,7 +48,7 @@ SyncClockManager::SyncState AudioMasterSyncStrategy::get_current_video_sync_stat
 {
     SyncClockManager::SyncState state;
     //该帧还需继续显示
-    double change_video_time = mVideoClock.getLastUpdateTime() + compute_real_video_last_duration() * 1000 / mSpeed;
+    double change_video_time = mVideoClock.get_last_update_time() + compute_real_video_last_duration() / mSpeed;
     if (current_time < change_video_time)
     {
         *remaining_time = change_video_time - current_time;
@@ -57,7 +57,7 @@ SyncClockManager::SyncState AudioMasterSyncStrategy::get_current_video_sync_stat
         //更新时钟
         mVideoClock.update(current_time, next_pts, time_base, serial);
         Log::get_instance().log_debug("[DISCO]AudioMasterSyncStrategy::get_current_video_sync_state time = %f serial = %d\n", av_q2d(time_base) * next_pts, serial);
-        if (current_time > mVideoClock.getLastUpdateTime())
+        if (current_time > mVideoClock.get_last_update_time())
         {
             *remaining_time = 0;
             state = SyncClockManager::SyncState::SYNC_STATE_DROP;
@@ -75,11 +75,11 @@ SyncClockManager::SyncState AudioMasterSyncStrategy::get_current_video_sync_stat
 double AudioMasterSyncStrategy::compute_real_video_last_duration()
 {
     double sync_threshold, diff = 0;
-    double video_last_duration = mVideoClock.getTransformedLastDuration() / 1000.0;
+    double video_last_duration = mVideoClock.get_transformed_last_duration();
     double video_real_last_duration = video_last_duration;
     sync_threshold = std::max(AV_SYNC_THRESHOLD_MIN, std::min(AV_SYNC_THRESHOLD_MAX, video_last_duration));
     //TODO video 和 audio的timebase 一致吗
-    diff = mVideoClock.getTransformedLastPts() / 1000.0 - mAudioClock.getTransformedLastPts() / 1000.0;
+    diff = mVideoClock.get_transformed_last_pts() - mAudioClock.get_transformed_last_pts();
 
     // if (!isnan(diff) && fabs(diff) < is->max_frame_duration) {
     /* -- by bbcallen: replace is->max_frame_duration with AV_NOSYNC_THRESHOLD */
@@ -109,7 +109,7 @@ void AudioMasterSyncStrategy::pause()
 
 int64_t AudioMasterSyncStrategy::get_current_position()
 {
-    return mAudioClock.getTransformedLastPts();
+    return mAudioClock.get_transformed_last_pts();
 }
 
 void AudioMasterSyncStrategy::seek(uint64_t postion)
@@ -121,20 +121,20 @@ void AudioMasterSyncStrategy::seek(uint64_t postion)
 
 double AudioMasterSyncStrategy::get_video_pts()
 {
-    return mVideoClock.getLastPts();
+    return mVideoClock.get_last_pts();
 }
 
 double AudioMasterSyncStrategy::get_audio_pts()
 {
-    return mAudioClock.getLastPts();
+    return mAudioClock.get_last_pts();
 }
 
 int64_t AudioMasterSyncStrategy::get_video_position()
 {
-    return mVideoClock.getTransformedLastPts();
+    return mVideoClock.get_transformed_last_pts();
 }
 
 int64_t AudioMasterSyncStrategy::get_audio_position()
 {
-    return mAudioClock.getTransformedLastPts();
+    return mAudioClock.get_transformed_last_pts();
 }

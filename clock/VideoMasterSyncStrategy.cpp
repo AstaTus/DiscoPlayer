@@ -21,7 +21,7 @@ SyncClockManager::SyncState VideoMasterSyncStrategy::get_current_video_sync_stat
 {
     SyncClockManager::SyncState state;
     //该帧还需继续显示
-    double change_video_time = mVideoClock.getLastUpdateTime() + av_q2d(time_base) * mVideoClock.getLastDuration() / mSpeed;
+    double change_video_time = mVideoClock.get_last_update_time() + av_q2d(time_base) * mVideoClock.get_last_duration() / mSpeed;
     if (current_time < change_video_time)
     {
         *remaining_time = change_video_time - current_time;
@@ -29,7 +29,7 @@ SyncClockManager::SyncState VideoMasterSyncStrategy::get_current_video_sync_stat
     } else {
         //更新时钟
         mVideoClock.update(current_time, next_pts, time_base, serial);
-        if (current_time > mVideoClock.getLastUpdateTime())
+        if (current_time > mVideoClock.get_last_update_time())
         {
             state = SyncClockManager::SyncState::SYNC_STATE_DROP;
         } else {
@@ -74,21 +74,21 @@ void VideoMasterSyncStrategy::seek(uint64_t postion)
 
 double VideoMasterSyncStrategy::get_video_pts()
 {
-    return mVideoClock.getLastPts();
+    return mVideoClock.get_last_pts();
 }
 
 double VideoMasterSyncStrategy::get_audio_pts()
 {
-    return mAudioClock.getLastPts();
+    return mAudioClock.get_last_pts();
 }
 
 int64_t VideoMasterSyncStrategy::get_video_position()
 {
-    return mVideoClock.getTransformedLastPts();
+    return mVideoClock.get_transformed_last_pts();
 }
 
 int64_t VideoMasterSyncStrategy::get_audio_position()
 {
-    return mAudioClock.getTransformedLastPts();
+    return mAudioClock.get_transformed_last_pts();
 }
 

@@ -29,5 +29,16 @@ struct FrameWrapper
     {
         av_frame_free(&frame);
     }
+
+    /**
+     * 返回毫秒
+    */
+    double get_transformed_pts()
+    {
+        if(frame != nullptr) {
+            return frame->pts * 1000 * av_q2d(time_base);
+        }
+        return 0.0;
+    }
 };
 #endif

@@ -129,7 +129,7 @@ void PlayingState::video_render_loop_task()
 
             //非当前serial的帧 回收
             if (node->frame_wrapper->serial != mpInputStream->get_serial() ||
-                node->frame_wrapper->frame->pts * 1000 * av_q2d(node->frame_wrapper->time_base) < mpInputStream->get_serial_start_time())
+                node->frame_wrapper->get_transformed_pts() < mpInputStream->get_serial_start_time())
             {
                 mpActivateNodeManager->recyle_peek_video_node();
                 break;
