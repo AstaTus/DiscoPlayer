@@ -9,7 +9,7 @@ struct AudioTransformNode;
 class AudioDeviceBufferProcessor;
 class AudioDeviceLastBufferProcessor;
 class AudioDataRequestListener;
-
+//TODO change name to AudioRenderBuffer
 class AudioDeviceBuffer
 {
 private:

@@ -34,9 +34,9 @@ protected:
 private:
     QOpenGLShaderProgram mShaderProgram;
     //shader中yuv变量地址
-    GLuint m_textureUniformY, m_textureUniformU , m_textureUniformV;
+    GLuint m_textureUniformY, m_textureUniformU , m_textureUniformV, m_textureUniformRGBA, m_BoolUniformUseRGBATex;
     //创建纹理
-    GLuint m_idy , m_idu , m_idv;
+    GLuint m_idy , m_idu , m_idv, m_idrgba;
     const Image * mpImage;
     std::mutex mImageMutex;
 

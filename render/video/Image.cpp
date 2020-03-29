@@ -35,22 +35,29 @@ void Image::release_buffer()
     pBuffer = nullptr;
 }
 
+void Image::reformat_RGBA(int width, int height)
+{
+    mWidth = width;
+    mHeight = height;
+    pBuffer = new uint8_t[mWidth * mHeight * 4];
+}
+
 void Image::reformat(AVPixelFormat pix_fmt, int width, int height)
 {
-    if (width != mWidth || height != mHeight || mPixelFormat != pix_fmt)
-    {
-        if (pBuffer != NULL)
-        {
-            release_buffer();
-        }
+    // if (width != mWidth || height != mHeight || mPixelFormat != pix_fmt)
+    // {
+    //     if (pBuffer != NULL)
+    //     {
+    //         release_buffer();
+    //     }
 
-        mWidth = width;
-        mHeight = height;
-        mPixelFormat = pix_fmt;
-        //TODO algin 默认为1
-        int size = av_image_get_buffer_size(pix_fmt, mWidth, mHeight, 1);
-        pBuffer = new uint8_t[size];
-    }
+    //     mWidth = width;
+    //     mHeight = height;
+    //     mPixelFormat = pix_fmt;
+    //     //TODO algin 默认为1
+    //     int size = av_image_get_buffer_size(pix_fmt, mWidth, mHeight, 1);
+    //     pBuffer = new uint8_t[size];
+    // }
 }
 
 void Image::fill_data(AVFrame * frame) {

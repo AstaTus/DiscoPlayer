@@ -2,6 +2,7 @@
 
 #include "../render/video/VideoFrameTransformer.h"
 #include "../render/video/VideoTransformNode.h"
+#include "../render/video/YUV2RGBTransformProcessor.h"
 #include "../codec/FrameWrapper.h"
 #include "../common/log/Log.h"
 extern "C"
@@ -87,6 +88,7 @@ void CorePlayer::init_task()
     pMediaDecoder = new MediaDecoder(pInputStream->get_stream_iterator(),
                                      pInputStream->get_packet_reader());
     mpVideoFrameTransformer = new VideoFrameTransformer(pMediaDecoder->get_video_frame_reader());
+    mpVideoFrameTransformer->push_back_transform_processor(new YUV2RGBTransformProcessor());
     mpAudioFrameTransformer = new AudioFrameTransformer(pMediaDecoder->get_audio_frame_reader());
     mpActivateNodeManager = new ActivateNodeManager(mpVideoFrameTransformer, mpAudioFrameTransformer);
     pRenderView->set_video_frame_transformer(mpVideoFrameTransformer);

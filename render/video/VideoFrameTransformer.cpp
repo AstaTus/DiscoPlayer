@@ -10,6 +10,7 @@ extern "C"
 #include "libavutil/imgutils.h"
 }
 #include "../../common/thread/ThreadUtils.h"
+#include "VideoRenderTransformProcessor.h"
 
 VideoFrameTransformer::VideoFrameTransformer(FrameReader *frame_reader)
     : mpFrameReader(frame_reader),
@@ -36,15 +37,30 @@ VideoFrameTransformer::~VideoFrameTransformer()
     // mpFrameReader = nullptr;
 }
 
-void VideoFrameTransformer::push_frame_to_transform(FrameWrapper *frame_wrapper, int width, int height)
+void VideoFrameTransformer::push_frame_to_transform(FrameWrapper *frame_wrapper)
 {
     Log::get_instance().log_debug("[Dsico][VideoFrameTransformer] add transform frame");
-    Image *image = mImageCachePool.get_empty_node();
-    mTransformPorcessor.transform_by_libyuv(frame_wrapper->frame, image, width, height);
     VideoTransformNode *node = mTransformNodeCachePool.get_empty_node();
-    node->image = image;
+    node->image = mImageCachePool.get_empty_node();
     node->frame_wrapper = frame_wrapper;
-    mTransformNodeQueue.push_node(node);
+
+    for (auto itr = mVideoRenderTransformProcessors.begin(); itr != mVideoRenderTransformProcessors.end(); itr++)
+    {
+        if ((*itr)->is_need_process(node))
+        {
+            node = (*itr)->process(node);
+        }
+
+        if (node == nullptr)
+        {
+            break;
+        }
+    }
+
+    if (node != nullptr)
+    {
+        mTransformNodeQueue.push_node(node);
+    }
 }
 
 VideoTransformNode *VideoFrameTransformer::non_block_pop_transformed_node()
@@ -110,7 +126,7 @@ void VideoFrameTransformer::video_frame_transform_loop_task()
             mpFrameReader->recycle_frame(video_frame_wrapper);
             Log::get_instance().log_debug("[Disco][VideoFrameTransformer] video_frame_transform_loop_task discard a frame wrapper\n");
         } else {
-            push_frame_to_transform(video_frame_wrapper, mRenderViewWidth, mRenderViewHeight);
+            push_frame_to_transform(video_frame_wrapper);
             Log::get_instance().log_debug("[Disco][VideoFrameTransformer] video_frame_transform_loop_task add frame wrapper to transform\n");
         }
         
@@ -167,3 +183,9 @@ void VideoFrameTransformer::clear_buffer()
         node = mTransformNodeQueue.non_block_pop_node();
     }
 }
+
+void VideoFrameTransformer::push_back_transform_processor(VideoRenderTransformProcessor * processor)
+{
+    mVideoRenderTransformProcessors.push_back(processor);
+}
+

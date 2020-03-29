@@ -29,6 +29,8 @@ public:
     Image();
     ~Image();
 
+    void reformat_RGBA(int width, int height);
+
     void reformat(AVPixelFormat pix_fmt, int width, int height);
 
     void fill_data(AVFrame * frame);

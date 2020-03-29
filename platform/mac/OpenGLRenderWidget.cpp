@@ -37,17 +37,24 @@ void OpenGLRenderWidget::initializeGL()
         uniform sampler2D tex_y;\
         uniform sampler2D tex_u;\
         uniform sampler2D tex_v;\
+        uniform sampler2D tex_rgba;\
+        uniform bool use_rgba_tex;\
         void main(void)\
         {\
-            vec3 YUV;\
-            vec3 RGB;\
-            YUV.x = texture2D(tex_y, texture_Out).r;\
-            YUV.y = texture2D(tex_u, texture_Out).r - 0.5;\
-            YUV.z = texture2D(tex_v, texture_Out).r - 0.5;\
-            RGB = mat3(1.0, 1.0, 1.0,\
-                0.0, -0.39465, 2.03211,\
-                1.13983, -0.58060, 0.0) * YUV;\
-            gl_FragColor = vec4(RGB, 1.0);\
+            if(!use_rgba_tex)\
+            {\
+                vec3 YUV;\
+                vec3 RGB;\
+                YUV.x = texture2D(tex_y, texture_Out).r;\
+                YUV.y = texture2D(tex_u, texture_Out).r - 0.5;\
+                YUV.z = texture2D(tex_v, texture_Out).r - 0.5;\
+                RGB = mat3(1.0, 1.0, 1.0,\
+                    0.0, -0.39465, 2.03211,\
+                    1.13983, -0.58060, 0.0) * YUV;\
+                gl_FragColor = vec4(RGB, 1.0);\
+            } else {\
+                gl_FragColor = vec4(texture2D(tex_rgba, texture_Out).rgb, 1.0);\
+            }\
         }";
 
 
@@ -96,10 +103,12 @@ void OpenGLRenderWidget::initializeGL()
     m_textureUniformY = mShaderProgram.uniformLocation("tex_y");
     m_textureUniformU = mShaderProgram.uniformLocation("tex_u");
     m_textureUniformV = mShaderProgram.uniformLocation("tex_v");
+    m_textureUniformRGBA = mShaderProgram.uniformLocation("tex_rgba");
+    m_BoolUniformUseRGBATex = mShaderProgram.uniformLocation("use_rgba_tex");
 
     //创建纹理
-    glGenTextures(1, &m_idy);
     //Y
+    glGenTextures(1, &m_idy);
     glBindTexture(GL_TEXTURE_2D, m_idy);
     //放大过滤，线性插值   GL_NEAREST(效率高，但马赛克严重)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -118,7 +127,13 @@ void OpenGLRenderWidget::initializeGL()
     //放大过滤，线性插值
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
+    
+    //RGBA
+    glGenTextures(1, &m_idrgba);
+    glBindTexture(GL_TEXTURE_2D, m_idrgba);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 }
@@ -134,27 +149,40 @@ void OpenGLRenderWidget::paintGL()
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_idy);
-    //修改纹理内容(复制内存内容)
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, mpImage->get_src_width(), mpImage->get_src_height(), 0, GL_RED, GL_UNSIGNED_BYTE, mpImage->get_src_data(0));
-    //与shader 关联
-    glUniform1i(m_textureUniformY, 0);
+    glUniform1i(m_BoolUniformUseRGBATex, mpImage->data() == nullptr ? 0 : 1);
 
-    glActiveTexture(GL_TEXTURE0 + 1);
-    glBindTexture(GL_TEXTURE_2D, m_idu);
-    //修改纹理内容(复制内存内容)
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, mpImage->get_src_width() / 2, mpImage->get_src_height() / 2, 0, GL_RED, GL_UNSIGNED_BYTE, mpImage->get_src_data(1));
-    //与shader 关联
-    glUniform1i(m_textureUniformU, 1);
+    //YUV格式
+    if (mpImage->data() == nullptr)
+    {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, m_idy);
+        //修改纹理内容(复制内存内容)
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, mpImage->get_src_width(), mpImage->get_src_height(), 0, GL_RED, GL_UNSIGNED_BYTE, mpImage->get_src_data(0));
+        //与shader 关联
+        glUniform1i(m_textureUniformY, 0);
 
-    glActiveTexture(GL_TEXTURE0 + 2);
-    glBindTexture(GL_TEXTURE_2D, m_idv);
-    //修改纹理内容(复制内存内容)
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, mpImage->get_src_width() / 2, mpImage->get_src_height() / 2, 0, GL_RED, GL_UNSIGNED_BYTE, mpImage->get_src_data(2));
-    //与shader 关联
-    glUniform1i(m_textureUniformV, 2);
+        glActiveTexture(GL_TEXTURE0 + 1);
+        glBindTexture(GL_TEXTURE_2D, m_idu);
+        //修改纹理内容(复制内存内容)
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, mpImage->get_src_width() / 2, mpImage->get_src_height() / 2, 0, GL_RED, GL_UNSIGNED_BYTE, mpImage->get_src_data(1));
+        //与shader 关联
+        glUniform1i(m_textureUniformU, 1);
 
+        glActiveTexture(GL_TEXTURE0 + 2);
+        glBindTexture(GL_TEXTURE_2D, m_idv);
+        //修改纹理内容(复制内存内容)
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, mpImage->get_src_width() / 2, mpImage->get_src_height() / 2, 0, GL_RED, GL_UNSIGNED_BYTE, mpImage->get_src_data(2));
+        //与shader 关联
+        glUniform1i(m_textureUniformV, 2);
+    } else {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, m_idrgba);
+        //修改纹理内容(复制内存内容)
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, mpImage->width(), mpImage->height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, mpImage->data());
+        //与shader 关联
+        glUniform1i(m_textureUniformRGBA, 0);
+    }
+    
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     qDebug() << "paintGL";
 }

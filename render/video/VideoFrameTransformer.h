@@ -11,8 +11,10 @@
 
 #include <future>
 #include <atomic>
+#include <list>
 
 class FrameReader;
+class VideoRenderTransformProcessor;
 using TransformNodeCachePool = ConcurrentCachePool<VideoTransformNode>;
 using ImageCachePool = ConcurrentCachePool<Image>;
 using TransformNodeQueue = ConcurrentQueue<VideoTransformNode>;
@@ -37,8 +39,10 @@ private:
     int mRenderViewHeight;
     int mRenderViewWidth;
 
+    std::list<VideoRenderTransformProcessor*> mVideoRenderTransformProcessors;
+    
     void video_frame_transform_loop_task();
-    void push_frame_to_transform(FrameWrapper *frame, int width, int height);
+    void push_frame_to_transform(FrameWrapper *frame);
 
     void clear_frame_buffer();
 
@@ -47,6 +51,7 @@ public:
     VideoFrameTransformer(FrameReader *frame_reader);
     ~VideoFrameTransformer();
 
+    void push_back_transform_processor(VideoRenderTransformProcessor * processor);
     
     VideoTransformNode *non_block_pop_transformed_node();
     VideoTransformNode *non_block_peek_transformed_node();
