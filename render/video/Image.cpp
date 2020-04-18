@@ -37,9 +37,12 @@ void Image::release_buffer()
 
 void Image::reformat_RGBA(int width, int height)
 {
-    mWidth = width;
-    mHeight = height;
-    pBuffer = new uint8_t[mWidth * mHeight * 4];
+    if (mWidth != width || mHeight != height || pBuffer == nullptr)
+    {
+        mWidth = width;
+        mHeight = height;
+        pBuffer = new uint8_t[mWidth * mHeight * 4];
+    }
 }
 
 void Image::reformat(AVPixelFormat pix_fmt, int width, int height)

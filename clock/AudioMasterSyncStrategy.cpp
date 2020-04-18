@@ -62,6 +62,7 @@ SyncClockManager::SyncState AudioMasterSyncStrategy::get_current_video_sync_stat
             *remaining_time = 0;
             state = SyncClockManager::SyncState::SYNC_STATE_DROP;
         } else {
+            *remaining_time = 0;
             state = SyncClockManager::SyncState::SYNC_STATE_NEXT;
         }
     }
