@@ -21,4 +21,5 @@ DiscoPlayer is video player via C++ 11。
 - libYUV: LIBYUV_VERSION 1727
 - sound-touch:2.1.2
 
+#### Sample Picture
 ![image](https://github.com/AstaTus/DiscoPlayer/blob/master/WeChat8c44bdebedbf1f9ea7a2a54f0b0cc78c.png)
